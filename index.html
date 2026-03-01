@@ -30,23 +30,24 @@
             color: var(--text);
             margin: 0;
             padding: 0 15px;
-            /* Utilisation de 100dvh pour s'adapter dynamiquement aux barres de navigation mobiles */
+            /* Utilisation de 100dvh pour s'adapter dynamiquement */
             height: 100dvh;
             display: flex;
             flex-direction: column;
             overflow: hidden; 
         }
 
+        /* HEADER COMPACTÉ ET REMONTÉ */
         header {
             text-align: center;
-            padding-top: calc(env(safe-area-inset-top) + 20px);
-            padding-bottom: 10px;
+            padding-top: calc(env(safe-area-inset-top) + 15px); /* Moins de padding */
+            padding-bottom: 5px;
             flex-shrink: 0;
         }
 
         h1 {
-            font-size: 2.2rem;
-            letter-spacing: 5px;
+            font-size: 2rem; /* Titre plus petit */
+            letter-spacing: 4px;
             margin: 0;
             background: linear-gradient(to bottom, #fff 30%, #444 100%);
             -webkit-background-clip: text;
@@ -57,38 +58,40 @@
 
         .subtitle {
             color: var(--accent);
-            font-size: 0.65rem;
-            letter-spacing: 6px;
+            font-size: 0.6rem;
+            letter-spacing: 5px;
             text-transform: uppercase;
             font-weight: bold;
-            margin-top: 5px;
+            margin-top: 2px;
             opacity: 0.8;
         }
 
-        /* Conteneur scrollable si l'écran est trop petit, mais reste centré */
+        /* Conteneur principal qui remonte le contenu */
         .main-content {
             flex: 1;
             display: flex;
-            align-items: center;
+            align-items: flex-start; /* Aligne en haut au lieu de centrer */
             justify-content: center;
             width: 100%;
-            overflow-y: auto;
+            padding-top: 10px; /* Petit espace sous le header */
+            overflow-y: auto; /* Scroll interne si vraiment trop petit */
         }
 
         .menu-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
+            gap: 10px; /* Gap réduit */
             width: 100%;
             max-width: 500px;
-            padding: 10px 0;
+            padding-bottom: 15px; /* Espace de sécurité avant le footer */
         }
 
+        /* BOUTONS PLUS COMPACTS */
         .menu-item {
             background: linear-gradient(145deg, #1a1a1a, #0a0a0a);
             border: 1px solid #222;
-            border-radius: 20px;
-            padding: 15px;
+            border-radius: 18px; /* Arrondis légèrement réduits */
+            padding: 12px; /* Padding réduit */
             text-decoration: none;
             color: white;
             display: flex;
@@ -99,6 +102,7 @@
             transition: all 0.2s ease;
             position: relative;
             overflow: hidden;
+            min-height: 100px; /* Hauteur minimale pour garder de la consistance */
         }
 
         .menu-item:active { transform: scale(0.96); background: #151515; }
@@ -108,52 +112,56 @@
         .ia { border-top: 1px solid var(--ia); }
         .fun { border-top: 1px solid var(--fun); }
 
-        .icon { font-size: 1.8rem; margin-bottom: 8px; }
-        .title { font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
-        .desc { font-size: 0.65rem; color: #888; line-height: 1.2; }
+        .icon { font-size: 1.6rem; margin-bottom: 6px; } /* Icones plus petites */
+        .title { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px; }
+        .desc { font-size: 0.6rem; color: #888; line-height: 1.2; } /* Texte plus petit */
 
         .full {
             grid-column: span 2;
             flex-direction: row;
             justify-content: flex-start;
-            padding: 20px 25px;
-            gap: 20px;
+            padding: 15px 20px;
+            gap: 15px;
             text-align: left;
+            min-height: 70px; /* Moins haut pour le bandeau large */
         }
+        
+        .full .icon { font-size: 1.8rem; margin-bottom: 0; }
 
-        /* FOOTER FIXE EN BAS */
+        /* FOOTER COMPACT ET FIXE */
         footer {
             flex-shrink: 0;
             width: 100%;
-            height: 90px;
+            height: 70px; /* Hauteur réduite */
             display: flex;
             align-items: center;
             justify-content: center;
             padding-bottom: env(safe-area-inset-bottom);
             background: var(--bg);
+            border-top: 1px solid #161b22;
         }
 
         .info-link { 
             color: #888; 
             text-decoration: none; 
-            font-size: 0.75rem; 
+            font-size: 0.7rem; /* Texte plus petit */
             text-transform: uppercase; 
             letter-spacing: 2px; 
-            padding: 10px 25px; 
+            padding: 8px 20px; 
             border: 1px solid #333; 
-            border-radius: 25px;
-            background: rgba(255,255,255,0.03);
+            border-radius: 20px;
+            background: rgba(255,255,255,0.02);
         }
 
         .badge-online {
             position: absolute;
-            top: 10px;
-            right: 12px;
+            top: 8px;
+            right: 10px;
             background: #FF0000;
             color: #FFF;
-            font-size: 0.55rem;
+            font-size: 0.5rem;
             font-weight: 900;
-            padding: 2px 7px;
+            padding: 1px 6px;
             border-radius: 50px;
             animation: pulse 2s infinite;
         }
@@ -186,25 +194,25 @@
             <a href="darts-local.html" class="menu-item online">
                 <div class="icon">🎯</div>
                 <div class="title">Darts Local</div>
-                <div class="desc">En solo ou<br>entre amis.</div>
+                <div class="desc">En solo ou entre amis.</div>
             </a>
 
             <a href="darts-ia.html" class="menu-item ia">
                 <div class="icon">🤖</div>
                 <div class="title">VS IA</div>
-                <div class="desc">Défiez<br>l'algorithme.</div>
+                <div class="desc">Défiez l'algorithme.</div>
             </a>
 
             <a href="darts-bobs.html" class="menu-item fun">
                 <div class="icon">🎡</div>
                 <div class="title">Bob's 27</div>
-                <div class="desc">Maîtrise des<br>doubles.</div>
+                <div class="desc">Maîtrise des doubles.</div>
             </a>
 
             <a href="darts-180.html" class="menu-item fun">
                 <div class="icon">🔥</div>
                 <div class="title">Darts 180</div>
-                <div class="desc">Quête de la<br>perfection.</div>
+                <div class="desc">Quête de la perfection.</div>
             </a>
         </div>
     </main>
