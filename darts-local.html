@@ -21,24 +21,34 @@
             overflow: hidden; 
         }
 
-        #setup-screen { max-width: 400px; margin: auto; width: 100%; padding: 20px; text-align: center; }
+        /* SETUP SCREEN REMONTÉ */
+        #setup-screen { 
+            max-width: 400px; 
+            margin: 0 auto; /* Centré horizontalement, pas verticalement */
+            width: 100%; 
+            padding: 40px 20px; /* Plus d'espace en haut pour forcer la remontée */
+            text-align: center; 
+        }
+
         .player-input-group { background: var(--card); padding: 8px; border-radius: 12px; border: 1px solid #30363d; display: flex; gap: 8px; margin-bottom: 20px; }
         input { flex: 1; background: transparent; border: none; color: white; padding: 10px; font-size: 1rem; outline: none; }
         .btn-add { background: var(--s-color); color: #fff; border: none; width: 40px; border-radius: 8px; font-weight: 900; }
         .player-tag { background: var(--card); padding: 12px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; border-left: 4px solid var(--accent); font-weight: bold; }
         .btn-start { background: var(--accent); color: #fff; padding: 15px; border-radius: 12px; font-weight: bold; border: none; width: 100%; margin-top: 15px; }
 
+        /* FOOTER FIXE (ALIGNÉ LIVE) */
         footer {
             position: fixed; bottom: 0; left: 0; width: 100%;
-            background: var(--bg); padding: 12px 0;
-            padding-bottom: calc(env(safe-area-inset-bottom) + 12px);
+            background: var(--bg); padding: 15px 0;
+            padding-bottom: calc(env(safe-area-inset-bottom) + 15px);
             text-align: center; z-index: 100; border-top: 1px solid #161b22;
         }
-        .back-btn { color: #888; text-decoration: none; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; padding: 5px 15px; border: 1px solid #333; border-radius: 20px; }
+        .back-btn { color: #888; text-decoration: none; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; padding: 6px 18px; border: 1px solid #333; border-radius: 20px; }
 
+        /* GAME SCREEN */
         #game-screen { 
             display: none; height: 100dvh; flex-direction: column; padding: 10px; 
-            padding-bottom: 80px; 
+            padding-bottom: 90px; /* Espace pour le footer */
             gap: 5px; 
         }
         
@@ -65,7 +75,7 @@
         .special-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; height: 12%; }
         .action-row { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 4px; height: 15%; }
 
-        button { border: none; border-radius: 6px; font-weight: 700; color: #fff; }
+        button { border: none; border-radius: 6px; font-weight: 700; color: #fff; cursor: pointer; }
         .btn-mod { background: #21262d; font-size: 1.1rem; border: 1px solid #30363d; }
         #modS.selected { background: var(--s-color); }
         #modD.selected { background: var(--d-color); }
@@ -85,8 +95,8 @@
 <body>
 
     <div id="setup-screen">
-        <div style="font-size: 3rem; margin-bottom: 10px;">🎯</div>
-        <h1 style="color: var(--accent); margin-bottom: 20px; font-size: 1.5rem;">DARTS LOCAL</h1>
+        <div style="font-size: 3.5rem; margin-bottom: 5px;">🎯</div>
+        <h1 style="color: var(--accent); margin-bottom: 25px; font-size: 1.8rem; letter-spacing: 2px;">DARTS LOCAL</h1>
         <div class="player-input-group">
             <input type="text" id="pName" placeholder="NOM DU JOUEUR..." autocomplete="off">
             <button class="btn-add" onclick="addPlayerToGame()">OK</button>
@@ -128,7 +138,7 @@
         <h1 id="winner-name" style="color:var(--s-color); font-size: 2rem; margin-bottom: 0;">GAGNANT !</h1>
         <div id="stats-container" style="width: 100%;"></div>
         <button class="btn-start" onclick="location.reload()" style="max-width:200px">REJOUER</button>
-        <a href="index.html" style="margin-top:20px; color:#888; text-decoration:none; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">RETOUR MENU</a>
+        <a href="index.html" style="margin-top:25px; color:#888; text-decoration:none; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; border: 1px solid #333; padding: 8px 20px; border-radius: 20px;">MENU PRINCIPAL</a>
     </div>
 
     <script>
@@ -188,14 +198,12 @@
                 visualDarts.push(label); 
                 slot.innerText = label;
                 slot.style.color = (m === 3 ? "var(--t-color)" : m === 2 ? "var(--d-color)" : "var(--s-color)");
-                
-                // DECOMPTE EN TEMPS REEL : On met à jour l'UI après chaque fléchette
                 syncUI();
 
                 if(p.score === 0) { 
                     p.totalDarts += (dartsInTurn.length + 1);
-                    p.totalPoints += 501; // Le joueur a fini
-                    dartsInTurn.push(pts); // On ajoute quand même pour le finishTurn
+                    p.totalPoints += 501;
+                    dartsInTurn.push(pts);
                     setTimeout(() => finishTurn(true), 300); 
                     return; 
                 }
@@ -232,7 +240,7 @@
             document.getElementById(`d${dartsInTurn.length}`).innerText = "-";
             document.getElementById(`d${dartsInTurn.length}`).style.color = "#484f58";
             setMod(1);
-            syncUI(); // Mise à jour après annulation
+            syncUI();
         }
 
         function undoLastTurn() {
@@ -272,9 +280,7 @@
         function showVictory(name) {
             document.getElementById('game-screen').style.display = 'none';
             document.getElementById('main-footer').style.display = 'none';
-            
             let html = `<table class="stats-table"><tr><th>JOUEUR</th><th>FLE.</th><th>MOY.</th></tr>`;
-            
             players.forEach(p => {
                 let avg = p.totalDarts > 0 ? ((p.totalPoints / p.totalDarts) * 3).toFixed(1) : "0.0";
                 html += `<tr style="${p.name === name ? 'color:var(--s-color); font-weight:bold;' : ''}">
@@ -283,7 +289,6 @@
                     <td>${avg}</td>
                 </tr>`;
             });
-            
             document.getElementById('stats-container').innerHTML = html + `</table>`;
             document.getElementById('winner-name').innerText = name + " GAGNE !";
             document.getElementById('victory-layer').style.display = 'flex';
