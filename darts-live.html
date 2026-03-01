@@ -23,15 +23,14 @@
             display: flex; flex-direction: column;
         }
 
+        /* LOBBY */
         #lobby { max-width: 400px; margin: auto; width: 100%; padding: 20px; text-align: center; }
         .input-group { margin-bottom: 15px; text-align: left; }
         label { font-size: 0.7rem; color: var(--accent); letter-spacing: 2px; font-weight: bold; margin-left: 5px; text-transform: uppercase; }
-        
         input { 
             width: 100%; background: var(--card); border: 1px solid #30363d; color: white; 
             padding: 15px; border-radius: 12px; font-size: 1rem; outline: none; margin-top: 5px;
         }
-
         .room-list { 
             background: #010409; border: 1px solid #30363d; border-radius: 15px; 
             margin: 20px 0; max-height: 180px; overflow-y: auto; padding: 10px;
@@ -40,14 +39,18 @@
             background: var(--card); padding: 12px; border-radius: 10px; margin-bottom: 8px; 
             display: flex; justify-content: space-between; border-left: 4px solid var(--accent); cursor: pointer;
         }
-
         .btn-join { 
             background: var(--accent); color: #fff; 
             padding: 18px; border-radius: 15px; font-weight: 800; border: none; width: 100%; 
             letter-spacing: 1px; text-transform: uppercase;
         }
 
-        #game-screen { display: none; height: 100dvh; flex-direction: column; padding: 10px; padding-bottom: 80px; gap: 5px; }
+        /* GAME SCREEN - CALAGE IDENTIQUE LOCAL */
+        #game-screen { 
+            display: none; height: 100dvh; flex-direction: column; padding: 10px; 
+            padding-bottom: 80px; /* Espace pour le footer fixe */
+            gap: 5px; 
+        }
         
         .header { height: 18dvh; display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 10px; }
         .p-card { background: var(--card); border-radius: 12px; border: 1px solid #30363d; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.3; transition: 0.3s; padding: 5px; }
@@ -58,14 +61,13 @@
         .avg-info { font-size: 0.8rem; color: var(--accent); font-weight: bold; font-family: 'Courier New', monospace; }
 
         .ia-last-volley { height: 3dvh; text-align: center; font-size: 0.75rem; color: var(--d-color); font-weight: bold; }
-        
         .turn-tracking { display: flex; justify-content: center; gap: 8px; height: 7dvh; }
         .dart-slot { width: 30%; background: #010409; border: 1px solid #30363d; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #484f58; font-size: 1.1rem; }
 
+        /* GRILLE CLAVIER */
         .grid { flex: 1; display: flex; flex-direction: column; gap: 4px; }
         .mod-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; height: 12%; }
         .num-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; flex: 1; }
-        
         .grid.mode-s .num-btn { border-bottom: 3px solid var(--s-color); }
         .grid.mode-d .num-btn { border-bottom: 3px solid var(--d-color); }
         .grid.mode-t .num-btn { border-bottom: 3px solid var(--t-color); }
@@ -73,7 +75,7 @@
         .special-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; height: 12%; }
         .action-row { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 4px; height: 15%; }
 
-        button { border: none; border-radius: 8px; font-weight: 700; color: #fff; cursor: pointer; }
+        button { border: none; border-radius: 6px; font-weight: 700; color: #fff; cursor: pointer; }
         button:disabled { opacity: 0.1 !important; filter: grayscale(1); }
 
         .btn-mod { background: #21262d; font-size: 1.1rem; border: 1px solid #30363d; }
@@ -82,10 +84,20 @@
         #modT.selected { background: var(--t-color); }
         
         .num-btn { background: #21262d; font-size: 1.2rem; }
-        .btn-valid { background: var(--accent) !important; color: #fff !important; font-size: 0.9rem; }
+        .btn-valid { background: var(--accent) !important; font-size: 0.9rem; }
         .btn-del { background: #21262d; color: #8b949e; font-size: 1.6rem; }
         .btn-undo-all { background: #161b22; color: #f85149; font-size: 0.6rem; text-transform: uppercase; }
 
+        /* FOOTER FIXE IDENTIQUE LOCAL */
+        footer {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: var(--bg); padding: 12px 0;
+            padding-bottom: calc(env(safe-area-inset-bottom) + 12px);
+            text-align: center; z-index: 100; border-top: 1px solid #161b22;
+        }
+        .back-btn { color: #888; text-decoration: none; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; padding: 5px 15px; border: 1px solid #333; border-radius: 20px; }
+
+        /* VICTOIRE */
         #victory-layer { 
             display:none; position:fixed; inset:0; background: rgba(13,17,23,0.98); 
             z-index:9999; flex-direction:column; justify-content:center; align-items:center; padding: 20px;
@@ -95,9 +107,6 @@
         .stats-table td { padding: 12px; border-bottom: 1px solid #21262d; text-align: center; }
         .winner-row { background: rgba(35, 134, 54, 0.15); color: var(--s-color); font-weight: bold; }
         .btn-finish { background: var(--t-color); color: #fff; padding: 18px; border-radius: 12px; width: 100%; max-width: 250px; font-weight: bold; border: none; letter-spacing: 1px; }
-
-        footer { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--bg); padding: 12px 0; border-top: 1px solid #161b22; text-align: center; z-index: 100; padding-bottom: env(safe-area-inset-bottom); }
-        .back-btn { color: #888; text-decoration: none; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; padding: 5px 15px; border: 1px solid #333; border-radius: 20px; }
     </style>
 </head>
 <body>
@@ -129,6 +138,7 @@
             <div class="dart-slot" id="d1">-</div>
             <div class="dart-slot" id="d2">-</div>
         </div>
+
         <div class="grid mode-s" id="gameGrid">
             <div class="mod-row">
                 <button class="btn-mod selected" id="modS" onclick="setMod(1)">S</button>
@@ -250,16 +260,14 @@
             if (p.score - pts < 0 || p.score - pts === 1 || (p.score - pts === 0 && m !== 2 && val !== 50)) {
                 isBust = true; 
                 visualDarts.push("BUST");
-                slot.innerText = "BUST"; 
-                slot.style.color = "var(--t-color)";
+                slot.innerText = "BUST"; slot.style.color = "var(--t-color)";
             } else {
                 p.score -= pts;
                 let label = (val === 50) ? "BULL" : (val === 0) ? "0" : (m === 3 ? "T" : m === 2 ? "D" : "") + val;
-                visualDarts.push(label); 
-                slot.innerText = label;
+                visualDarts.push(label); slot.innerText = label;
                 slot.style.color = (m === 3 ? "var(--t-color)" : m === 2 ? "var(--d-color)" : "var(--s-color)");
                 
-                // DECOMPTE EN TEMPS REEL : On met à jour Firebase immédiatement
+                // Décompte temps réel Firebase
                 db.ref('rooms/' + roomName + '/players/' + myIndex + '/score').set(p.score);
 
                 if(p.score === 0) { 
