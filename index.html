@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Darts Club</title>    
+    <link rel="icon" type="image/png" sizes="192x192" href="icon.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon.png">
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="manifest" href="manifest.json">    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="DartsClub">
+    <script src="protection.js"></script>    
+    <style>
+        :root {
+            --bg: #000000;
+            --card: #121212;
+            --text: #ffffff;
+            --accent: #00ff88;
+            --live: #ffa500;
+            --ia: #ff4444;
+            --fun: #bc13fe;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100dvh;
+            overflow: hidden; /* Empêche le scroll inutile sur l'accueil */
+        }
+
+        header {
+            text-align: center;
+            padding-top: calc(env(safe-area-inset-top) + 25px);
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            letter-spacing: 5px;
+            margin: 0;
+            background: linear-gradient(to bottom, #fff 30%, #444 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            color: var(--accent);
+            font-size: 0.7rem;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            font-weight: bold;
+            margin-top: 5px;
+            opacity: 0.8;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .menu-item {
+            background: linear-gradient(145deg, #1a1a1a, #0a0a0a);
+            border: 1px solid #222;
+            border-radius: 20px;
+            padding: 15px;
+            text-decoration: none;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-item:active {
+            transform: scale(0.95);
+            background: #151515;
+        }
+
+        .live { border-top: 1px solid var(--live); }
+        .online { border-top: 1px solid var(--accent); }
+        .ia { border-top: 1px solid var(--ia); }
+        .fun { border-top: 1px solid var(--fun); }
+
+        .icon { font-size: 1.8rem; margin-bottom: 8px; }
+        .title { font-size: 0.9rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+        .desc { font-size: 0.65rem; color: #888; line-height: 1.2; max-width: 130px; }
+
+        .full {
+            grid-column: span 2;
+            flex-direction: row;
+            justify-content: flex-start;
+            padding: 20px 25px;
+            gap: 20px;
+            text-align: left;
+        }
+        .full .desc { max-width: none; }
+
+        /* FOOTER HARMONISÉ */
+        footer {
+            margin-top: auto;
+            width: 100%;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-top: 1px solid #161b22;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        /* Style identique au bouton "Menu Principal" des autres pages */
+        .info-link { 
+            color: #888; 
+            text-decoration: none; 
+            font-size: 0.8rem; 
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
+            padding: 8px 25px; 
+            border: 1px solid #333; 
+            border-radius: 20px;
+            transition: 0.2s;
+        }
+        .info-link:active {
+            background: #161b22;
+            border-color: #555;
+        }
+
+        .badge-online {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            background: #FF0000;
+            color: #FFF;
+            font-size: 0.55rem;
+            font-weight: 900;
+            padding: 2px 7px;
+            border-radius: 50px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>DARTS CLUB</h1>
+        <div class="subtitle">Elite Scoring System</div>
+    </header>
+
+    <div class="menu-grid">
+        <a href="darts-live.html" class="menu-item live full">
+            <div class="badge-online">ONLINE</div>
+            <div class="icon">📡</div>
+            <div>
+                <div class="title" style="color: var(--live);">Darts LIVE</div>
+                <div class="desc">Compétition en temps réel via stands privés.</div>
+            </div>
+        </a>
+
+        <a href="darts-local.html" class="menu-item online">
+            <div class="icon">🎯</div>
+            <div class="title">Darts Local</div>
+            <div class="desc">En solo ou<br>entre amis.</div>
+        </a>
+
+        <a href="darts-ia.html" class="menu-item ia">
+            <div class="icon">🤖</div>
+            <div class="title">VS IA</div>
+            <div class="desc">Défiez<br>l'algorithme.</div>
+        </a>
+
+        <a href="darts-bobs.html" class="menu-item fun">
+            <div class="icon">🎡</div>
+            <div class="title">Bob's 27</div>
+            <div class="desc">Maîtrise des<br>doubles.</div>
+        </a>
+
+        <a href="darts-180.html" class="menu-item fun">
+            <div class="icon">🔥</div>
+            <div class="title">Darts 180</div>
+            <div class="desc">Quête de la<br>perfection.</div>
+        </a>
+    </div>
+
+    <footer>
+        <a href="infos.html" class="info-link">ℹ️ En savoir plus</a>
+    </footer>
+
+</body>
+</html>

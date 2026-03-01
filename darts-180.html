@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Darts Club - 180 Challenge</title>
+    <style>
+        :root { 
+            --bg: #0b0e14; --card: #161b22; --text: #f0f6fc;
+            --s-color: #238636; --d-color: #d29922; --t-color: #da3633;
+            --accent: #58a6ff;
+        }
+        * { box-sizing: border-box; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            font-family: -apple-system, system-ui, sans-serif; 
+            background: var(--bg); color: var(--text); 
+            margin: 0; padding: 0; 
+            height: 100dvh;
+            display: flex; flex-direction: column;
+            overflow: hidden; 
+        }
+
+        /* BANDEAU LOGO */
+        .app-brand { 
+            height: 35px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px; 
+            flex-shrink: 0;
+        }
+        .app-title { 
+            font-size: 0.75rem; 
+            font-weight: 900; 
+            letter-spacing: 2px; 
+            color: var(--d-color); 
+            text-transform: uppercase; 
+        }
+
+        /* FOOTER FIXE */
+        footer {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: var(--bg); padding: 10px 0;
+            padding-bottom: calc(env(safe-area-inset-bottom) + 10px);
+            text-align: center; z-index: 100; border-top: 1px solid #161b22;
+        }
+        .back-btn { color: #888; text-decoration: none; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; padding: 5px 15px; border: 1px solid #333; border-radius: 20px; }
+
+        /* GAME SCREEN - Les 60px de confort sont ici (100px total pour inclure le footer) */
+        #game-screen { 
+            display: flex; height: 100dvh; flex-direction: column; padding: 10px; 
+            padding-bottom: 105px; 
+            gap: 4px; 
+        }
+        
+        /* HEADER RÉDUIT */
+        .header { height: 10dvh; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex-shrink: 0; }
+        .p-card { background: var(--card); border-radius: 10px; border: 1px solid var(--accent); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .p-name { font-size: 0.6rem; color: #8b949e; text-transform: uppercase; }
+        .score-val { font-size: 2rem; font-weight: 900; color: #fff; line-height: 1; }
+
+        .ia-last-volley { height: 18px; text-align: center; font-size: 0.65rem; color: var(--d-color); font-weight: bold; flex-shrink: 0; }
+        .turn-tracking { display: flex; justify-content: center; gap: 6px; height: 35px; flex-shrink: 0; }
+        .dart-slot { width: 30%; background: #010409; border: 1px solid #30363d; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; color: #484f58; }
+
+        /* GRILLE : LE CLAVIER PEUT RÉTRÉCIR ICI */
+        .grid { flex: 1; display: flex; flex-direction: column; gap: 3px; min-height: 0; }
+        
+        .mod-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; flex: 0 0 40px; }
+        
+        /* Clavier numérique flexible */
+        .num-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; flex: 1; min-height: 50px; } 
+        
+        .special-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; flex: 0 0 40px; }
+        
+        /* Bouton Valider verrouillé à 60px */
+        .action-row { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 3px; flex: 0 0 60px; }
+
+        /* STYLE BOUTONS */
+        button { border: none; border-radius: 6px; font-weight: 700; color: #fff; cursor: pointer; }
+        .btn-mod { background: #21262d; font-size: 1rem; border: 1px solid #30363d; }
+        #modS.selected { background: var(--s-color); }
+        #modD.selected { background: var(--d-color); }
+        #modT.selected { background: var(--t-color); }
+
+        .num-btn { background: #21262d; font-size: 1.1rem; border-bottom: 2px solid transparent; }
+        .grid.mode-s .num-btn { border-bottom-color: var(--s-color); }
+        .grid.mode-d .num-btn { border-bottom-color: var(--d-color); }
+        .grid.mode-t .num-btn { border-bottom-color: var(--t-color); }
+
+        .btn-valid { background: var(--accent) !important; font-size: 0.9rem; }
+        .btn-del { background: #21262d; color: #8b949e; font-size: 1.4rem; }
+        .btn-undo-all { background: #161b22; color: #f85149; font-size: 0.5rem; text-transform: uppercase; }
+
+        .overlay { display:none; position:fixed; inset:0; background: rgba(13,17,23,0.98); z-index:999; flex-direction:column; justify-content:center; align-items:center; padding: 20px; }
+    </style>
+</head>
+<body>
+
+    <div id="game-screen">
+        <div class="app-brand">
+            <span class="app-logo">🔥</span>
+            <span class="app-title">180 Challenge</span>
+        </div>
+
+        <div class="header">
+            <div class="p-card">
+                <div class="p-name">RESTE</div>
+                <div class="score-val" id="scoreDisplay">180</div>
+            </div>
+            <div class="p-card">
+                <div class="p-name">JETS</div>
+                <div class="score-val" id="dartCountDisplay" style="font-size: 1.6rem;">0/9</div>
+            </div>
+        </div>
+
+        <div class="ia-last-volley" id="historyText">OBJECTIF : 180</div>    
+        
+        <div class="turn-tracking">
+            <div class="dart-slot" id="d0">-</div>
+            <div class="dart-slot" id="d1">-</div>
+            <div class="dart-slot" id="d2">-</div>
+        </div>
+
+        <div class="grid mode-s" id="gameGrid">
+            <div class="mod-row">
+                <button class="btn-mod selected" id="modS" onclick="setMod(1)">S</button>
+                <button class="btn-mod" id="modD" onclick="setMod(2)">D</button>
+                <button class="btn-mod" id="modT" onclick="setMod(3)">T</button>
+            </div>
+            <div id="numPad" class="num-grid"></div>
+            <div class="special-row">
+                <button class="num-btn" onclick="addDart(0)">0</button>
+                <button class="num-btn" onclick="addDart(25)">25</button>
+                <button class="num-btn" onclick="addDart(50)">BULL</button>
+            </div>
+            <div class="action-row">
+                <button class="btn-undo-all" onclick=""></button>
+                <button class="btn-valid" onclick="finishTurn()">VALIDER VOLÉE</button>
+                <button class="btn-del" onclick="undoLastDart()">⌫</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <a href="index.html" class="back-btn">⬅ Menu Principal</a>
+    </footer>
+
+    <div id="victory-layer" class="overlay">
+        <h1 id="end-title" style="color:var(--accent); font-size: 2.2rem; margin: 0;">FIN</h1>
+        <div id="final-msg" style="font-size: 1.1rem; text-align: center; margin: 15px 0 25px 0;"></div>
+        <button class="btn-valid" onclick="location.reload()" style="padding: 12px 30px; border-radius: 25px; width: 180px; color:white;">REJOUER</button>
+        <a href="index.html" style="margin-top:20px; color:#888; text-decoration:none; font-size: 0.8rem;">RETOUR MENU</a>
+    </div>
+
+    <script>
+        let score = 180, totalDarts = 0, multiplier = 1, dartsInTurn = [], gameOver = false;
+
+        window.onload = () => {
+            const pad = document.getElementById('numPad'); 
+            pad.innerHTML = "";
+            for(let i=1; i<=20; i++) pad.innerHTML += `<button class="num-btn" onclick="addDart(${i})">${i}</button>`;
+        };
+
+        function setMod(m) {
+            if(gameOver) return;
+            multiplier = m;
+            document.querySelectorAll('.btn-mod').forEach(b => b.classList.remove('selected'));
+            document.getElementById(['modS','modD','modT'][m-1]).classList.add('selected');
+            document.getElementById('gameGrid').className = "grid mode-" + ['s','d','t'][m-1];
+        }
+
+        function addDart(val) {
+            if (gameOver || dartsInTurn.length >= 3 || totalDarts + dartsInTurn.length >= 9) return;
+            let m = (val === 50 || val === 25 || val === 0) ? 1 : multiplier;
+            let pts = (val === 50) ? 50 : val * m;
+            score -= pts;
+            document.getElementById('scoreDisplay').innerText = Math.max(0, score);
+            const slot = document.getElementById(`d${dartsInTurn.length}`);
+            let label = (val === 50) ? "BULL" : (val === 0) ? "0" : (m === 3 ? "T" : m === 2 ? "D" : "") + val;
+            slot.innerText = label;
+            slot.style.color = (m === 3 ? "var(--t-color)" : m === 2 ? "var(--d-color)" : "var(--s-color)");
+            dartsInTurn.push(pts);
+            setMod(1);
+            if (score <= 0 || (totalDarts + dartsInTurn.length) >= 9) {
+                gameOver = true;
+                setTimeout(showEnd, 600);
+            }
+        }
+
+        function finishTurn() {
+            if (gameOver || dartsInTurn.length === 0) return;
+            totalDarts += dartsInTurn.length;
+            document.getElementById('dartCountDisplay').innerText = `${totalDarts}/9`;
+            dartsInTurn = [];
+            for(let i=0; i<3; i++) {
+                document.getElementById(`d${i}`).innerText = "-";
+                document.getElementById(`d${i}`).style.color = "#484f58";
+            }
+            if(totalDarts >= 9) showEnd();
+        }
+
+        function undoLastDart() {
+            if (gameOver || dartsInTurn.length === 0) return;
+            score += dartsInTurn.pop();
+            document.getElementById('scoreDisplay').innerText = score;
+            const slot = document.getElementById(`d${dartsInTurn.length}`);
+            slot.innerText = "-";
+            slot.style.color = "#484f58";
+        }
+
+        function showEnd() {
+            gameOver = true;
+            const win = score <= 0;
+            document.getElementById('end-title').innerText = win ? "RÉUSSI !" : "PERDU !";
+            document.getElementById('end-title').style.color = win ? "var(--s-color)" : "var(--t-color)";
+            document.getElementById('final-msg').innerText = win ? 
+                `180 atteint en ${totalDarts + dartsInTurn.length} fléchettes.` : 
+                `Il restait ${score} points.`;
+            document.getElementById('victory-layer').style.display = 'flex';
+        }
+    </script>
+</body>
+</html>
