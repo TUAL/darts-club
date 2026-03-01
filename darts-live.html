@@ -325,18 +325,32 @@
             resetLocalTurnUI();
         }
 
-        function showVictory(name) {
-            document.getElementById('game-screen').style.display = 'none';
-            document.getElementById('main-footer').style.display = 'none';
-            let html = `<table class="stats-table"><tr><th>JOUEUR</th><th>FLE.</th><th>MOY.</th></tr>`;
-            gameState.players.forEach(p => {
-                const avg = p.totalDarts > 0 ? ((p.totalPoints / (p.totalDarts/3))).toFixed(1) : "0.0";
-                html += `<tr class="${p.name === name ? 'winner-row' : ''}"><td>${p.name}</td><td>${p.totalDarts}</td><td>${avg}</td></tr>`;
-            });
-            document.getElementById('stats-container').innerHTML = html + `</table>`;
-            document.getElementById('winner-name').innerText = name + " GAGNE !";
-            document.getElementById('victory-layer').style.display = 'flex';
-        }
+function showVictory(name) {
+    document.getElementById('game-screen').style.display = 'none';
+    document.getElementById('main-footer').style.display = 'none';
+    
+    let html = `<table class="stats-table"><tr><th>JOUEUR</th><th>FLE.</th><th>MOY.</th></tr>`;
+    
+    gameState.players.forEach(p => {
+        // 1. On calcule les points réellement marqués (Score de départ - Score actuel)
+        // Si ton jeu est un 501, remplace 501 par ta variable de score initial
+        let pointsMarques = 501 - p.score; 
+
+        // 2. Calcul de la moyenne sur 3 fléchettes
+        // Formule : (Points / Fléchettes) * 3
+        const avg = p.totalDarts > 0 ? ((pointsMarques / p.totalDarts) * 3).toFixed(1) : "0.0";
+        
+        html += `<tr class="${p.name === name ? 'winner-row' : ''}">
+                    <td>${p.name}</td>
+                    <td>${p.totalDarts}</td>
+                    <td>${avg}</td>
+                 </tr>`;
+    });
+    
+    document.getElementById('stats-container').innerHTML = html + `</table>`;
+    document.getElementById('winner-name').innerText = name + " GAGNE !";
+    document.getElementById('victory-layer').style.display = 'flex';
+}
 
         function closeRoom() { db.ref('rooms/' + roomName).remove().then(() => location.reload()); }
         
