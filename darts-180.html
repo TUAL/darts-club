@@ -73,10 +73,10 @@
             min-height: 0; 
         }
         
-        /* Mod-Row = 1 ligne */
+        /* Mod-Row = 1 unité de hauteur */
         .mod-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; flex: 1; }
         
-        /* Num-Grid = 5 lignes (20 boutons / 4 colonnes) */
+        /* Num-Grid = 5 unités de hauteur car 5 lignes internes */
         .num-grid { 
             display: grid; 
             grid-template-columns: repeat(4, 1fr); 
@@ -85,10 +85,10 @@
             flex: 5; 
         } 
         
-        /* Special-Row = 1 ligne */
+        /* Special-Row = 1 unité de hauteur */
         .special-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; flex: 1; }
         
-        /* Action-Row = 1 ligne */
+        /* Action-Row = 1 unité de hauteur */
         .action-row { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 4px; flex: 1; }
 
         /* STYLE BOUTONS */
@@ -151,7 +151,7 @@
                 <button class="num-btn" onclick="addDart(50)">BULL</button>
             </div>
             <div class="action-row">
-                <button class="btn-undo-all" onclick=""></button>
+                <button class="btn-undo-all" onclick="location.reload()">RESET</button>
                 <button class="btn-valid" onclick="finishTurn()">VALIDER VOLÉE</button>
                 <button class="btn-del" onclick="undoLastDart()">⌫</button>
             </div>
