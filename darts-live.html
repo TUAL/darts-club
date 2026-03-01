@@ -23,14 +23,22 @@
             display: flex; flex-direction: column;
         }
 
-        /* LOBBY */
-        #lobby { max-width: 400px; margin: auto; width: 100%; padding: 20px; text-align: center; }
+        /* LOBBY REMONTÉ */
+        #lobby { 
+            max-width: 400px; 
+            margin: 0 auto; /* Centré horizontalement seulement */
+            width: 100%; 
+            padding: 40px 20px; /* Plus d'espace en haut pour remonter le contenu */
+            text-align: center; 
+        }
+        
         .input-group { margin-bottom: 15px; text-align: left; }
         label { font-size: 0.7rem; color: var(--accent); letter-spacing: 2px; font-weight: bold; margin-left: 5px; text-transform: uppercase; }
         input { 
             width: 100%; background: var(--card); border: 1px solid #30363d; color: white; 
             padding: 15px; border-radius: 12px; font-size: 1rem; outline: none; margin-top: 5px;
         }
+        
         .room-list { 
             background: #010409; border: 1px solid #30363d; border-radius: 15px; 
             margin: 20px 0; max-height: 180px; overflow-y: auto; padding: 10px;
@@ -39,16 +47,17 @@
             background: var(--card); padding: 12px; border-radius: 10px; margin-bottom: 8px; 
             display: flex; justify-content: space-between; border-left: 4px solid var(--accent); cursor: pointer;
         }
+        
         .btn-join { 
             background: var(--accent); color: #fff; 
             padding: 18px; border-radius: 15px; font-weight: 800; border: none; width: 100%; 
             letter-spacing: 1px; text-transform: uppercase;
         }
 
-        /* GAME SCREEN - CALAGE IDENTIQUE LOCAL */
+        /* GAME SCREEN */
         #game-screen { 
             display: none; height: 100dvh; flex-direction: column; padding: 10px; 
-            padding-bottom: 80px; /* Espace pour le footer fixe */
+            padding-bottom: 90px; /* Sécurité pour le footer */
             gap: 5px; 
         }
         
@@ -64,7 +73,7 @@
         .turn-tracking { display: flex; justify-content: center; gap: 8px; height: 7dvh; }
         .dart-slot { width: 30%; background: #010409; border: 1px solid #30363d; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #484f58; font-size: 1.1rem; }
 
-        /* GRILLE CLAVIER */
+        /* GRILLE */
         .grid { flex: 1; display: flex; flex-direction: column; gap: 4px; }
         .mod-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; height: 12%; }
         .num-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; flex: 1; }
@@ -88,14 +97,14 @@
         .btn-del { background: #21262d; color: #8b949e; font-size: 1.6rem; }
         .btn-undo-all { background: #161b22; color: #f85149; font-size: 0.6rem; text-transform: uppercase; }
 
-        /* FOOTER FIXE IDENTIQUE LOCAL */
+        /* FOOTER UNIFIÉ AVEC LE MODE LOCAL */
         footer {
             position: fixed; bottom: 0; left: 0; width: 100%;
-            background: var(--bg); padding: 12px 0;
-            padding-bottom: calc(env(safe-area-inset-bottom) + 12px);
+            background: var(--bg); padding: 15px 0;
+            padding-bottom: calc(env(safe-area-inset-bottom) + 15px);
             text-align: center; z-index: 100; border-top: 1px solid #161b22;
         }
-        .back-btn { color: #888; text-decoration: none; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; padding: 5px 15px; border: 1px solid #333; border-radius: 20px; }
+        .back-btn { color: #888; text-decoration: none; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; padding: 6px 18px; border: 1px solid #333; border-radius: 20px; }
 
         /* VICTOIRE */
         #victory-layer { 
@@ -112,17 +121,21 @@
 <body>
 
     <div id="lobby">
-        <div style="font-size: 3rem; margin-bottom: 10px;">📡</div>
-        <h1 style="color: var(--accent); margin-bottom: 30px; letter-spacing: 2px; font-weight: 800;">DARTS LIVE</h1>
+        <div style="font-size: 3.5rem; margin-bottom: 5px;">📡</div>
+        <h1 style="color: var(--accent); margin-bottom: 25px; letter-spacing: 2px; font-weight: 800; font-size: 1.8rem;">DARTS LIVE</h1>
+        
         <div class="input-group">
             <label>Pseudo</label>
             <input type="text" id="nameInput" placeholder="VOTRE NOM...">
         </div>
+
         <div id="roomList" class="room-list"></div>
+
         <div class="input-group">
             <label>ID Stand</label>
             <input type="text" id="roomInput" placeholder="NOM DU STAND...">
         </div>
+
         <button class="btn-join" onclick="joinRoom()">REJOINDRE / CRÉER</button>
     </div>
 
@@ -152,7 +165,7 @@
                 <button class="num-btn" onclick="addDart(50)">BULL</button>
             </div>
             <div class="action-row">
-                <button class="btn-undo-all" onclick="undoLastTurn()">ANNULER<br>VOLÉE<br>PRÉCÉDENTE</button>
+                <button class="btn-undo-all" onclick="undoLastTurn()">ANNULER<br>VOLÉE</button>
                 <button class="btn-valid" onclick="finishTurn()">VALIDER VOLÉE</button>
                 <button class="btn-del" onclick="undoLastDart()">⌫</button>
             </div>
@@ -164,7 +177,7 @@
         <h1 id="winner-name" style="color:var(--s-color); font-size: 2rem; text-align: center;">GAGNANT !</h1>
         <div id="stats-container" style="width: 100%;"></div>
         <button class="btn-finish" onclick="closeRoom()">FERMER LE STAND</button>
-        <a href="index.html" style="margin-top:20px; color:#888; text-decoration:none; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">RETOUR MENU</a>
+        <a href="index.html" style="margin-top:25px; color:#888; text-decoration:none; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; border: 1px solid #333; padding: 8px 20px; border-radius: 20px;">MENU PRINCIPAL</a>
     </div>
 
     <script>
@@ -267,7 +280,6 @@
                 visualDarts.push(label); slot.innerText = label;
                 slot.style.color = (m === 3 ? "var(--t-color)" : m === 2 ? "var(--d-color)" : "var(--s-color)");
                 
-                // Décompte temps réel Firebase
                 db.ref('rooms/' + roomName + '/players/' + myIndex + '/score').set(p.score);
 
                 if(p.score === 0) { 
