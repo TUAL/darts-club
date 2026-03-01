@@ -9,7 +9,6 @@
             --bg: #0b0e14; --card: #161b22; --text: #f0f6fc;
             --s-color: #238636; --d-color: #d29922; --t-color: #da3633;
             --accent: #58a6ff;
-            --c-moyen: #8b949e; --c-bon: #d29922; --c-tresbon: #da3633; --c-pro: #238636;
         }
         * { box-sizing: border-box; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
         
@@ -20,13 +19,9 @@
             display: flex; flex-direction: column;
         }
 
-        /* BANDEAU LOGO */
-        .app-brand { 
-            height: 35px; display: flex; align-items: center; justify-content: center; gap: 8px; flex-shrink: 0;
-        }
-        .app-title { font-size: 0.75rem; font-weight: 900; letter-spacing: 2px; color: var(--d-color); text-transform: uppercase; }
+        .app-brand { height: 40px; display: flex; align-items: center; justify-content: center; gap: 8px; flex-shrink: 0; }
+        .app-title { font-size: 0.8rem; font-weight: 900; letter-spacing: 2px; color: var(--d-color); text-transform: uppercase; }
 
-        /* FOOTER FIXÉ */
         footer {
             position: fixed; bottom: 0; left: 0; width: 100%;
             background: var(--bg); padding: 10px 0;
@@ -35,122 +30,86 @@
         }
         .back-btn { color: #888; text-decoration: none; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; padding: 5px 15px; border: 1px solid #333; border-radius: 20px; }
 
-        /* STRUCTURES PRINCIPALES */
         #level-screen, #game-screen { 
             flex: 1; display: flex; flex-direction: column; padding: 10px; 
-            padding-bottom: 105px; /* Confort de 60px + footer */
-            overflow: hidden;
+            padding-bottom: 100px; 
+            overflow: hidden; 
         }
 
-        /* ECRAN SELECTION IA */
         .selection-content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .ia-header { text-align: center; margin-bottom: 25px; }
-        .ia-header h2 { color: var(--accent); font-size: 1.2rem; letter-spacing: 2px; text-transform: uppercase; margin: 0; }
-        .lvl-grid { display: grid; grid-template-columns: 1fr; gap: 10px; width: 100%; max-width: 340px; }
-        .lvl-btn { 
-            background: var(--card); border: 1px solid #30363d; border-radius: 12px; padding: 14px;
-            color: white; text-align: left; display: flex; align-items: center; gap: 15px;
-        }
-        .lvl-btn.lvl-1 { border-left: 5px solid var(--c-moyen); }
-        .lvl-btn.lvl-2 { border-left: 5px solid var(--c-bon); }
-        .lvl-btn.lvl-3 { border-left: 5px solid var(--c-tresbon); }
-        .lvl-btn.lvl-4 { border-left: 5px solid var(--c-pro); }
-        .lvl-name { font-weight: 800; font-size: 1rem; display: block; }
-        .lvl-avg { font-size: 0.75rem; color: #8b949e; }
+        .lvl-grid { display: grid; grid-template-columns: 1fr; gap: 10px; width: 100%; max-width: 320px; }
+        .lvl-btn { background: var(--card); border: 1px solid #30363d; border-radius: 12px; padding: 14px; color: white; display: flex; align-items: center; gap: 15px; text-align: left; }
+        .lvl-btn.lvl-1 { border-left: 5px solid #8b949e; }
+        .lvl-btn.lvl-2 { border-left: 5px solid var(--d-color); }
+        .lvl-btn.lvl-3 { border-left: 5px solid var(--t-color); }
+        .lvl-btn.lvl-4 { border-left: 5px solid var(--s-color); }
 
-        /* JEU IA */
-        #game-screen { display: none; gap: 5px; }
         .header { height: 12dvh; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex-shrink: 0; }
-        .score-card { 
-            background: var(--card); border-radius: 12px; border: 1px solid #30363d;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            opacity: 0.4; transition: 0.3s;
-        }
+        .score-card { background: var(--card); border-radius: 12px; border: 1px solid #30363d; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.4; }
         .score-card.active { opacity: 1; border-color: var(--accent); border-width: 2px; }
-        .player-label { font-size: 0.6rem; color: #8b949e; text-transform: uppercase; font-weight: 900; }
         .score-val { font-size: 2rem; font-weight: 900; color: #fff; line-height: 1; }
-        .avg-val { font-size: 0.6rem; color: var(--accent); font-weight: bold; }
+        .avg-val { font-size: 0.65rem; color: var(--accent); font-weight: bold; margin-top: 4px; }
 
-        .ia-history { height: 25px; text-align: center; font-size: 0.7rem; color: var(--d-color); font-weight: bold; flex-shrink: 0; }
-        .turn-tracking { display: flex; justify-content: center; gap: 8px; height: 35px; flex-shrink: 0; }
-        .dart-slot { flex: 1; background: #010409; border: 1px solid #30363d; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; color: #484f58; }
+        .ia-history { height: 25px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: var(--d-color); font-weight: bold; }
+        .turn-tracking { display: flex; justify-content: center; gap: 8px; height: 38px; flex-shrink: 0; margin-bottom: 6px; }
+        .dart-slot { flex: 1; background: #010409; border: 1px solid #30363d; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1rem; color: #484f58; }
 
-        /* GRILLE CLAVIER FLEXIBLE */
         .grid { flex: 1; display: flex; flex-direction: column; gap: 4px; min-height: 0; }
-        .mod-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; flex: 0 0 40px; }
+        .mod-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; flex: 0 0 42px; }
         .num-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; flex: 1; min-height: 0; }
-        
-        .grid.mode-s .num-btn { border-bottom: 3px solid var(--s-color); }
-        .grid.mode-d .num-btn { border-bottom: 3px solid var(--d-color); }
-        .grid.mode-t .num-btn { border-bottom: 3px solid var(--t-color); }
+        .special-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; flex: 0 0 42px; }
+        .action-row { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 4px; flex: 0 0 55px; }
 
-        .special-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; flex: 0 0 40px; }
-        .action-row { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 4px; flex: 0 0 60px; }
-
-        button { border: none; border-radius: 8px; font-weight: 700; color: #fff; cursor: pointer; }
+        button { border: none; border-radius: 8px; font-weight: 700; color: #fff; width: 100%; height: 100%; }
         .btn-mod { background: #21262d; border: 1px solid #30363d; }
         #modS.selected { background: var(--s-color); }
         #modD.selected { background: var(--d-color); }
         #modT.selected { background: var(--t-color); }
-        .num-btn { background: #21262d; font-size: 1.1rem; }
-        .btn-valid { background: var(--accent) !important; font-size: 0.9rem; text-transform: uppercase; }
-        .btn-del { background: #21262d; color: #8b949e; font-size: 1.4rem; }
-        .btn-reset { background: #161b22; color: #f85149; font-size: 0.55rem; text-transform: uppercase; }
 
-        .overlay { 
-            display:none; position:fixed; inset:0; background: rgba(13,17,23,0.98); 
-            z-index:999; flex-direction:column; justify-content:center; align-items:center; padding: 30px;
-        }
+        .num-btn { background: #21262d; font-size: 1.1rem; border-bottom: 2px solid transparent; }
+        .grid.mode-s .num-btn { border-bottom-color: var(--s-color); }
+        .grid.mode-d .num-btn { border-bottom-color: var(--d-color); }
+        .grid.mode-t .num-btn { border-bottom-color: var(--t-color); }
+
+        .btn-valid { background: var(--accent) !important; font-size: 0.9rem; }
+        .btn-del { background: #21262d; color: #8b949e; font-size: 1.5rem; }
+        .btn-reset { background: #161b22; color: #f85149; font-size: 0.6rem; }
+
+        .overlay { display:none; position:fixed; inset:0; background: rgba(13,17,23,0.98); z-index: 999; flex-direction:column; justify-content:center; align-items:center; }
     </style>
 </head>
 <body>
 
 <div id="level-screen">
-    <div class="app-brand">
-        <span class="app-logo">🎯</span>
-        <span class="app-title">Darts Club</span>
-    </div>
+    <div class="app-brand"><span class="app-logo">🎯</span><span class="app-title">Darts Club</span></div>
     <div class="selection-content">
-        <div class="ia-header">
-            <div style="font-size: 2rem; margin-bottom: 10px;">🤖</div>
-            <h2>ADVERSAIRE VIRTUEL</h2>
-        </div>
+        <div style="font-size: 2.5rem; margin-bottom: 10px;">🤖</div>
+        <h2 style="color: var(--accent); letter-spacing: 2px; margin-bottom: 25px; font-size: 1.2rem;">ADVERSAIRE IA</h2>
         <div class="lvl-grid">
-            <button class="lvl-btn lvl-1" onclick="startGame(1)">
-                <div class="lvl-info"><span class="lvl-name">1. MOYEN</span><span class="lvl-avg">AVG : 40-50</span></div>
-            </button>
-            <button class="lvl-btn lvl-2" onclick="startGame(2)">
-                <div class="lvl-info"><span class="lvl-name">2. BON</span><span class="lvl-avg">AVG : 50-65</span></div>
-            </button>
-            <button class="lvl-btn lvl-3" onclick="startGame(3)">
-                <div class="lvl-info"><span class="lvl-name">3. EXPERT</span><span class="lvl-avg">AVG : 65-80</span></div>
-            </button>
-            <button class="lvl-btn lvl-4" onclick="startGame(4)">
-                <div class="lvl-info"><span class="lvl-name">4. MAÎTRE</span><span class="lvl-avg">AVG : 80+</span></div>
-            </button>
+            <button class="lvl-btn lvl-1" onclick="startGame(1)"><div><div style="font-weight:900">1. DÉBUTANT</div><div style="font-size:0.7rem; color:#888">AVG : 40-50</div></div></button>
+            <button class="lvl-btn lvl-2" onclick="startGame(2)"><div><div style="font-weight:900">2. INTERMÉDIAIRE</div><div style="font-size:0.7rem; color:#888">AVG : 50-65</div></div></button>
+            <button class="lvl-btn lvl-3" onclick="startGame(3)"><div><div style="font-weight:900">3. EXPERT</div><div style="font-size:0.7rem; color:#888">AVG : 65-80</div></div></button>
+            <button class="lvl-btn lvl-4" onclick="startGame(4)"><div><div style="font-weight:900">4. LÉGENDE</div><div style="font-size:0.7rem; color:#888">AVG : 80+</div></div></button>
         </div>
     </div>
 </div>
 
-<div id="game-screen">
-    <div class="app-brand">
-        <span class="app-logo">🎯</span>
-        <span class="app-title">Darts Club</span>
-    </div>
+<div id="game-screen" style="display:none;">
+    <div class="app-brand"><span class="app-logo">🎯</span><span class="app-title">Darts Club</span></div>
     <div class="header">
         <div class="score-card active" id="card-p">
-            <div class="player-label">TOI</div>
+            <div style="font-size:0.55rem; font-weight:900">JOUEUR</div>
             <div id="p-score" class="score-val">501</div>
-            <div id="p-avg" class="avg-val">AVG:0.0</div>
+            <div id="p-avg" class="avg-val">AVG: 0.0 | FLE: 0</div>
         </div>
         <div class="score-card" id="card-ia">
-            <div class="player-label">IA (Niv.<span id="ia-lvl-txt">1</span>)</div>
+            <div style="font-size:0.55rem; font-weight:900">IA (LVL <span id="ia-lvl-txt">1</span>)</div>
             <div id="ia-score" class="score-val" style="color:var(--d-color)">501</div>
-            <div id="ia-avg" class="avg-val">AVG:0.0</div>
+            <div id="ia-avg" class="avg-val">AVG: 0.0 | FLE: 0</div>
         </div>
     </div>
 
-    <div class="ia-history" id="ia-history">À toi de jouer !</div>
+    <div class="ia-history" id="ia-history">À TOI DE JOUER</div>
 
     <div class="turn-tracking">
         <div class="dart-slot" id="d0">-</div>
@@ -172,7 +131,7 @@
         </div>
         <div class="action-row">
             <button class="btn-reset" onclick=""></button>
-            <button class="btn-valid" onclick="confirmTurn()">VALIDER VOLEE</button>
+            <button class="btn-valid" onclick="confirmTurn()">VALIDER VOLÉE</button>
             <button class="btn-del" onclick="undoLast()">⌫</button>
         </div>
     </div>
@@ -183,10 +142,10 @@
 </footer>
 
 <div id="end-screen" class="overlay">
-    <h1 id="end-title" style="font-size: 2rem; color: var(--accent);">FIN</h1>
-    <div id="final-stats" style="margin-bottom: 25px; text-align: center;"></div>
-    <button class="btn-valid" style="padding: 15px 40px; border-radius: 30px;" onclick="location.reload()">REJOUER</button>
-    <a href="index.html" style="margin-top: 20px; color: #888; text-decoration: none; font-size: 0.8rem;">RETOUR MENU</a>
+    <h1 id="end-title" style="color: var(--accent); font-size: 2.2rem; margin: 0;">FIN</h1>
+    <div id="final-stats" style="margin: 15px 0 25px 0; font-size: 1.1rem; line-height: 1.8; text-align: center;"></div>
+    <button class="btn-valid" style="height:55px; width:200px; border-radius: 30px; margin-bottom: 20px;" onclick="location.reload()">REJOUER</button>
+    <a href="index.html" style="color:#888; text-decoration:none; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">RETOUR MENU</a>
 </div>
 
 <script>
@@ -222,14 +181,13 @@
         const slot = document.getElementById(`d${turnDarts.length}`);
         
         if(pScore - pts < 0 || pScore - pts === 1 || (pScore - pts === 0 && m !== 2 && val !== 50)) {
-            isBust = true;
-            slot.innerText = "BUST"; slot.style.color = "var(--t-color)";
+            isBust = true; slot.innerText = "BUST"; slot.style.color = "var(--t-color)";
         } else {
             pScore -= pts;
             turnDarts.push(pts);
-            const prefix = (m === 3 ? 'T' : m === 2 ? 'D' : '');
-            slot.innerText = (val === 50) ? "BULL" : (val === 0) ? "0" : prefix + val;
-            slot.style.color = (m === 3 ? "var(--t-color)" : m === 2 ? "var(--d-color)" : "var(--s-color)");
+            let label = (val === 50) ? "BULL" : (val === 0) ? "0" : (m===3?'T':m===2?'D':'')+val;
+            slot.innerText = label;
+            slot.style.color = (m===3?"var(--t-color)":m===2?"var(--d-color)":"var(--s-color)");
             document.getElementById('p-score').innerText = pScore;
             if(pScore === 0) confirmTurn(true);
         }
@@ -238,10 +196,12 @@
 
     function confirmTurn(victory = false) {
         if(turnDarts.length === 0 && !isBust) return;
-        pDarts += 3;
+        let dartsThisTurn = isBust ? 3 : turnDarts.length;
+        pDarts += dartsThisTurn;
         pPoints += isBust ? 0 : turnDarts.reduce((a,b)=>a+b, 0);
-        document.getElementById('p-avg').innerText = `AVG:${(pPoints/(pDarts/3)).toFixed(1)}`;
-        if(victory) showEnd("TU AS GAGNÉ !");
+        let avg = pDarts > 0 ? ((pPoints / pDarts) * 3).toFixed(1) : "0.0";
+        document.getElementById('p-avg').innerText = `AVG: ${avg} | FLE: ${pDarts}`;
+        if(victory) showEnd("VICTOIRE !");
         else startIaTurn();
     }
 
@@ -249,16 +209,17 @@
         document.getElementById('gameGrid').style.pointerEvents = "none";
         document.getElementById('card-p').classList.remove('active');
         document.getElementById('card-ia').classList.add('active');
-        document.getElementById('ia-history').innerText = "L'IA réfléchit...";
+        document.getElementById('ia-history').innerText = "IA RÉFLÉCHIT...";
         setTimeout(() => {
             let iaVolley = calcIAPoints();
             iaScore -= iaVolley; iaPoints += iaVolley; iaDarts += 3;
+            let avg = ((iaPoints / iaDarts) * 3).toFixed(1);
             document.getElementById('ia-score').innerText = iaScore;
-            document.getElementById('ia-avg').innerText = `AVG:${(iaPoints/(iaDarts/3)).toFixed(1)}`;
-            document.getElementById('ia-history').innerText = `IA a fait : ${iaVolley} pts`;
-            if(iaScore === 0) showEnd("L'IA A GAGNÉ");
+            document.getElementById('ia-avg').innerText = `AVG: ${avg} | FLE: ${iaDarts}`;
+            document.getElementById('ia-history').innerText = `IA : ${iaVolley} POINTS`;
+            if(iaScore === 0) showEnd("IA GAGNE !");
             else resetTurnUI();
-        }, 800);
+        }, 600);
     }
 
     function resetTurnUI() {
@@ -273,9 +234,9 @@
     }
 
     function calcIAPoints() {
-        const targets = [0, 42, 58, 75, 92];
+        const targets = [0, 42, 58, 72, 92];
         let base = targets[iaLevel];
-        let variation = Math.floor(Math.random() * 26) - 13;
+        let variation = Math.floor(Math.random() * 40) - 20;
         return Math.min(iaScore, Math.max(0, Math.round(base + variation)));
     }
 
@@ -289,7 +250,10 @@
     function showEnd(title) {
         document.getElementById('end-screen').style.display = 'flex';
         document.getElementById('end-title').innerText = title;
-        document.getElementById('final-stats').innerHTML = `TOI: ${(pPoints/(pDarts/3)).toFixed(1)} AVG<br>IA: ${(iaPoints/(iaDarts/3)).toFixed(1)} AVG`;
+        let pAvg = ((pPoints / pDarts) * 3).toFixed(1);
+        let iaAvg = ((iaPoints / iaDarts) * 3).toFixed(1);
+        document.getElementById('final-stats').innerHTML = 
+            `TOI: ${pAvg} AVG (${pDarts} FLE)<br>IA: ${iaAvg} AVG (${iaDarts} FLE)`;
     }
 </script>
 </body>

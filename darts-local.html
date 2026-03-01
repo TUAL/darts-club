@@ -21,7 +21,6 @@
             overflow: hidden; 
         }
 
-        /* SETUP SCREEN */
         #setup-screen { max-width: 400px; margin: auto; width: 100%; padding: 20px; text-align: center; }
         .player-input-group { background: var(--card); padding: 8px; border-radius: 12px; border: 1px solid #30363d; display: flex; gap: 8px; margin-bottom: 20px; }
         input { flex: 1; background: transparent; border: none; color: white; padding: 10px; font-size: 1rem; outline: none; }
@@ -29,7 +28,6 @@
         .player-tag { background: var(--card); padding: 12px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; border-left: 4px solid var(--accent); font-weight: bold; }
         .btn-start { background: var(--accent); color: #fff; padding: 15px; border-radius: 12px; font-weight: bold; border: none; width: 100%; margin-top: 15px; }
 
-        /* FOOTER FIXE */
         footer {
             position: fixed; bottom: 0; left: 0; width: 100%;
             background: var(--bg); padding: 12px 0;
@@ -38,14 +36,12 @@
         }
         .back-btn { color: #888; text-decoration: none; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; padding: 5px 15px; border: 1px solid #333; border-radius: 20px; }
 
-        /* GAME SCREEN */
         #game-screen { 
             display: none; height: 100dvh; flex-direction: column; padding: 10px; 
-            padding-bottom: 60px; 
+            padding-bottom: 80px; 
             gap: 5px; 
         }
         
-        /* HEADER AVEC CELLULES PLUS GRANDES */
         .header { height: 18dvh; display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 10px; }
         .p-card { background: var(--card); border-radius: 12px; border: 1px solid #30363d; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.3; transition: 0.3s; padding: 5px; }
         .p-card.active { opacity: 1; border-color: var(--accent); border-width: 3px; box-shadow: 0 0 15px rgba(88, 166, 255, 0.2); }
@@ -69,14 +65,14 @@
         .special-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; height: 12%; }
         .action-row { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 4px; height: 15%; }
 
-        button { border: none; border-radius: 6px; font-weight: 700; color: #fff; cursor: pointer; }
+        button { border: none; border-radius: 6px; font-weight: 700; color: #fff; }
         .btn-mod { background: #21262d; font-size: 1.1rem; border: 1px solid #30363d; }
         #modS.selected { background: var(--s-color); }
         #modD.selected { background: var(--d-color); }
         #modT.selected { background: var(--t-color); }
 
         .num-btn { background: #21262d; font-size: 1.2rem; }
-        .btn-valid { background: var(--accent) !important; color: #fff; font-size: 1rem; }
+        .btn-valid { background: var(--accent) !important; font-size: 1rem; }
         .btn-del { background: #21262d; color: #8b949e; font-size: 1.6rem; }
         .btn-undo-all { background: #161b22; color: #f85149; font-size: 0.65rem; text-transform: uppercase; }
 
@@ -132,7 +128,7 @@
         <h1 id="winner-name" style="color:var(--s-color); font-size: 2rem; margin-bottom: 0;">GAGNANT !</h1>
         <div id="stats-container" style="width: 100%;"></div>
         <button class="btn-start" onclick="location.reload()" style="max-width:200px">REJOUER</button>
-        <a href="index.html" style="margin-top:20px; color:#888; text-decoration:none; font-size: 0.9rem;">RETOUR MENU</a>
+        <a href="index.html" style="margin-top:20px; color:#888; text-decoration:none; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">RETOUR MENU</a>
     </div>
 
     <script>
@@ -182,24 +178,34 @@
             const slot = document.getElementById(`d${dartsInTurn.length}`);
 
             if (p.score - pts < 0 || p.score - pts === 1 || (p.score - pts === 0 && m !== 2 && val !== 50)) {
-                isBust = true; visualDarts.push("BUST");
-                slot.innerText = "BUST"; slot.style.color = "var(--t-color)";
+                isBust = true; 
+                visualDarts.push("BUST");
+                slot.innerText = "BUST"; 
+                slot.style.color = "var(--t-color)";
             } else {
                 p.score -= pts;
                 let label = (val === 50) ? "BULL" : (val === 0) ? "0" : (m === 3 ? "T" : m === 2 ? "D" : "") + val;
-                visualDarts.push(label); slot.innerText = label;
+                visualDarts.push(label); 
+                slot.innerText = label;
                 slot.style.color = (m === 3 ? "var(--t-color)" : m === 2 ? "var(--d-color)" : "var(--s-color)");
+                
+                // DECOMPTE EN TEMPS REEL : On met à jour l'UI après chaque fléchette
+                syncUI();
+
                 if(p.score === 0) { 
                     p.totalDarts += (dartsInTurn.length + 1);
-                    p.totalPoints += (501 - 0); // Total points used for AVG
-                    finishTurn(true); return; 
+                    p.totalPoints += 501; // Le joueur a fini
+                    dartsInTurn.push(pts); // On ajoute quand même pour le finishTurn
+                    setTimeout(() => finishTurn(true), 300); 
+                    return; 
                 }
             }
-            dartsInTurn.push(pts); setMod(1);
+            dartsInTurn.push(pts); 
+            setMod(1);
         }
 
         function finishTurn(victory = false) {
-            if (dartsInTurn.length === 0) return;
+            if (dartsInTurn.length === 0 && !isBust) return;
             let p = players[currentPlayer];
             let ptsTurn = isBust ? 0 : dartsInTurn.reduce((a,b)=>a+b, 0);
             
@@ -219,12 +225,14 @@
 
         function undoLastDart() {
             if (dartsInTurn.length === 0) return;
-            let lastPts = dartsInTurn.pop(); visualDarts.pop();
+            let lastPts = dartsInTurn.pop(); 
+            visualDarts.pop();
             if (!isBust) players[currentPlayer].score += lastPts;
             isBust = false;
             document.getElementById(`d${dartsInTurn.length}`).innerText = "-";
             document.getElementById(`d${dartsInTurn.length}`).style.color = "#484f58";
             setMod(1);
+            syncUI(); // Mise à jour après annulation
         }
 
         function undoLastTurn() {
@@ -234,7 +242,8 @@
             if(!last.wasBust) players[currentPlayer].score += last.points;
             players[currentPlayer].totalDarts -= 3; 
             players[currentPlayer].totalPoints -= last.points;
-            resetTurn(); syncUI();
+            resetTurn(); 
+            syncUI();
             document.getElementById('ia-history').innerText = last.historyText;
         }
 
@@ -260,27 +269,25 @@
             setMod(1);
         }
 
-function showVictory(name) {
-    document.getElementById('game-screen').style.display = 'none';
-    document.getElementById('main-footer').style.display = 'none';
-    
-    let html = `<table class="stats-table"><tr><th>JOUEUR</th><th>FLE.</th><th>MOY.</th></tr>`;
-    
-    gameState.players.forEach(p => {
-        // 1. On calcule les points réellement marqués (Score de départ - Score actuel)
-        // Si ton jeu est un 501, remplace 501 par ta variable de score initial
-        let pointsMarques = 501 - p.score; 
-
-        // 2. Calcul de la moyenne sur 3 fléchettes
-        // Formule : (Points / Fléchettes) * 3
-        const avg = p.totalDarts > 0 ? ((pointsMarques / p.totalDarts) * 3).toFixed(1) : "0.0";
-        
-        html += `<tr class="${p.name === name ? 'winner-row' : ''}">
+        function showVictory(name) {
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('main-footer').style.display = 'none';
+            
+            let html = `<table class="stats-table"><tr><th>JOUEUR</th><th>FLE.</th><th>MOY.</th></tr>`;
+            
+            players.forEach(p => {
+                let avg = p.totalDarts > 0 ? ((p.totalPoints / p.totalDarts) * 3).toFixed(1) : "0.0";
+                html += `<tr style="${p.name === name ? 'color:var(--s-color); font-weight:bold;' : ''}">
                     <td>${p.name}</td>
                     <td>${p.totalDarts}</td>
                     <td>${avg}</td>
-                 </tr>`;
-    });
+                </tr>`;
+            });
+            
+            document.getElementById('stats-container').innerHTML = html + `</table>`;
+            document.getElementById('winner-name').innerText = name + " GAGNE !";
+            document.getElementById('victory-layer').style.display = 'flex';
+        }
     </script>
 </body>
 </html>

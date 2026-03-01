@@ -23,7 +23,6 @@
             display: flex; flex-direction: column;
         }
 
-        /* LOBBY / SETUP */
         #lobby { max-width: 400px; margin: auto; width: 100%; padding: 20px; text-align: center; }
         .input-group { margin-bottom: 15px; text-align: left; }
         label { font-size: 0.7rem; color: var(--accent); letter-spacing: 2px; font-weight: bold; margin-left: 5px; text-transform: uppercase; }
@@ -48,10 +47,8 @@
             letter-spacing: 1px; text-transform: uppercase;
         }
 
-        /* ÉCRAN DE JEU */
-        #game-screen { display: none; height: 100dvh; flex-direction: column; padding: 10px; padding-bottom: 60px; gap: 5px; }
+        #game-screen { display: none; height: 100dvh; flex-direction: column; padding: 10px; padding-bottom: 80px; gap: 5px; }
         
-        /* HEADER SCOREBOARD XXL */
         .header { height: 18dvh; display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 10px; }
         .p-card { background: var(--card); border-radius: 12px; border: 1px solid #30363d; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.3; transition: 0.3s; padding: 5px; }
         .p-card.active { opacity: 1; border-color: var(--accent); border-width: 3px; box-shadow: 0 0 15px rgba(88, 166, 255, 0.2); }
@@ -65,7 +62,6 @@
         .turn-tracking { display: flex; justify-content: center; gap: 8px; height: 7dvh; }
         .dart-slot { width: 30%; background: #010409; border: 1px solid #30363d; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #484f58; font-size: 1.1rem; }
 
-        /* CLAVIER */
         .grid { flex: 1; display: flex; flex-direction: column; gap: 4px; }
         .mod-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; height: 12%; }
         .num-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; flex: 1; }
@@ -90,7 +86,6 @@
         .btn-del { background: #21262d; color: #8b949e; font-size: 1.6rem; }
         .btn-undo-all { background: #161b22; color: #f85149; font-size: 0.6rem; text-transform: uppercase; }
 
-        /* VICTOIRE */
         #victory-layer { 
             display:none; position:fixed; inset:0; background: rgba(13,17,23,0.98); 
             z-index:9999; flex-direction:column; justify-content:center; align-items:center; padding: 20px;
@@ -101,7 +96,7 @@
         .winner-row { background: rgba(35, 134, 54, 0.15); color: var(--s-color); font-weight: bold; }
         .btn-finish { background: var(--t-color); color: #fff; padding: 18px; border-radius: 12px; width: 100%; max-width: 250px; font-weight: bold; border: none; letter-spacing: 1px; }
 
-        footer { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--bg); padding: 12px 0; border-top: 1px solid #161b22; text-align: center; z-index: 100; }
+        footer { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--bg); padding: 12px 0; border-top: 1px solid #161b22; text-align: center; z-index: 100; padding-bottom: env(safe-area-inset-bottom); }
         .back-btn { color: #888; text-decoration: none; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; padding: 5px 15px; border: 1px solid #333; border-radius: 20px; }
     </style>
 </head>
@@ -110,19 +105,15 @@
     <div id="lobby">
         <div style="font-size: 3rem; margin-bottom: 10px;">📡</div>
         <h1 style="color: var(--accent); margin-bottom: 30px; letter-spacing: 2px; font-weight: 800;">DARTS LIVE</h1>
-        
         <div class="input-group">
             <label>Pseudo</label>
             <input type="text" id="nameInput" placeholder="VOTRE NOM...">
         </div>
-
         <div id="roomList" class="room-list"></div>
-
         <div class="input-group">
             <label>ID Stand</label>
             <input type="text" id="roomInput" placeholder="NOM DU STAND...">
         </div>
-
         <button class="btn-join" onclick="joinRoom()">REJOINDRE / CRÉER</button>
     </div>
 
@@ -133,28 +124,23 @@
     <div id="game-screen">
         <div class="header" id="gamePlayers"></div>
         <div class="ia-last-volley" id="ia-history">EN ATTENTE...</div>    
-        
         <div class="turn-tracking">
             <div class="dart-slot" id="d0">-</div>
             <div class="dart-slot" id="d1">-</div>
             <div class="dart-slot" id="d2">-</div>
         </div>
-
         <div class="grid mode-s" id="gameGrid">
             <div class="mod-row">
                 <button class="btn-mod selected" id="modS" onclick="setMod(1)">S</button>
                 <button class="btn-mod" id="modD" onclick="setMod(2)">D</button>
                 <button class="btn-mod" id="modT" onclick="setMod(3)">T</button>
             </div>
-            
             <div id="numPad" class="num-grid"></div>
-
             <div class="special-row">
                 <button class="num-btn" onclick="addDart(0)">0</button>
                 <button class="num-btn" onclick="addDart(25)">25</button>
                 <button class="num-btn" onclick="addDart(50)">BULL</button>
             </div>
-
             <div class="action-row">
                 <button class="btn-undo-all" onclick="undoLastTurn()">ANNULER<br>VOLÉE<br>PRÉCÉDENTE</button>
                 <button class="btn-valid" onclick="finishTurn()">VALIDER VOLÉE</button>
@@ -168,6 +154,7 @@
         <h1 id="winner-name" style="color:var(--s-color); font-size: 2rem; text-align: center;">GAGNANT !</h1>
         <div id="stats-container" style="width: 100%;"></div>
         <button class="btn-finish" onclick="closeRoom()">FERMER LE STAND</button>
+        <a href="index.html" style="margin-top:20px; color:#888; text-decoration:none; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">RETOUR MENU</a>
     </div>
 
     <script>
@@ -178,7 +165,6 @@
         let roomName, myName, myIndex = -1, dartsInTurn = [], visualDarts = [], multiplier = 1, isBust = false;
         let gameState = { players: [], currentPlayer: 0, status: "active", lastVolleyText: "Prêt à jouer" };
 
-        // Initialisation propre au chargement
         window.onload = () => {
             const pad = document.getElementById('numPad'); 
             pad.innerHTML = "";
@@ -264,25 +250,37 @@
             if (p.score - pts < 0 || p.score - pts === 1 || (p.score - pts === 0 && m !== 2 && val !== 50)) {
                 isBust = true; 
                 visualDarts.push("BUST");
-                slot.innerText = "BUST"; slot.style.color = "var(--t-color)";
+                slot.innerText = "BUST"; 
+                slot.style.color = "var(--t-color)";
             } else {
                 p.score -= pts;
                 let label = (val === 50) ? "BULL" : (val === 0) ? "0" : (m === 3 ? "T" : m === 2 ? "D" : "") + val;
-                visualDarts.push(label); slot.innerText = label;
+                visualDarts.push(label); 
+                slot.innerText = label;
                 slot.style.color = (m === 3 ? "var(--t-color)" : m === 2 ? "var(--d-color)" : "var(--s-color)");
+                
+                // DECOMPTE EN TEMPS REEL : On met à jour Firebase immédiatement
+                db.ref('rooms/' + roomName + '/players/' + myIndex + '/score').set(p.score);
+
                 if(p.score === 0) { 
                     p.totalDarts += (dartsInTurn.length + 1);
-                    p.totalPoints += (501 - 0);
-                    dartsInTurn.push(pts); finishTurn(true); return; 
+                    p.totalPoints += 501;
+                    dartsInTurn.push(pts); 
+                    setTimeout(() => finishTurn(true), 300); 
+                    return; 
                 }
             }
-            dartsInTurn.push(pts); setMod(1);
+            dartsInTurn.push(pts); 
+            setMod(1);
         }
 
         function undoLastDart() {
             if (dartsInTurn.length === 0) return;
             let lastPts = dartsInTurn.pop(); visualDarts.pop();
-            if (!isBust) gameState.players[myIndex].score += lastPts;
+            if (!isBust) {
+                gameState.players[myIndex].score += lastPts;
+                db.ref('rooms/' + roomName + '/players/' + myIndex + '/score').set(gameState.players[myIndex].score);
+            }
             isBust = false;
             document.getElementById(`d${dartsInTurn.length}`).innerText = "-";
             document.getElementById(`d${dartsInTurn.length}`).style.color = "#484f58";
@@ -290,7 +288,7 @@
         }
 
         function finishTurn(victory = false) {
-            if (dartsInTurn.length === 0) return;
+            if (dartsInTurn.length === 0 && !isBust) return;
             let p = gameState.players[myIndex];
             let ptsTurn = isBust ? 0 : dartsInTurn.reduce((a,b)=>a+b,0);
             let volleyLabels = [...visualDarts];
@@ -325,32 +323,25 @@
             resetLocalTurnUI();
         }
 
-function showVictory(name) {
-    document.getElementById('game-screen').style.display = 'none';
-    document.getElementById('main-footer').style.display = 'none';
-    
-    let html = `<table class="stats-table"><tr><th>JOUEUR</th><th>FLE.</th><th>MOY.</th></tr>`;
-    
-    gameState.players.forEach(p => {
-        // 1. On calcule les points réellement marqués (Score de départ - Score actuel)
-        // Si ton jeu est un 501, remplace 501 par ta variable de score initial
-        let pointsMarques = 501 - p.score; 
-
-        // 2. Calcul de la moyenne sur 3 fléchettes
-        // Formule : (Points / Fléchettes) * 3
-        const avg = p.totalDarts > 0 ? ((pointsMarques / p.totalDarts) * 3).toFixed(1) : "0.0";
-        
-        html += `<tr class="${p.name === name ? 'winner-row' : ''}">
-                    <td>${p.name}</td>
-                    <td>${p.totalDarts}</td>
-                    <td>${avg}</td>
-                 </tr>`;
-    });
-    
-    document.getElementById('stats-container').innerHTML = html + `</table>`;
-    document.getElementById('winner-name').innerText = name + " GAGNE !";
-    document.getElementById('victory-layer').style.display = 'flex';
-}
+        function showVictory(name) {
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('main-footer').style.display = 'none';
+            
+            let html = `<table class="stats-table"><tr><th>JOUEUR</th><th>FLE.</th><th>MOY.</th></tr>`;
+            gameState.players.forEach(p => {
+                let pointsMarques = 501 - p.score; 
+                const avg = p.totalDarts > 0 ? ((pointsMarques / p.totalDarts) * 3).toFixed(1) : "0.0";
+                html += `<tr class="${p.name === name ? 'winner-row' : ''}">
+                            <td>${p.name}</td>
+                            <td>${p.totalDarts}</td>
+                            <td>${avg}</td>
+                         </tr>`;
+            });
+            
+            document.getElementById('stats-container').innerHTML = html + `</table>`;
+            document.getElementById('winner-name').innerText = name + " GAGNE !";
+            document.getElementById('victory-layer').style.display = 'flex';
+        }
 
         function closeRoom() { db.ref('rooms/' + roomName).remove().then(() => location.reload()); }
         
