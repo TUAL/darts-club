@@ -47,14 +47,14 @@
         }
         .back-btn { color: #888; text-decoration: none; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; padding: 5px 15px; border: 1px solid #333; border-radius: 20px; }
 
-        /* GAME SCREEN - Les 60px de confort sont ici (100px total pour inclure le footer) */
+        /* GAME SCREEN */
         #game-screen { 
             display: flex; height: 100dvh; flex-direction: column; padding: 10px; 
             padding-bottom: 105px; 
             gap: 4px; 
         }
         
-        /* HEADER RÉDUIT */
+        /* HEADER */
         .header { height: 10dvh; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex-shrink: 0; }
         .p-card { background: var(--card); border-radius: 10px; border: 1px solid var(--accent); display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .p-name { font-size: 0.6rem; color: #8b949e; text-transform: uppercase; }
@@ -64,34 +64,49 @@
         .turn-tracking { display: flex; justify-content: center; gap: 6px; height: 35px; flex-shrink: 0; }
         .dart-slot { width: 30%; background: #010409; border: 1px solid #30363d; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; color: #484f58; }
 
-        /* GRILLE : LE CLAVIER PEUT RÉTRÉCIR ICI */
-        .grid { flex: 1; display: flex; flex-direction: column; gap: 3px; min-height: 0; }
+        /* GRILLE CLAVIER UNIFORME */
+        .grid { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 4px; 
+            min-height: 0; 
+        }
         
-        .mod-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; flex: 0 0 40px; }
+        /* Mod-Row = 1 ligne */
+        .mod-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; flex: 1; }
         
-        /* Clavier numérique flexible */
-        .num-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; flex: 1; min-height: 50px; } 
+        /* Num-Grid = 5 lignes (20 boutons / 4 colonnes) */
+        .num-grid { 
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); 
+            grid-template-rows: repeat(5, 1fr); 
+            gap: 4px; 
+            flex: 5; 
+        } 
         
-        .special-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; flex: 0 0 40px; }
+        /* Special-Row = 1 ligne */
+        .special-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; flex: 1; }
         
-        /* Bouton Valider verrouillé à 60px */
-        .action-row { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 3px; flex: 0 0 60px; }
+        /* Action-Row = 1 ligne */
+        .action-row { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 4px; flex: 1; }
 
         /* STYLE BOUTONS */
-        button { border: none; border-radius: 6px; font-weight: 700; color: #fff; cursor: pointer; }
+        button { border: none; border-radius: 6px; font-weight: 700; color: #fff; cursor: pointer; height: 100%; width: 100%; }
+        
         .btn-mod { background: #21262d; font-size: 1rem; border: 1px solid #30363d; }
         #modS.selected { background: var(--s-color); }
         #modD.selected { background: var(--d-color); }
         #modT.selected { background: var(--t-color); }
 
-        .num-btn { background: #21262d; font-size: 1.1rem; border-bottom: 2px solid transparent; }
+        .num-btn { background: #21262d; font-size: 1.1rem; border-bottom: 3px solid transparent; }
         .grid.mode-s .num-btn { border-bottom-color: var(--s-color); }
         .grid.mode-d .num-btn { border-bottom-color: var(--d-color); }
         .grid.mode-t .num-btn { border-bottom-color: var(--t-color); }
 
         .btn-valid { background: var(--accent) !important; font-size: 0.9rem; }
         .btn-del { background: #21262d; color: #8b949e; font-size: 1.4rem; }
-        .btn-undo-all { background: #161b22; color: #f85149; font-size: 0.5rem; text-transform: uppercase; }
+        .btn-undo-all { background: #161b22; color: #f85149; font-size: 0.6rem; text-transform: uppercase; border: 1px solid #30363d; }
 
         .overlay { display:none; position:fixed; inset:0; background: rgba(13,17,23,0.98); z-index:999; flex-direction:column; justify-content:center; align-items:center; padding: 20px; }
     </style>
@@ -150,7 +165,7 @@
     <div id="victory-layer" class="overlay">
         <h1 id="end-title" style="color:var(--accent); font-size: 2.2rem; margin: 0;">FIN</h1>
         <div id="final-msg" style="font-size: 1.1rem; text-align: center; margin: 15px 0 25px 0;"></div>
-        <button class="btn-valid" onclick="location.reload()" style="padding: 12px 30px; border-radius: 25px; width: 180px; color:white;">REJOUER</button>
+        <button class="btn-valid" onclick="location.reload()" style="padding: 12px 30px; border-radius: 25px; width: 180px; color:white; border:none;">REJOUER</button>
         <a href="index.html" style="margin-top:20px; color:#888; text-decoration:none; font-size: 0.8rem;">RETOUR MENU</a>
     </div>
 
@@ -172,18 +187,23 @@
         }
 
         function addDart(val) {
-            if (gameOver || dartsInTurn.length >= 3 || totalDarts + dartsInTurn.length >= 9) return;
+            if (gameOver || dartsInTurn.length >= 3 || (totalDarts + dartsInTurn.length) >= 9) return;
+            
             let m = (val === 50 || val === 25 || val === 0) ? 1 : multiplier;
             let pts = (val === 50) ? 50 : val * m;
+            
             score -= pts;
             document.getElementById('scoreDisplay').innerText = Math.max(0, score);
+            
             const slot = document.getElementById(`d${dartsInTurn.length}`);
             let label = (val === 50) ? "BULL" : (val === 0) ? "0" : (m === 3 ? "T" : m === 2 ? "D" : "") + val;
             slot.innerText = label;
             slot.style.color = (m === 3 ? "var(--t-color)" : m === 2 ? "var(--d-color)" : "var(--s-color)");
+            
             dartsInTurn.push(pts);
             setMod(1);
-            if (score <= 0 || (totalDarts + dartsInTurn.length) >= 9) {
+
+            if (score <= 0) {
                 gameOver = true;
                 setTimeout(showEnd, 600);
             }
@@ -193,12 +213,14 @@
             if (gameOver || dartsInTurn.length === 0) return;
             totalDarts += dartsInTurn.length;
             document.getElementById('dartCountDisplay').innerText = `${totalDarts}/9`;
+            
             dartsInTurn = [];
             for(let i=0; i<3; i++) {
                 document.getElementById(`d${i}`).innerText = "-";
                 document.getElementById(`d${i}`).style.color = "#484f58";
             }
-            if(totalDarts >= 9) showEnd();
+            
+            if(totalDarts >= 9 && score > 0) showEnd();
         }
 
         function undoLastDart() {
