@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Darts Club - CHECK-OUT</title>
-    <script src="protection.js"></script>  
     <style>
         :root { 
             --bg: #0b0e14; --card: #161b22; --text: #f0f6fc;
@@ -63,7 +62,6 @@
         .btn-del { background: #21262d; color: #8b949e; font-size: 1.4rem; }
         .btn-undo-all { background: #161b22; color: #8b949e; font-size: 0.7rem; border: 1px solid #30363d; }
 
-        /* LOOK FINAL HARMONISÉ */
         .overlay { display:none; position:fixed; inset:0; background: rgba(13,17,23,0.98); z-index:999; flex-direction:column; justify-content:center; align-items:center; padding: 20px; }
         .final-box { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid #30363d; width: 100%; max-width: 280px; margin-bottom: 20px; text-align: center; }
     </style>
@@ -82,12 +80,12 @@
                 <div class="score-val" id="scoreDisplay">--</div>
             </div>
             <div class="p-card">
-                <div class="p-name">JETS</div>
+                <div class="p-name">JETS EFFECTUÉS</div>
                 <div class="score-val" id="dartCountDisplay" style="font-size: 1.6rem;">0/6</div>
             </div>
         </div>
 
-        <div class="ia-last-volley" id="historyText">FINIR SUR UN DOUBLE</div>    
+        <div class="ia-last-volley" id="historyText">DOUBLE FINAL OBLIGATOIRE</div>    
         
         <div class="turn-tracking">
             <div class="dart-slot" id="d0">-</div>
@@ -109,28 +107,25 @@
             </div>
             <div class="action-row">
                 <button class="btn-undo-all" onclick="location.reload()">NEW</button>
-                <button class="btn-valid" onclick="finishTurn()">VALIDER</button>
-                <button class="btn-del" onclick="undoLastDart()">⌫</button>
+                <button class="btn-valid" id="btnValid" onclick="finishTurn()">VALIDER</button>
+                <button class="btn-del" id="btnDel" onclick="undoLastDart()">⌫</button>
             </div>
         </div>
     </div>
 
-    <footer>
-        <a href="index.html" class="back-btn">⬅ Menu Principal</a>
-    </footer>
+    <footer><a href="index.html" class="back-btn">⬅ Menu Principal</a></footer>
 
     <div id="end-screen" class="overlay">
         <div class="final-box">
-            <h1 id="end-title" style="font-size: 1rem; color: #8b949e; letter-spacing: 2px; margin: 0;">RÉSULTAT</h1>
-            <div id="final-score" style="font-size: 4rem; font-weight: 900; line-height: 1; margin: 10px 0; color: var(--accent);">0</div>
-            <p id="end-msg" style="font-size: 0.9rem; color: #fff; font-weight: bold; margin: 0;"></p>
+            <h1 id="end-title" style="font-size: 1rem; color: #8b949e; letter-spacing: 2px; margin: 0; text-transform: uppercase;">Résultat</h1>
+            <div id="final-score" style="font-weight: 900; line-height: 1.1; margin: 15px 0;">0</div>
+            <p id="end-msg" style="font-size: 1rem; color: #fff; font-weight: bold; margin: 0;"></p>
         </div>
-        <button class="btn-valid" style="padding: 15px 40px; width: 100%; max-width: 280px; height: auto; border-radius: 25px; color: white;" onclick="location.reload()">RECOMMENCER</button>
-        <a href="index.html" style="margin-top: 20px; color: #555; text-decoration: none; font-size: 0.8rem;">Retour Menu</a>
+        <button class="btn-valid" style="padding: 15px 40px; width: 100%; max-width: 280px; height: auto; border-radius: 25px; color: white;" onclick="location.reload()">REJOUER</button>
     </div>
 
     <script>
-        let score, totalDarts = 0, multiplier = 1, dartsInTurn = [], gameOver = false;
+        let score, initialScore, totalDartsUsed = 0, multiplier = 1, dartsInTurn = [], gameOver = false, isBust = false;
         const exclusions = [169, 168, 166, 165, 163, 162, 159];
 
         window.onload = () => {
@@ -144,11 +139,12 @@
             do {
                 score = Math.floor(Math.random() * (170 - 61 + 1)) + 61;
             } while (exclusions.includes(score));
+            initialScore = score;
             document.getElementById('scoreDisplay').innerText = score;
         }
 
         function setMod(m) {
-            if(gameOver) return;
+            if(gameOver || isBust) return;
             multiplier = m;
             document.querySelectorAll('.btn-mod').forEach(b => b.classList.remove('selected'));
             document.getElementById(['modS','modD','modT'][m-1]).classList.add('selected');
@@ -156,58 +152,67 @@
         }
 
         function addDart(val) {
-            if (gameOver || dartsInTurn.length >= 3 || totalDarts >= 6) return;
+            if (gameOver || isBust || dartsInTurn.length >= 3 || totalDartsUsed + dartsInTurn.length >= 6) return;
+            
             let m = (val === 50 || val === 25 || val === 0) ? 1 : multiplier;
             let actualM = (val === 50) ? 2 : m; 
             let pts = (val === 50) ? 50 : val * m;
             
-            if (score - pts < 0 || score - pts === 1) {
-                alert("BUST !");
-                finishTurn(true);
+            const slot = document.getElementById(`d${dartsInTurn.length}`);
+
+            if (score - pts < 0 || score - pts === 1 || (score - pts === 0 && actualM !== 2)) {
+                isBust = true;
+                slot.innerText = "BUST";
+                slot.style.color = "var(--t-color)";
+                dartsInTurn.push({pts: 0, label: "BUST"});
                 return;
             }
 
             score -= pts;
             document.getElementById('scoreDisplay').innerText = score;
-            const slot = document.getElementById(`d${dartsInTurn.length}`);
-            slot.innerText = (val === 50) ? "BULL" : (val === 0) ? "0" : (m === 3 ? "T" : m === 2 ? "D" : "") + val;
+            let label = (val === 50) ? "BULL" : (val === 0) ? "0" : (m === 3 ? "T" : m === 2 ? "D" : "") + val;
+            slot.innerText = label;
             slot.style.color = (m === 3 ? "var(--t-color)" : m === 2 ? "var(--d-color)" : "var(--s-color)");
             
-            dartsInTurn.push({pts, m: actualM});
+            dartsInTurn.push({pts: pts, label: label});
             setMod(1);
 
             if (score === 0) {
-                if (actualM === 2) {
-                    gameOver = true;
-                    setTimeout(() => showEnd(true), 400);
-                } else {
-                    alert("BUST ! Pas de double final.");
-                    score += pts;
-                    undoLastDart();
-                    finishTurn(true);
-                }
+                gameOver = true;
+                totalDartsUsed += dartsInTurn.length;
+                setTimeout(() => showEnd(true), 400);
+            } else if (totalDartsUsed + dartsInTurn.length >= 6) {
+                setTimeout(() => finishTurn(), 400);
             }
         }
 
-        function finishTurn(isBust = false) {
+        function finishTurn() {
             if (gameOver) return;
-            totalDarts += (isBust) ? 3 : dartsInTurn.length; 
-            if (totalDarts > 6) totalDarts = 6;
-            document.getElementById('dartCountDisplay').innerText = `${totalDarts}/6`;
             
+            totalDartsUsed += dartsInTurn.length;
+            document.getElementById('dartCountDisplay').innerText = `${totalDartsUsed}/6`;
+            
+            if (totalDartsUsed >= 6 && score > 0) {
+                showEnd(false);
+                return;
+            }
+
             dartsInTurn = [];
+            isBust = false;
             for(let i=0; i<3; i++) {
                 document.getElementById(`d${i}`).innerText = "-";
                 document.getElementById(`d${i}`).style.color = "#484f58";
             }
-            if(totalDarts >= 6 && score > 0) showEnd(false);
         }
 
         function undoLastDart() {
             if (gameOver || dartsInTurn.length === 0) return;
             let last = dartsInTurn.pop();
-            score += last.pts;
-            document.getElementById('scoreDisplay').innerText = score;
+            if (last.label !== "BUST") {
+                score += last.pts;
+                document.getElementById('scoreDisplay').innerText = score;
+            }
+            isBust = false;
             const slot = document.getElementById(`d${dartsInTurn.length}`);
             slot.innerText = "-";
             slot.style.color = "#484f58";
@@ -222,16 +227,19 @@
             const msg = document.getElementById('end-msg');
             const title = document.getElementById('end-title');
             
-            fs.innerText = win ? "OK" : score;
-
             if (win) {
-                title.innerText = "CHECKED !";
+                title.innerText = "BRAVO !";
+                fs.innerText = "CHECKED";
+                fs.style.fontSize = "3rem";
                 fs.style.color = "var(--s-color)";
-                msg.innerText = `Fini en ${totalDarts + dartsInTurn.length} fléchettes.`;
+                msg.innerText = `Réussi en ${totalDartsUsed} fléchettes.`;
             } else {
                 title.innerText = "ÉCHEC";
-                fs.style.color = "var(--t-color)";
-                msg.innerText = `Il restait ${score} points.`;
+                // Style plus fin pour le mot "Cible"
+                fs.innerHTML = `<span style="font-size: 1.1rem; font-weight: 400; color: #8b949e; letter-spacing: 1px;">CIBLE :</span><br>${initialScore}`;
+                fs.style.fontSize = "3.5rem"; 
+                fs.style.color = "#fff";
+                msg.innerHTML = `Il restait <span style="color:var(--t-color); font-size:1.4rem;">${score}</span> pts.`;
             }
         }
     </script>
