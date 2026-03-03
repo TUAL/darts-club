@@ -63,7 +63,6 @@
         .btn-del { background: #21262d; color: #8b949e; font-size: 1.4rem; }
         .btn-undo-all { background: #161b22; color: #8b949e; font-size: 0.7rem; border: 1px solid #30363d; }
 
-        /* LOOK FINAL HARMONISÉ */
         .overlay { display:none; position:fixed; inset:0; background: rgba(13,17,23,0.98); z-index:999; flex-direction:column; justify-content:center; align-items:center; padding: 20px; }
         .final-box { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid #30363d; width: 100%; max-width: 280px; margin-bottom: 20px; text-align: center; }
     </style>
@@ -87,7 +86,7 @@
             </div>
         </div>
 
-        <div class="ia-last-volley" id="historyText">OBJECTIF : 180</div>    
+        <div class="ia-last-volley" id="historyText">OBJECTIF : FAIRE 180 EN 9 JETS</div>    
         
         <div class="turn-tracking">
             <div class="dart-slot" id="d0">-</div>
@@ -121,7 +120,7 @@
 
     <div id="end-screen" class="overlay">
         <div class="final-box">
-            <h1 id="end-title-label" style="font-size: 0.8rem; color: #8b949e; letter-spacing: 2px; margin: 0;">RÉSULTAT</h1>
+            <h1 id="end-title-label" style="font-size: 0.8rem; color: #8b949e; letter-spacing: 2px; margin: 0; text-transform: uppercase;">Résultat</h1>
             <div id="final-score-display" style="font-size: 4rem; font-weight: 900; line-height: 1; margin: 10px 0;">180</div>
             <p id="end-msg" style="font-size: 0.9rem; color: #fff; font-weight: bold; margin: 0;"></p>
         </div>
@@ -130,12 +129,13 @@
     </div>
 
     <script>
-        let score = 180, totalDarts = 0, multiplier = 1, dartsInTurn = [], gameOver = false;
+        let score = 180, totalDartsUsed = 0, multiplier = 1, dartsInTurn = [], gameOver = false;
 
         window.onload = () => {
             const pad = document.getElementById('numPad'); 
             pad.innerHTML = "";
             for(let i=1; i<=20; i++) pad.innerHTML += `<button class="num-btn" onclick="addDart(${i})">${i}</button>`;
+            updateCounter();
         };
 
         function setMod(m) {
@@ -146,8 +146,12 @@
             document.getElementById('gameGrid').className = "grid mode-" + ['s','d','t'][m-1];
         }
 
+        function updateCounter() {
+            document.getElementById('dartCountDisplay').innerText = `${totalDartsUsed + dartsInTurn.length}/9`;
+        }
+
         function addDart(val) {
-            if (gameOver || dartsInTurn.length >= 3 || (totalDarts + dartsInTurn.length) >= 9) return;
+            if (gameOver || dartsInTurn.length >= 3 || (totalDartsUsed + dartsInTurn.length) >= 9) return;
             
             let m = (val === 50 || val === 25 || val === 0) ? 1 : multiplier;
             let pts = (val === 50) ? 50 : val * m;
@@ -161,32 +165,39 @@
             slot.style.color = (m === 3 ? "var(--t-color)" : m === 2 ? "var(--d-color)" : "var(--s-color)");
             
             dartsInTurn.push(pts);
+            updateCounter();
             setMod(1);
 
             if (score <= 0) {
                 gameOver = true;
                 setTimeout(showEnd, 600);
+            } else if (totalDartsUsed + dartsInTurn.length >= 9) {
+                setTimeout(() => { if(!gameOver) finishTurn(); }, 600);
             }
         }
 
         function finishTurn() {
-            if (gameOver || dartsInTurn.length === 0) return;
-            totalDarts += dartsInTurn.length;
-            document.getElementById('dartCountDisplay').innerText = `${totalDarts}/9`;
+            if (gameOver) return;
+            totalDartsUsed += dartsInTurn.length;
             
+            if (totalDartsUsed >= 9 && score > 0) {
+                showEnd();
+                return;
+            }
+
             dartsInTurn = [];
+            updateCounter();
             for(let i=0; i<3; i++) {
                 document.getElementById(`d${i}`).innerText = "-";
                 document.getElementById(`d${i}`).style.color = "#484f58";
             }
-            
-            if(totalDarts >= 9 && score > 0) showEnd();
         }
 
         function undoLastDart() {
             if (gameOver || dartsInTurn.length === 0) return;
             score += dartsInTurn.pop();
             document.getElementById('scoreDisplay').innerText = score;
+            updateCounter();
             const slot = document.getElementById(`d${dartsInTurn.length}`);
             slot.innerText = "-";
             slot.style.color = "#484f58";
@@ -203,12 +214,12 @@
             const title = document.getElementById('end-title-label');
 
             if (win) {
-                title.innerText = "RÉUSSI !";
+                title.innerText = "CHALLENGE RÉUSSI !";
                 fs.innerText = "180";
                 fs.style.color = "var(--s-color)";
-                msg.innerText = `Atteint en ${totalDarts + dartsInTurn.length} fléchettes.`;
+                msg.innerText = `Atteint en ${totalDartsUsed + dartsInTurn.length} fléchettes.`;
             } else {
-                title.innerText = "ÉCHEC";
+                title.innerText = "CHALLENGE ÉCHOUÉ";
                 fs.innerText = 180 - score;
                 fs.style.color = "var(--t-color)";
                 msg.innerText = `Score total. Il manquait ${score} pts.`;
