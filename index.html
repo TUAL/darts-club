@@ -35,23 +35,22 @@
             flex-direction: column;
             align-items: center;
             min-height: 100dvh;
-            /* On autorise le scroll car il y a beaucoup de cartes */
+            /* Scroll fluide et masqué */
             overflow-y: auto; 
-            /* On cache la barre de scroll pour l'esthétique */
-            -ms-overflow-style: none;  /* IE and Edge */
-            scrollbar-width: none;  /* Firefox */
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
         
-        body::-webkit-scrollbar { display: none; } /* Chrome, Safari, Opera */
+        body::-webkit-scrollbar { display: none; }
 
         header {
             text-align: center;
             padding-top: calc(env(safe-area-inset-top) + 20px);
-            margin-bottom: 20px; /* Réduit de 30px à 20px */
+            margin-bottom: 20px;
         }
 
         h1 {
-            font-size: 2.2rem; /* Légèrement réduit pour gagner de la place */
+            font-size: 2.3rem;
             letter-spacing: 5px;
             margin: 0;
             background: linear-gradient(to bottom, #fff 30%, #444 100%);
@@ -63,7 +62,7 @@
 
         .subtitle {
             color: var(--accent);
-            font-size: 0.65rem;
+            font-size: 0.7rem;
             letter-spacing: 5px;
             text-transform: uppercase;
             font-weight: bold;
@@ -74,16 +73,16 @@
         .menu-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 10px; /* Réduit de 12px à 10px */
+            gap: 10px;
             width: 100%;
             max-width: 500px;
-            padding-bottom: 20px; /* Espace avant le footer */
+            padding-bottom: 20px;
         }
 
         .menu-item {
             background: linear-gradient(145deg, #1a1a1a, #0a0a0a);
             border: 1px solid #222;
-            border-radius: 18px;
+            border-radius: 20px;
             padding: 12px;
             text-decoration: none;
             color: white;
@@ -92,60 +91,74 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s ease;
             position: relative;
             overflow: hidden;
         }
 
-        .menu-item:active { transform: scale(0.95); background: #151515; }
+        .menu-item:active { transform: scale(0.97); background: #151515; }
 
         .live { border-top: 1px solid var(--live); }
         .online { border-top: 1px solid var(--accent); }
         .ia { border-top: 1px solid var(--ia); }
         .fun { border-top: 1px solid var(--fun); }
 
-        .icon { font-size: 1.6rem; margin-bottom: 5px; }
-        .title { font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px; }
-        .desc { font-size: 0.6rem; color: #888; line-height: 1.2; }
+        .icon { font-size: 1.7rem; margin-bottom: 5px; }
+        .title { font-size: 0.9rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px; }
+        .desc { font-size: 0.65rem; color: #888; line-height: 1.2; }
 
-        .full {
+        /* DARTS LIVE : Hauteur doublée par le padding */
+        .full-live {
             grid-column: span 2;
             flex-direction: row;
-            justify-content: flex-start;
-            padding: 15px 20px;
-            gap: 15px;
+            padding: 25px 20px;
+            gap: 20px;
             text-align: left;
+            justify-content: flex-start;
         }
+        .full-live .icon { font-size: 2.2rem; margin-bottom: 0; }
+        .full-live .title { font-size: 1.1rem; }
+        .full-live .desc { max-width: none; }
 
+        /* FOOTER : Bouton "En savoir plus" doublé */
         footer {
-            margin-top: 10px;
+            margin-top: auto;
             width: 100%;
+            padding: 20px 0;
             padding-bottom: calc(env(safe-area-inset-bottom) + 20px);
             display: flex;
             justify-content: center;
-            flex-shrink: 0; /* Empêche le footer de s'écraser */
+            flex-shrink: 0;
         }
 
         .info-link { 
             color: #888; 
             text-decoration: none; 
-            font-size: 0.75rem; 
+            font-size: 0.8rem; 
             text-transform: uppercase; 
             letter-spacing: 2px; 
-            padding: 8px 25px; 
+            padding: 18px 45px; /* Hauteur doublée par rapport au bouton standard */
             border: 1px solid #333; 
-            border-radius: 20px;
+            border-radius: 30px;
+            transition: 0.2s;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .info-link:active {
+            background: #161b22;
+            color: #fff;
+            border-color: #555;
         }
 
         .badge-online {
             position: absolute;
-            top: 8px;
-            right: 10px;
+            top: 10px;
+            right: 12px;
             background: #FF0000;
             color: #FFF;
-            font-size: 0.5rem;
+            font-size: 0.55rem;
             font-weight: 900;
-            padding: 2px 6px;
+            padding: 2px 8px;
             border-radius: 50px;
             animation: pulse 2s infinite;
         }
@@ -165,7 +178,7 @@
     </header>
 
     <div class="menu-grid">
-        <a href="darts-live.html" class="menu-item live full">
+        <a href="darts-live.html" class="menu-item live full-live">
             <div class="badge-online">ONLINE</div>
             <div class="icon">📡</div>
             <div>
@@ -177,37 +190,37 @@
         <a href="darts-local.html" class="menu-item online">
             <div class="icon">🏠</div>
             <div class="title">Darts Local</div>
-            <div class="desc">En solo ou<br>entre amis.</div>
+            <div class="desc">En solo ou entre amis.<br></div>
         </a>
 
         <a href="darts-ia.html" class="menu-item ia">
             <div class="icon">🤖</div>
             <div class="title">DARTS IA</div>
-            <div class="desc">Défiez<br>l'algorithme.</div>
+            <div class="desc">Défiez l'algorithme.<br></div>
         </a>
 
         <a href="darts-bobs.html" class="menu-item fun">
             <div class="icon">🎡</div>
             <div class="title">Bob's 27</div>
-            <div class="desc">Maîtrise des<br>doubles.</div>
+            <div class="desc">Maîtrise des doubles.<br></div>
         </a>
 
         <a href="darts-180.html" class="menu-item fun">
             <div class="icon">🔥</div>
             <div class="title">Darts 180</div>
-            <div class="desc">Quête de la<br>perfection.</div>
+            <div class="desc">Quête de la perfection.<br></div>
         </a>
 
         <a href="darts-bull.html" class="menu-item fun">
             <div class="icon">🎯</div>
             <div class="title">Bull</div>
-            <div class="desc">Focus centre<br>cible.</div>
+            <div class="desc">Focus centre cible.<br></div>
         </a>
 
         <a href="darts-checkout.html" class="menu-item fun">
             <div class="icon">🏁</div>
             <div class="title">Check-out</div>
-            <div class="desc">Finish aléatoire<br>6 fléchettes.</div>
+            <div class="desc">Finish aléatoire 6 fléchettes.<br></div>
         </a>
     </div>
 
