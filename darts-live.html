@@ -24,33 +24,28 @@
         }
 
         /* LOBBY */
-        #lobby { max-width: 400px; margin: 0 auto; width: 100%; padding: 40px 20px; text-align: center; }
+        #lobby { max-width: 400px; margin: 0 auto; width: 100%; padding: 30px 20px; text-align: center; }
         .input-group { margin-bottom: 15px; text-align: left; }
         label { font-size: 0.7rem; color: var(--accent); letter-spacing: 2px; font-weight: bold; margin-left: 5px; text-transform: uppercase; }
         input { width: 100%; background: var(--card); border: 1px solid #30363d; color: white; padding: 15px; border-radius: 12px; font-size: 1rem; outline: none; margin-top: 5px; }
-        .room-list { background: #010409; border: 1px solid #30363d; border-radius: 15px; margin: 20px 0; max-height: 180px; overflow-y: auto; padding: 10px; }
+        
+        .qualif-box { background: rgba(88, 166, 255, 0.05); border: 1px dashed #30363d; padding: 12px; border-radius: 12px; margin-bottom: 15px; }
+
+        .room-list { background: #010409; border: 1px solid #30363d; border-radius: 15px; margin: 20px 0; max-height: 150px; overflow-y: auto; padding: 10px; }
         .room-item { background: var(--card); padding: 12px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; border-left: 4px solid var(--accent); cursor: pointer; }
+        .room-item.locked { border-left-color: #f85149; opacity: 0.6; }
+
         .btn-join { background: var(--accent); color: #fff; padding: 18px; border-radius: 15px; font-weight: 800; border: none; width: 100%; letter-spacing: 1px; text-transform: uppercase; }
 
         /* GAME SCREEN */
         #game-screen { display: none; height: 100dvh; flex-direction: column; padding: 10px; padding-bottom: 90px; gap: 5px; }
-        
-        /* HEADER - Hauteur ajustée pour accueillir les infos */
         .header { height: 22dvh; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
         .p-card { background: var(--card); border-radius: 12px; border: 1px solid #30363d; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.3; transition: 0.3s; padding: 5px; }
         .p-card.active { opacity: 1; border-color: var(--accent); border-width: 3px; box-shadow: 0 0 15px rgba(88, 166, 255, 0.2); }
-        
-        .p-name { font-size: 0.7rem; color: #8b949e; text-transform: uppercase; font-weight: 900; letter-spacing: 1px; }
+        .p-name { font-size: 0.7rem; color: #8b949e; text-transform: uppercase; font-weight: 900; letter-spacing: 1px; text-align: center; }
         .score-val { font-size: 2.1rem; font-weight: 900; color: #fff; line-height: 1; margin: 4px 0; }
-        
-        /* Box 3 fléchettes */
         .last-volley-box { font-size: 0.6rem; color: var(--d-color); font-weight: 800; background: rgba(0,0,0,0.3); padding: 2px 4px; border-radius: 4px; margin-bottom: 4px; letter-spacing: 0.5px; }
-        
-        /* Infos AVG et FLE l'un sous l'autre */
         .avg-info { font-size: 0.6rem; color: var(--accent); font-family: 'Courier New', monospace; text-align: center; line-height: 1.3; font-weight: bold; }
-
-        /* Suppression de la ligne centrale */
-        .ia-last-volley { display: none; } 
 
         .turn-tracking { display: flex; justify-content: center; gap: 8px; height: 7dvh; margin-top: 5px; }
         .dart-slot { width: 30%; background: #010409; border: 1px solid #30363d; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #484f58; font-size: 1.1rem; }
@@ -66,7 +61,6 @@
 
         button { border: none; border-radius: 6px; font-weight: 700; color: #fff; cursor: pointer; }
         button:disabled { opacity: 0.1 !important; }
-
         .btn-mod { background: #21262d; font-size: 1.1rem; border: 1px solid #30363d; }
         #modS.selected { background: var(--s-color); }
         #modD.selected { background: var(--d-color); }
@@ -92,9 +86,18 @@
     <div id="lobby">
         <div style="font-size: 3.5rem; margin-bottom: 5px;">📡</div>
         <h1 style="color: var(--accent); margin-bottom: 25px; letter-spacing: 2px; font-weight: 800; font-size: 1.8rem;">DARTS LIVE</h1>
-        <div class="input-group"><label>Pseudo</label><input type="text" id="nameInput" placeholder="VOTRE NOM..."></div>
+        
+        <div class="input-group"><label>1. Votre Pseudo</label><input type="text" id="nameInput" placeholder="NOM..."></div>
+        
+        <div class="qualif-box">
+            <div class="input-group" style="margin-bottom:0">
+                <label>2. Score Bulle (Ordre des joueurs)</label>
+                <input type="text" id="qualifInput" inputmode="numeric" pattern="[0-9]*" placeholder="EX: 50, 25, 12,..., 0" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+            </div>
+        </div>
+
         <div id="roomList" class="room-list"></div>
-        <div class="input-group"><label>ID Stand</label><input type="text" id="roomInput" placeholder="NOM DU STAND..."></div>
+        <div class="input-group"><label>3. ID Stand</label><input type="text" id="roomInput" placeholder="NOM DU STAND..."></div>
         <button class="btn-join" onclick="joinRoom()">REJOINDRE / CRÉER</button>
     </div>
 
@@ -102,7 +105,7 @@
 
     <div id="game-screen">
         <div class="header" id="gamePlayers"></div>
-        <div class="ia-last-volley" id="ia-history"></div> <div class="turn-tracking">
+        <div class="turn-tracking">
             <div class="dart-slot" id="d0">-</div>
             <div class="dart-slot" id="d1">-</div>
             <div class="dart-slot" id="d2">-</div>
@@ -156,12 +159,18 @@
             const rooms = snapshot.val();
             if (rooms) {
                 Object.keys(rooms).forEach(key => {
-                    if(rooms[key].status !== "finished") {
-                        const count = rooms[key].players?.length || 0;
+                    const room = rooms[key];
+                    if(room.status !== "finished") {
+                        const count = room.players?.length || 0;
+                        const isLocked = room.history && room.history.length > 0;
                         const item = document.createElement('div');
-                        item.className = 'room-item';
-                        item.innerHTML = `<span>${key}</span><span>${count}/3 👤</span>`;
-                        item.onclick = () => { if(count < 3) { document.getElementById('roomInput').value = key; joinRoom(); } else { alert("Stand Complet"); } };
+                        item.className = 'room-item' + (isLocked ? ' locked' : '');
+                        item.innerHTML = `<span>${key} ${isLocked ? '🔒' : ''}</span><span>${count}/3 👤</span>`;
+                        item.onclick = () => { 
+                            if(isLocked) alert("Partie déjà commencée. Stand verrouillé.");
+                            else if(count < 3) { document.getElementById('roomInput').value = key; joinRoom(); } 
+                            else { alert("Stand Complet"); } 
+                        };
                         listDiv.appendChild(item);
                     }
                 });
@@ -171,15 +180,35 @@
         function joinRoom() {
             roomName = document.getElementById('roomInput').value.trim().toUpperCase();
             myName = document.getElementById('nameInput').value.trim().toUpperCase();
+            let myQualif = parseInt(document.getElementById('qualifInput').value) || 0;
+
             if(!roomName || !myName) return alert("Pseudo et ID Stand requis !");
+            
             db.ref('rooms/' + roomName).on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (!data && myIndex === -1) {
-                    db.ref('rooms/' + roomName).set({ status: "active", currentPlayer: 0, players: [{ name: myName, score: 501, totalDarts: 0, totalPoints: 0, lastDarts: "- • - • -" }] });
+                    db.ref('rooms/' + roomName).set({ 
+                        status: "active", 
+                        currentPlayer: 0, 
+                        players: [{ name: myName, score: 501, totalDarts: 0, totalPoints: 0, lastDarts: "- • - • -", q: myQualif }] 
+                    });
                 } else if (data) {
                     gameState = data;
                     if (gameState.status === "finished") showVictory(gameState.winner);
-                    else { document.getElementById('victory-layer').style.display = 'none'; document.getElementById('game-screen').style.display = 'flex'; syncUI(); }
+                    else { 
+                        document.getElementById('victory-layer').style.display = 'none'; 
+                        document.getElementById('game-screen').style.display = 'flex'; 
+                        
+                        let found = gameState.players.findIndex(p => p.name === myName);
+                        const isLocked = gameState.history && gameState.history.length > 0;
+
+                        if (found === -1 && !isLocked && gameState.players.length < 3) {
+                            let newPlayers = [...gameState.players, { name: myName, score: 501, totalDarts: 0, totalPoints: 0, lastDarts: "- • - • -", q: myQualif }];
+                            newPlayers.sort((a, b) => (b.q || 0) - (a.q || 0));
+                            db.ref('rooms/' + roomName + '/players').set(newPlayers);
+                        }
+                        syncUI(); 
+                    }
                 }
             });
             document.getElementById('lobby').style.display = 'none';
@@ -187,11 +216,6 @@
 
         function syncUI() {
             myIndex = gameState.players.findIndex(p => p.name === myName);
-            if (myIndex === -1 && gameState.players.length < 3) {
-                gameState.players.push({ name: myName, score: 501, totalDarts: 0, totalPoints: 0, lastDarts: "- • - • -" });
-                db.ref('rooms/' + roomName + '/players').set(gameState.players);
-                return;
-            }
             const container = document.getElementById('gamePlayers');
             container.innerHTML = gameState.players.map((p, i) => {
                 const active = (i === gameState.currentPlayer) ? "active" : "";
@@ -199,7 +223,7 @@
                 const avg = p.totalDarts > 0 ? ((pointsMarques / p.totalDarts) * 3).toFixed(1) : "0.0";
                 return `
                     <div class="p-card ${active}">
-                        <div class="p-name">${p.name}</div>
+                        <div class="p-name">${p.name}<br><span style="font-size:0.5rem; color:var(--accent)">ORDRE: ${p.q || 0}</span></div>
                         <div class="score-val">${p.score}</div>
                         <div class="last-volley-box">${p.lastDarts || "- • - • -"}</div>
                         <div class="avg-info">AVG: ${avg}<br>FLE: ${p.totalDarts || 0}</div>
@@ -252,10 +276,7 @@
             if(!gameState.history || gameState.history.length === 0) return;
             let last = gameState.history.pop();
             let p = gameState.players[last.playerIdx];
-            if(!last.wasBust) {
-                const sum = last.ptsArray.reduce((a,b)=>a+b,0);
-                p.score += sum;
-            }
+            if(!last.wasBust) { p.score += last.ptsArray.reduce((a,b)=>a+b,0); }
             p.totalDarts -= 3;
             p.lastDarts = "- • - • -";
             gameState.currentPlayer = last.playerIdx;
