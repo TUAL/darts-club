@@ -100,8 +100,8 @@
         
         <div class="qualif-box">
             <div class="input-group" style="margin-bottom:0">
-                <label>2. Score Bulle (Ordre)</label>
-                <input type="text" id="qualifInput" inputmode="numeric" pattern="[0-9]*" placeholder="EX: 50, 25, 12..." oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                <label>2. Score Bulle (Ordre des joueurs)</label>
+                <input type="text" id="qualifInput" inputmode="numeric" pattern="[0-9]*" placeholder="EX: 50, 25, 12, ..., 0" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
             </div>
         </div>
 
@@ -133,7 +133,7 @@
                 <button class="num-btn" onclick="addDart(50)">BULL</button>
             </div>
             <div class="action-row">
-                <button class="btn-undo-all" onclick="undoLastTurn()">ANNULER<br>VOLÉE</button>
+                <button class="btn-undo-all" onclick="undoLastTurn()">ANNULER<br>VOLÉE<br>PRÉCÉDENTE</button>
                 <button class="btn-valid" onclick="finishTurn()">VALIDER VOLÉE</button>
                 <button class="btn-del" onclick="undoLastDart()">⌫</button>
             </div>
@@ -152,7 +152,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        const STANDS_NAMES = ["1 - BULLSEYE", "2 - TRIPLE 20", "3 - OCHE", "4 - DOUBLE TOP", "5 - NINE DARTS", "6 - 180 !"];
+        const STANDS_NAMES = ["1 - Littler", "2 - Humphries", "3 - Price", "4 - Van Veen", "5 - Van Gerwen", "6 - Tricole"];
         let roomName, myName, myIndex = -1, dartsInTurn = [], visualDarts = [], multiplier = 1, isBust = false;
         let gameState = { players: [], currentPlayer: 0, status: "active" };
 
