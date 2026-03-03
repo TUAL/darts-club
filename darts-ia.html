@@ -81,10 +81,10 @@
 <body>
 
 <div id="level-screen">
-    <div class="app-brand"><span class="app-logo">🎯</span><span class="app-title">Darts Club</span></div>
+    <div class="app-brand"><span class="app-logo">🎯</span><span class="app-title">Darts IA</span></div>
     <div class="selection-content">
         <div style="font-size: 2.5rem; margin-bottom: 10px;">🤖</div>
-        <h2 style="color: var(--accent); letter-spacing: 2px; margin-bottom: 25px; font-size: 1.2rem;">ADVERSAIRE IA</h2>
+        <h2 style="color: var(--accent); letter-spacing: 2px; margin-bottom: 25px; font-size: 1.2rem;">GEMINI IA</h2>
         <div class="lvl-grid">
             <button class="lvl-btn lvl-1" onclick="startGame(1)"><div><div style="font-weight:900">1. DÉBUTANT</div><div style="font-size:0.7rem; color:#888">AVG : 40-50</div></div></button>
             <button class="lvl-btn lvl-2" onclick="startGame(2)"><div><div style="font-weight:900">2. INTERMÉDIAIRE</div><div style="font-size:0.7rem; color:#888">AVG : 50-65</div></div></button>
@@ -95,15 +95,15 @@
 </div>
 
 <div id="game-screen" style="display:none;">
-    <div class="app-brand"><span class="app-logo">🎯</span><span class="app-title">Darts Club</span></div>
+    <div class="app-brand"><span class="app-logo">🎯</span><span class="app-title">Darts IA</span></div>
     <div class="header">
         <div class="score-card active" id="card-p">
-            <div style="font-size:0.55rem; font-weight:900">JOUEUR</div>
+            <div style="font-size:0.55rem; font-weight:900">TOI</div>
             <div id="p-score" class="score-val">501</div>
             <div id="p-avg" class="avg-val">AVG: 0.0 | FLE: 0</div>
         </div>
         <div class="score-card" id="card-ia">
-            <div style="font-size:0.55rem; font-weight:900">IA (LVL <span id="ia-lvl-txt">1</span>)</div>
+            <div style="font-size:0.55rem; font-weight:900">GEMINI (NIV <span id="ia-lvl-txt">1</span>)</div>
             <div id="ia-score" class="score-val" style="color:var(--d-color)">501</div>
             <div id="ia-avg" class="avg-val">AVG: 0.0 | FLE: 0</div>
         </div>

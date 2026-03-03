@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Darts Club - CHECK-OUT</title>
+    <style>
+        :root { 
+            --bg: #0b0e14; --card: #161b22; --text: #f0f6fc;
+            --s-color: #238636; --d-color: #d29922; --t-color: #da3633;
+            --accent: #58a6ff;
+        }
+        * { box-sizing: border-box; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            font-family: -apple-system, system-ui, sans-serif; 
+            background: var(--bg); color: var(--text); 
+            margin: 0; padding: 0; height: 100dvh;
+            display: flex; flex-direction: column; overflow: hidden; 
+        }
+
+        .app-brand { height: 35px; display: flex; align-items: center; justify-content: center; gap: 8px; flex-shrink: 0; }
+        .app-title { font-size: 0.75rem; font-weight: 900; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; }
+
+        footer {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: var(--bg); padding: 10px 0;
+            padding-bottom: calc(env(safe-area-inset-bottom) + 10px);
+            text-align: center; z-index: 100; border-top: 1px solid #161b22;
+        }
+        .back-btn { color: #888; text-decoration: none; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; padding: 5px 15px; border: 1px solid #333; border-radius: 20px; }
+
+        #game-screen { display: flex; height: 100dvh; flex-direction: column; padding: 10px; padding-bottom: 105px; gap: 4px; }
+        
+        .header { height: 10dvh; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex-shrink: 0; }
+        .p-card { background: var(--card); border-radius: 10px; border: 1px solid var(--accent); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .p-name { font-size: 0.6rem; color: #8b949e; text-transform: uppercase; }
+        .score-val { font-size: 2rem; font-weight: 900; color: #fff; line-height: 1; }
+
+        .ia-last-volley { height: 18px; text-align: center; font-size: 0.65rem; color: var(--d-color); font-weight: bold; flex-shrink: 0; }
+        .turn-tracking { display: flex; justify-content: center; gap: 6px; height: 35px; flex-shrink: 0; }
+        .dart-slot { width: 30%; background: #010409; border: 1px solid #30363d; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; color: #484f58; }
+
+        .grid { flex: 1; display: flex; flex-direction: column; gap: 4px; min-height: 0; }
+        .mod-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; flex: 1; }
+        .num-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(5, 1fr); gap: 4px; flex: 5; } 
+        .special-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; flex: 1; }
+        .action-row { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 4px; flex: 1; }
+
+        button { border: none; border-radius: 6px; font-weight: 700; color: #fff; cursor: pointer; height: 100%; width: 100%; }
+        .btn-mod { background: #21262d; font-size: 1rem; border: 1px solid #30363d; }
+        #modS.selected { background: var(--s-color); }
+        #modD.selected { background: var(--d-color); }
+        #modT.selected { background: var(--t-color); }
+
+        .num-btn { background: #21262d; font-size: 1.1rem; border-bottom: 3px solid transparent; }
+        .grid.mode-s .num-btn { border-bottom-color: var(--s-color); }
+        .grid.mode-d .num-btn { border-bottom-color: var(--d-color); }
+        .grid.mode-t .num-btn { border-bottom-color: var(--t-color); }
+
+        .btn-valid { background: var(--accent) !important; font-size: 0.9rem; font-weight: 800; text-transform: uppercase; }
+        .btn-del { background: #21262d; color: #8b949e; font-size: 1.4rem; }
+        .btn-undo-all { background: #161b22; color: #8b949e; font-size: 0.7rem; border: 1px solid #30363d; }
+
+        /* LOOK FINAL HARMONISÉ */
+        .overlay { display:none; position:fixed; inset:0; background: rgba(13,17,23,0.98); z-index:999; flex-direction:column; justify-content:center; align-items:center; padding: 20px; }
+        .final-box { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid #30363d; width: 100%; max-width: 280px; margin-bottom: 20px; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <div id="game-screen">
+        <div class="app-brand">
+            <span class="app-logo">🏁</span>
+            <span class="app-title">CHECK-OUT</span>
+        </div>
+
+        <div class="header">
+            <div class="p-card">
+                <div class="p-name">RESTE</div>
+                <div class="score-val" id="scoreDisplay">--</div>
+            </div>
+            <div class="p-card">
+                <div class="p-name">JETS</div>
+                <div class="score-val" id="dartCountDisplay" style="font-size: 1.6rem;">0/6</div>
+            </div>
+        </div>
+
+        <div class="ia-last-volley" id="historyText">FINIR SUR UN DOUBLE</div>    
+        
+        <div class="turn-tracking">
+            <div class="dart-slot" id="d0">-</div>
+            <div class="dart-slot" id="d1">-</div>
+            <div class="dart-slot" id="d2">-</div>
+        </div>
+
+        <div class="grid mode-s" id="gameGrid">
+            <div class="mod-row">
+                <button class="btn-mod selected" id="modS" onclick="setMod(1)">S</button>
+                <button class="btn-mod" id="modD" onclick="setMod(2)">D</button>
+                <button class="btn-mod" id="modT" onclick="setMod(3)">T</button>
+            </div>
+            <div id="numPad" class="num-grid"></div>
+            <div class="special-row">
+                <button class="num-btn" onclick="addDart(0)">0</button>
+                <button class="num-btn" onclick="addDart(25)">25</button>
+                <button class="num-btn" onclick="addDart(50)">BULL</button>
+            </div>
+            <div class="action-row">
+                <button class="btn-undo-all" onclick="location.reload()">NEW</button>
+                <button class="btn-valid" onclick="finishTurn()">VALIDER</button>
+                <button class="btn-del" onclick="undoLastDart()">⌫</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <a href="index.html" class="back-btn">⬅ Menu Principal</a>
+    </footer>
+
+    <div id="end-screen" class="overlay">
+        <div class="final-box">
+            <h1 id="end-title" style="font-size: 1rem; color: #8b949e; letter-spacing: 2px; margin: 0;">RÉSULTAT</h1>
+            <div id="final-score" style="font-size: 4rem; font-weight: 900; line-height: 1; margin: 10px 0; color: var(--accent);">0</div>
+            <p id="end-msg" style="font-size: 0.9rem; color: #fff; font-weight: bold; margin: 0;"></p>
+        </div>
+        <button class="btn-valid" style="padding: 15px 40px; width: 100%; max-width: 280px; height: auto; border-radius: 25px; color: white;" onclick="location.reload()">RECOMMENCER</button>
+        <a href="index.html" style="margin-top: 20px; color: #555; text-decoration: none; font-size: 0.8rem;">Retour Menu</a>
+    </div>
+
+    <script>
+        let score, totalDarts = 0, multiplier = 1, dartsInTurn = [], gameOver = false;
+        const exclusions = [169, 168, 166, 165, 163, 162, 159];
+
+        window.onload = () => {
+            initGame();
+            const pad = document.getElementById('numPad'); 
+            pad.innerHTML = "";
+            for(let i=1; i<=20; i++) pad.innerHTML += `<button class="num-btn" onclick="addDart(${i})">${i}</button>`;
+        };
+
+        function initGame() {
+            do {
+                score = Math.floor(Math.random() * (170 - 61 + 1)) + 61;
+            } while (exclusions.includes(score));
+            document.getElementById('scoreDisplay').innerText = score;
+        }
+
+        function setMod(m) {
+            if(gameOver) return;
+            multiplier = m;
+            document.querySelectorAll('.btn-mod').forEach(b => b.classList.remove('selected'));
+            document.getElementById(['modS','modD','modT'][m-1]).classList.add('selected');
+            document.getElementById('gameGrid').className = "grid mode-" + ['s','d','t'][m-1];
+        }
+
+        function addDart(val) {
+            if (gameOver || dartsInTurn.length >= 3 || totalDarts >= 6) return;
+            let m = (val === 50 || val === 25 || val === 0) ? 1 : multiplier;
+            let actualM = (val === 50) ? 2 : m; 
+            let pts = (val === 50) ? 50 : val * m;
+            
+            if (score - pts < 0 || score - pts === 1) {
+                alert("BUST !");
+                finishTurn(true);
+                return;
+            }
+
+            score -= pts;
+            document.getElementById('scoreDisplay').innerText = score;
+            const slot = document.getElementById(`d${dartsInTurn.length}`);
+            slot.innerText = (val === 50) ? "BULL" : (val === 0) ? "0" : (m === 3 ? "T" : m === 2 ? "D" : "") + val;
+            slot.style.color = (m === 3 ? "var(--t-color)" : m === 2 ? "var(--d-color)" : "var(--s-color)");
+            
+            dartsInTurn.push({pts, m: actualM});
+            setMod(1);
+
+            if (score === 0) {
+                if (actualM === 2) {
+                    gameOver = true;
+                    setTimeout(() => showEnd(true), 400);
+                } else {
+                    alert("BUST ! Pas de double final.");
+                    score += pts;
+                    undoLastDart();
+                    finishTurn(true);
+                }
+            }
+        }
+
+        function finishTurn(isBust = false) {
+            if (gameOver) return;
+            totalDarts += (isBust) ? 3 : dartsInTurn.length; 
+            if (totalDarts > 6) totalDarts = 6;
+            document.getElementById('dartCountDisplay').innerText = `${totalDarts}/6`;
+            
+            dartsInTurn = [];
+            for(let i=0; i<3; i++) {
+                document.getElementById(`d${i}`).innerText = "-";
+                document.getElementById(`d${i}`).style.color = "#484f58";
+            }
+            if(totalDarts >= 6 && score > 0) showEnd(false);
+        }
+
+        function undoLastDart() {
+            if (gameOver || dartsInTurn.length === 0) return;
+            let last = dartsInTurn.pop();
+            score += last.pts;
+            document.getElementById('scoreDisplay').innerText = score;
+            const slot = document.getElementById(`d${dartsInTurn.length}`);
+            slot.innerText = "-";
+            slot.style.color = "#484f58";
+        }
+
+        function showEnd(win) {
+            gameOver = true;
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('end-screen').style.display = 'flex';
+            
+            const fs = document.getElementById('final-score');
+            const msg = document.getElementById('end-msg');
+            const title = document.getElementById('end-title');
+            
+            fs.innerText = win ? "OK" : score;
+
+            if (win) {
+                title.innerText = "CHECKED !";
+                fs.style.color = "var(--s-color)";
+                msg.innerText = `Fini en ${totalDarts + dartsInTurn.length} fléchettes.`;
+            } else {
+                title.innerText = "ÉCHEC";
+                fs.style.color = "var(--t-color)";
+                msg.innerText = `Il restait ${score} points.`;
+            }
+        }
+    </script>
+</body>
+</html>

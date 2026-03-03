@@ -16,7 +16,6 @@
             --fun: #bc13fe;
         }
 
-        /* Structure pour bloquer le footer en bas */
         body {
             font-family: -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--bg);
@@ -56,12 +55,27 @@
             margin: 10px auto;
         }
 
+        /* Style des liens sur les cadres */
+        .mode-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            margin-bottom: 20px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         .mode-section {
             background: var(--card);
             border-radius: 15px;
             padding: 20px;
-            margin-bottom: 20px;
             border: 1px solid #222;
+            transition: transform 0.1s;
+        }
+
+        /* Animation au clic sur le cadre */
+        .mode-link:active .mode-section {
+            transform: scale(0.97);
+            background: #1a1a1a;
         }
 
         h2 {
@@ -84,7 +98,6 @@
         li { margin-bottom: 6px; }
         .highlight { color: #fff; font-weight: bold; }
 
-        /* FOOTER HARMONISÉ */
         footer {
             height: 80px;
             display: flex;
@@ -95,7 +108,6 @@
             padding-bottom: env(safe-area-inset-bottom);
         }
 
-        /* Style identique aux autres pages (pill bouton) */
         .back-btn { 
             color: #888; 
             text-decoration: none; 
@@ -123,52 +135,86 @@
             <div class="header-line"></div>
         </header>
 
-        <section class="mode-section" style="border-left: 4px solid var(--live);">
-            <h2 class="live-h2">📡 DARTS LIVE</h2>
-            <p>Le mode multijoueur distant pour jouer avec n'importe qui, n'importe où.</p>
-            <ul>
-                <li><span class="highlight">Online :</span> Connectez-vous à un salon privé via un nom unique.</li>
-                <li><span class="highlight">Sync :</span> Visualisez les fléchettes de vos adversaires en temps réel.</li>
-                <li><span class="highlight">Stats :</span> Suivi des moyennes et des volées détaillées.</li>
-            </ul>
-        </section>
+        <a href="darts-live.html" class="mode-link">
+            <section class="mode-section" style="border-left: 4px solid var(--live);">
+                <h2 class="live-h2">📡 DARTS LIVE</h2>
+                <p>Le mode multijoueur distant pour jouer avec n'importe qui, n'importe où.</p>
+                <ul>
+                    <li><span class="highlight">Online :</span> Connectez-vous à un salon privé via un nom unique.</li>
+                    <li><span class="highlight">Multi :</span> Jusqu'à 3 joueurs en ligne.</li>
+                    <li><span class="highlight">Sync :</span> Visualisez les fléchettes de vos adversaires en temps réel.</li>
+                    <li><span class="highlight">Stats :</span> Suivi des moyennes et des volées détaillées.</li>
+                </ul>
+            </section>
+        </a>
 
-        <section class="mode-section" style="border-left: 4px solid var(--accent);">
-            <h2 class="local-h2">🎯 DARTS LOCAL</h2>
-            <p>Le compteur de référence pour vos parties physiques sur une cible réelle.</p>
-            <ul>
-                <li><span class="highlight">Multi :</span> Jusqu'à 4 joueurs en local.</li>
-                <li><span class="highlight">Précision :</span> Affichage complet des segments touchés.</li>
-                <li><span class="highlight">Correction :</span> Gestion facile des erreurs de saisie.</li>
-            </ul>
-        </section>
+        <a href="darts-local.html" class="mode-link">
+            <section class="mode-section" style="border-left: 4px solid var(--accent);">
+                <h2 class="local-h2">🏠 DARTS LOCAL</h2>
+                <p>Le compteur de référence pour vos parties physiques sur une cible réelle.</p>
+                <ul>
+                    <li><span class="highlight">Multi :</span> Jusqu'à 4 joueurs en local.</li>
+                    <li><span class="highlight">Précision :</span> Affichage complet des segments touchés.</li>
+                    <li><span class="highlight">Stats :</span> Suivi des moyennes et des volées détaillées.</li>
+                </ul>
+            </section>
+        </a>
 
-        <section class="mode-section" style="border-left: 4px solid var(--ia);">
-            <h2 class="ia-h2">🤖 VS IA</h2>
-            <p>Entraînement en solo contre une intelligence artificielle calibrée.</p>
-            <ul>
-                <li><span class="highlight">Niveaux :</span> Du débutant au Maître (AVG 40 à 90+).</li>
-                <li><span class="highlight">Finition :</span> L'IA gère intelligemment ses fermetures en double.</li>
-            </ul>
-        </section>
+        <a href="darts-ia.html" class="mode-link">
+            <section class="mode-section" style="border-left: 4px solid var(--ia);">
+                <h2 class="ia-h2">🤖 DARTS IA</h2>
+                <p>Entraînement en solo contre une intelligence artificielle calibrée.</p>
+                <ul>
+                    <li><span class="highlight">Niveaux :</span> Du débutant au Maître (AVG 40 à 90+).</li>
+                    <li><span class="highlight">Finition :</span> L'IA gère intelligemment ses fermetures en double.</li>
+                </ul>
+            </section>
+        </a>
 
-        <section class="mode-section" style="border-left: 4px solid var(--fun);">
-            <h2 class="fun-h2">🎡 BOB'S 27</h2>
-            <p>L'exercice mythique pour forger un mental d'acier sur les doubles.</p>
-            <ul>
-                <li><span class="highlight">Règle :</span> Départ à 27 pts. On joue du D1 au Bullseye.</li>
-                <li><span class="highlight">Points :</span> Réussi = valeur ajoutée. Raté (3 flèches) = valeur simple soustraite.</li>
-            </ul>
-        </section>
+        <a href="darts-bobs.html" class="mode-link">
+            <section class="mode-section" style="border-left: 4px solid var(--fun);">
+                <h2 class="fun-h2">🎡 BOB'S 27</h2>
+                <p>L'exercice mythique pour forger un mental d'acier sur les doubles.</p>
+                <ul>
+                    <li><span class="highlight">Règle :</span> Départ à 27 pts. On joue du D1 au Bullseye.</li>
+                    <li><span class="highlight">Points :</span> Réussi = valeur ajoutée. Raté (3 flèches) = valeur simple soustraite.</li>
+                </ul>
+            </section>
+        </a>
 
-        <section class="mode-section" style="border-left: 4px solid var(--fun);">
-            <h2 class="fun-h2">🔥 DARTS 180</h2>
-            <p>Le défi de vitesse ultime pour les scoreurs compulsifs.</p>
-            <ul>
-                <li><span class="highlight">Sprint :</span> Atteignez 180 points en un minimum de fléchettes.</li>
-                <li><span class="highlight">Limite :</span> Maximum 9 fléchettes autorisées.</li>
-            </ul>
-        </section>
+        <a href="darts-180.html" class="mode-link">
+            <section class="mode-section" style="border-left: 4px solid var(--fun);">
+                <h2 class="fun-h2">🔥 DARTS 180</h2>
+                <p>Le défi de vitesse ultime pour les scoreurs compulsifs.</p>
+                <ul>
+                    <li><span class="highlight">Sprint :</span> Atteignez 180 points en un minimum de fléchettes.</li>
+                    <li><span class="highlight">Limite :</span> Maximum 9 fléchettes autorisées.</li>
+                </ul>
+            </section>
+        </a>
+
+        <a href="darts-bull.html" class="mode-link">
+            <section class="mode-section" style="border-left: 4px solid var(--fun);">
+                <h2 class="fun-h2">🎯 BULL CHALLENGE</h2>
+                <p>Travaillez la précision pure sur le centre de la cible.</p>
+                <ul>
+                    <li><span class="highlight">Objectif :</span> Atteindre un score cumulé de 10 points.</li>
+                    <li><span class="highlight">Barème :</span> Bullseye = 2 pts / Bull simple = 1 pt.</li>
+                    <li><span class="highlight">Limite :</span> Vous avez un maximum de 18 fléchettes pour réussir.</li>
+                </ul>
+            </section>
+        </a>
+
+        <a href="darts-checkout.html" class="mode-link">
+            <section class="mode-section" style="border-left: 4px solid var(--fun);">
+                <h2 class="fun-h2">🏁 CHECK-OUT</h2>
+                <p>Améliorez votre efficacité en fin de partie (finition sous pression).</p>
+                <ul>
+                    <li><span class="highlight">Aléatoire :</span> L'application génère un score entre 61 et 170.</li>
+                    <li><span class="highlight">Contrainte :</span> Fermeture obligatoire par un Double en 6 fléchettes max.</li>
+                </ul>
+            </section>
+        </a>
     </div>
 
     <footer>
