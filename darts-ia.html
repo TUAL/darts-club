@@ -31,7 +31,9 @@
         }
         .back-btn { color: #888; text-decoration: none; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; padding: 5px 15px; border: 1px solid #333; border-radius: 20px; }
 
-        #level-screen, #game-screen { 
+        #level-screen { max-width: 400px; margin: 0 auto; width: 100%; padding: 30px 20px; text-align: center; }
+		
+		#game-screen { 
             flex: 1; display: flex; flex-direction: column; padding: 10px; 
             padding-bottom: 100px; 
             overflow: hidden; 
@@ -82,10 +84,9 @@
 <body>
 
 <div id="level-screen">
-    <div class="app-brand"><span class="app-logo">🎯</span><span class="app-title">Darts IA</span></div>
     <div class="selection-content">
         <div style="font-size: 2.5rem; margin-bottom: 10px;">🤖</div>
-        <h2 style="color: var(--accent); letter-spacing: 2px; margin-bottom: 25px; font-size: 1.2rem;">GEMINI IA</h2>
+        <h2 style="color: var(--accent); margin-bottom: 25px; letter-spacing: 2px; font-weight: 800; font-size: 1.2rem;">DARTS IA</h2>
         <div class="lvl-grid">
             <button class="lvl-btn lvl-1" onclick="startGame(1)"><div><div style="font-weight:900">1. DÉBUTANT</div><div style="font-size:0.7rem; color:#888">AVG : 40-50</div></div></button>
             <button class="lvl-btn lvl-2" onclick="startGame(2)"><div><div style="font-weight:900">2. INTERMÉDIAIRE</div><div style="font-size:0.7rem; color:#888">AVG : 50-65</div></div></button>
