@@ -39,6 +39,22 @@ body {
         
         body::-webkit-scrollbar { display: none; }
 		
+footer {
+    position: absolute; 
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    background: #000; /* Noir pour bien finir l'écran */
+    padding: 15px 0;
+    /* On ajuste pour que ce soit propre sur PC et Mobile */
+    padding-bottom: calc(env(safe-area-inset-bottom) + 15px);
+    display: flex;
+    justify-content: center;
+    border-top: 1px solid #161b22;
+    z-index: 10;
+}
+		
 #app-container {
     width: 100%;
     max-width: 430px; /* Largeur d'un smartphone */
@@ -126,19 +142,6 @@ body {
         .full-live .icon { font-size: 2.2rem; margin-bottom: 0; }
         .full-live .title { font-size: 1.1rem; }
         .full-live .desc { max-width: none; }
-
-        /* FOOTER : Bouton "En savoir plus" doublé */
-footer {
-    position: absolute; /* Au lieu de fixed */
-    bottom: 0;
-    width: 100%;
-    background: var(--bg);
-    padding: 10px 0;
-    display: flex;
-    padding-bottom: calc(env(safe-area-inset-bottom) + 50px);
-	justify-content: center;
-
-}
 
         .info-link { 
             color: #888; 
