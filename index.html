@@ -2,229 +2,100 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Darts Club</title>    
-    <link rel="icon" type="image/png" sizes="192x192" href="icon.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="icon.png">
-	<link rel="shortcut icon" href="icon.png">
-    <link rel="apple-touch-icon" href="icon.png">
-    <link rel="manifest" href="manifest.json">    
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="DartsClub">
-    <script src="protection.js"></script>    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Darts Club - Login</title>
     <style>
-        :root {
-            --bg: #000000;
-            --card: #121212;
-            --text: #ffffff;
-            --accent: #00ff88;
-            --live: #ffa500;
-            --ia: #ff4444;
-            --fun: #bc13fe;
+        :root { 
+            --bg: #0b0e14; --card: #161b22; --text: #f0f6fc;
+            --accent: #58a6ff; --s-color: #238636;
         }
-
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    margin: 0;
-    padding: 0 15px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    /* Le body s'adapte maintenant au contenu */
-    min-height: 100%; 
-    overflow-y: auto;
-}
+        body { 
+            margin: 0; background: #05070a; color: var(--text);
+            font-family: -apple-system, sans-serif;
+            display: flex; justify-content: center; align-items: center; height: 100dvh;
+        }
+        #app-container {
+            width: 100%; max-width: 430px; height: 100dvh;
+            background: var(--bg); display: flex; flex-direction: column;
+            padding: 40px 20px; box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        }
+        .logo { font-size: 4rem; text-align: center; margin-bottom: 10px; }
+        h1 { text-align: center; font-size: 1.2rem; letter-spacing: 4px; color: var(--accent); margin-bottom: 40px; }
         
-        body::-webkit-scrollbar { display: none; }
-
-        header {
-            text-align: center;
-            padding-top: calc(env(safe-area-inset-top) + 20px);
-            margin-bottom: 20px;
+        .auth-box { background: var(--card); padding: 20px; border-radius: 16px; border: 1px solid #30363d; }
+        input {
+            width: 100%; background: #010409; border: 1px solid #30363d;
+            padding: 15px; border-radius: 8px; color: white; margin-bottom: 15px;
+            font-size: 1rem; text-align: center; outline: none;
         }
+        input:focus { border-color: var(--accent); }
 
-        h1 {
-            font-size: 2.3rem;
-            letter-spacing: 5px;
-            margin: 0;
-            background: linear-gradient(to bottom, #fff 30%, #444 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 900;
-            text-transform: uppercase;
+        .btn {
+            width: 100%; padding: 15px; border-radius: 8px; border: none;
+            font-weight: bold; cursor: pointer; font-size: 1rem; transition: 0.2s;
         }
-
-        .subtitle {
-            color: var(--accent);
-            font-size: 0.7rem;
-            letter-spacing: 5px;
-            text-transform: uppercase;
-            font-weight: bold;
-            margin-top: 5px;
-            opacity: 0.8;
-        }
-
-        .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            width: 100%;
-            max-width: 500px;
-            padding-bottom: 20px;
-        }
-
-        .menu-item {
-            background: linear-gradient(145deg, #1a1a1a, #0a0a0a);
-            border: 1px solid #222;
-            border-radius: 20px;
-            padding: 12px;
-            text-decoration: none;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            transition: all 0.2s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .menu-item:active { transform: scale(0.97); background: #151515; }
-
-        .live { border-top: 1px solid var(--live); }
-        .online { border-top: 1px solid var(--accent); }
-        .ia { border-top: 1px solid var(--ia); }
-        .fun { border-top: 1px solid var(--fun); }
-
-        .icon { font-size: 1.7rem; margin-bottom: 5px; }
-        .title { font-size: 0.9rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px; }
-        .desc { font-size: 0.65rem; color: #888; line-height: 1.2; }
-
-        /* DARTS LIVE : Hauteur doublée par le padding */
-        .full-live {
-            grid-column: span 2;
-            flex-direction: row;
-            padding: 25px 20px;
-            gap: 20px;
-            text-align: left;
-            justify-content: flex-start;
-        }
-        .full-live .icon { font-size: 2.2rem; margin-bottom: 0; }
-        .full-live .title { font-size: 1.1rem; }
-        .full-live .desc { max-width: none; }
-
-        /* FOOTER : Bouton "En savoir plus" doublé */
-footer {
-    margin-top: 30px; /* Espace fixe de 30px sous la grille */
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    /* On garde le padding bas pour la zone de sécurité des téléphones */
-    padding-bottom: calc(env(safe-area-inset-bottom) + 30px);
-}
-
-        .info-link { 
-            color: #888; 
-            text-decoration: none; 
-            font-size: 0.8rem; 
-            text-transform: uppercase; 
-            letter-spacing: 2px; 
-            padding: 18px 45px; /* Hauteur doublée par rapport au bouton standard */
-            border: 1px solid #333; 
-            border-radius: 30px;
-            transition: 0.2s;
-            background: rgba(255, 255, 255, 0.02);
-        }
-
-        .info-link:active {
-            background: #161b22;
-            color: #fff;
-            border-color: #555;
-        }
-
-        .badge-online {
-            position: absolute;
-            top: 10px;
-            right: 12px;
-            background: #FF0000;
-            color: #FFF;
-            font-size: 0.55rem;
-            font-weight: 900;
-            padding: 2px 8px;
-            border-radius: 50px;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.6; }
-            100% { opacity: 1; }
-        }
+        .btn-login { background: var(--accent); color: white; margin-bottom: 20px; }
+        .btn-guest { background: transparent; color: #8b949e; border: 1px solid #30363d; }
+        
+        #msg { text-align: center; font-size: 0.8rem; height: 20px; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>DARTS CLUB</h1>
-        <div class="subtitle">Elite Scoring System</div>
-    </header>
+<div id="app-container">
+    <div class="logo">🎯</div>
+    <h1>DARTS CLUB</h1>
 
-    <div class="menu-grid">
-        <a href="darts-live.html" class="menu-item live full-live">
-            <div class="badge-online">ONLINE</div>
-            <div class="icon">📡</div>
-            <div>
-                <div class="title" style="color: var(--live);">Darts LIVE</div>
-                <div class="desc">Compétition en temps réel via stands privés.</div>
-            </div>
-        </a>
-
-        <a href="darts-local.html" class="menu-item online">
-            <div class="icon">🏠</div>
-            <div class="title">Darts Local</div>
-            <div class="desc">En solo ou entre amis.<br></div>
-        </a>
-
-        <a href="darts-ia.html" class="menu-item ia">
-            <div class="icon">🤖</div>
-            <div class="title">DARTS IA</div>
-            <div class="desc">Défiez l'algorithme.<br></div>
-        </a>
-
-        <a href="darts-bobs.html" class="menu-item fun">
-            <div class="icon">🎡</div>
-            <div class="title">Bob's 27</div>
-            <div class="desc">Maîtrise des doubles.<br></div>
-        </a>
-
-        <a href="darts-180.html" class="menu-item fun">
-            <div class="icon">🔥</div>
-            <div class="title">180 !</div>
-            <div class="desc">Quête de la perfection.<br></div>
-        </a>
-
-        <a href="darts-bull.html" class="menu-item fun">
-            <div class="icon">🎯</div>
-            <div class="title">Bull</div>
-            <div class="desc">Focus centre cible.<br></div>
-        </a>
-
-        <a href="darts-checkout.html" class="menu-item fun">
-            <div class="icon">🏁</div>
-            <div class="title">Check-out</div>
-            <div class="desc">Finish aléatoire 6 fléchettes.<br></div>
-        </a>
+    <div class="auth-box">
+        <input type="text" id="pseudo" placeholder="PSEUDO" maxlength="12" style="text-transform: uppercase;">
+        <input type="password" id="pin" placeholder="CODE PIN (4 CHIFFRES)" inputmode="numeric" maxlength="4">
+        
+        <button class="btn btn-login" onclick="handleAuth('member')">CONNEXION / CRÉER</button>
+        
+        <div style="text-align: center; margin-bottom: 20px; color: #484f58; font-size: 0.8rem;">— OU —</div>
+        
+        <button class="btn btn-guest" onclick="handleAuth('guest')">CONTINUER EN INVITÉ</button>
+        <div id="msg"></div>
     </div>
+    
+    <div style="margin-top: auto; text-align: center; font-size: 0.7rem; color: #484f58;">
+        V 2.0 - 2026 | SESSION SÉCURISÉE
+    </div>
+</div>
 
-    <footer>
-        <a href="infos.html" class="info-link">ℹ️ GUIDE & RÈGLES</a>
-    </footer>
+<script>
+    function handleAuth(mode) {
+        const msg = document.getElementById('msg');
+        
+        if (mode === 'guest') {
+            localStorage.setItem('darts_player_id', 'GUEST');
+            localStorage.setItem('is_guest', 'true');
+            window.location.href = 'menu.html'; // On redirige vers un nouveau fichier menu.html
+            return;
+        }
+
+        const pseudo = document.getElementById('pseudo').value.trim().toUpperCase().replace(/[- ]/g, "");
+        const pin = document.getElementById('pin').value.trim();
+
+        if (pseudo.length < 2 || pin.length !== 4) {
+            msg.innerText = "Pseudo et PIN (4 chiffres) invalides";
+            msg.style.color = "#da3633";
+            return;
+        }
+
+        // Stockage de l'ID Unique (Pseudo + PIN)
+        const playerID = pseudo + pin;
+        localStorage.setItem('darts_player_id', playerID);
+        localStorage.setItem('is_guest', 'false');
+        
+        msg.innerText = "Authentification...";
+        msg.style.color = "var(--s-color)";
+
+        // Ici, on pourrait ajouter la vérification Firebase, 
+        // mais pour l'instant on redirige pour tester le flux
+        setTimeout(() => { window.location.href = 'menu.html'; }, 800);
+    }
+</script>
 
 </body>
 </html>
