@@ -85,6 +85,24 @@
             margin-top: auto; font-size: 0.65rem; color: #484f58;
             letter-spacing: 1px; text-align: center;
         }
+
+		.btn-guest { 
+			background: rgba(255, 255, 255, 0.05); /* Fond très sombre mais visible */
+			color: #8b949e; 
+			border: 1px solid #30363d; 
+			margin-top: 15px;
+			font-size: 0.85rem; /* Un peu plus petit pour la hiérarchie */
+		}
+
+		.btn-guest span {
+			display: block;
+			font-size: 0.65rem;
+			font-weight: 400;
+			color: #484f58;
+			margin-top: 2px;
+			text-transform: uppercase;
+			letter-spacing: 1px;
+		}
     </style>
 </head>
 <body>
@@ -95,43 +113,56 @@
         <h1>DARTS CLUB</h1>
     </div>
 
-    <div class="auth-card">
-        <div class="input-group">
-            <label>JOUEUR</label>
-            <input type="text" id="pseudo" placeholder="TON PSEUDO" maxlength="12" style="text-transform: uppercase;" autocomplete="off">
-        </div>
+	<div class="auth-card">
+		<div class="input-group">
+			<label>JOUEUR</label>
+			<input type="text" id="pseudo" placeholder="TON PSEUDO" maxlength="12" style="text-transform: uppercase;" autocomplete="off">
+		</div>
 
-        <div class="input-group">
-            <label>CLÉ DE SÉCURITÉ</label>
-            <input type="password" id="pin" placeholder="4 CHIFFRES" inputmode="numeric" maxlength="4">
-        </div>
-        
-        <button class="btn btn-login" onclick="handleAuth()">SE CONNECTER / CRÉER</button>
-        
-        <button class="btn btn-guest" onclick="continueGuest()">MODE INVITÉ (SANS RECORD)</button>
-        
-        <div id="msg"></div>
-    </div>
+		<div class="input-group">
+			<label>CLÉ DE SÉCURITÉ</label>
+			<input type="password" id="pin" placeholder="4 CHIFFRES" inputmode="numeric" maxlength="4">
+		</div>
+		
+		<button class="btn btn-login" onclick="handleAuth()">SE CONNECTER / CRÉER</button>
+		
+		<button class="btn btn-guest" onclick="continueGuest()">
+			SESSION LIBRE
+			<span>Sans Historique, ni Stats</span>
+		</button>
+		
+		<div id="msg"></div>
+	</div>
     
     <div class="footer-info">
-        ESTABLISHED 2026 • VERSION 2.1
+        MARS 2026 • VERSION 2.0
     </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
-
 <script>
-    // --- ICI TU DEVRAS METTRE TA CONFIG FIREBASE ---
-    // const firebaseConfig = { ... };
-    // firebase.initializeApp(firebaseConfig);
+    // Configuration Firebase avec tes vraies clés
+    const firebaseConfig = {
+        apiKey: "AIzaSyD8AIw0f3L65XMZM9OBX8wDWNbSvl4ACZM",
+        authDomain: "dartsclub-1aab9.firebaseapp.com",
+        databaseURL: "https://dartsclub-1aab9-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "dartsclub-1aab9",
+        storageBucket: "dartsclub-1aab9.firebasestorage.app",
+        messagingSenderId: "769714266505",
+        appId: "1:769714266505:web:ea1758db2c96702979c158"
+    };
+
+    // Initialisation du SDK Compat
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
 
     async function handleAuth() {
         const pseudoInput = document.getElementById('pseudo');
         const pinInput = document.getElementById('pin');
         const msg = document.getElementById('msg');
         
-        // Nettoyage : Majuscules et lettres/chiffres uniquement pour le pseudo
         const pseudo = pseudoInput.value.trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
         const pin = pinInput.value.trim();
 
@@ -140,36 +171,37 @@
             return;
         }
 
-        msg.style.color = "var(--accent)";
-        msg.innerText = "Vérification...";
+        const userRef = firebase.database().ref('users/' + pseudo);
 
         try {
-            const userRef = firebase.database().ref('users/' + pseudo);
             const snapshot = await userRef.once('value');
 
             if (snapshot.exists()) {
                 const userData = snapshot.val();
                 if (userData.pin === pin) {
-                    showSuccess("Content de te revoir !");
+                    showSuccess("Bon retour " + pseudo + " !");
                     login(pseudo, false);
                 } else {
-                    showError("Ce pseudo est déjà pris (code erroné).");
+                    showError("Ce pseudo est déjà réservé.");
                 }
             } else {
-                // Création d'un nouveau profil unique
+                // Création du nouveau profil
                 await userRef.set({
                     pin: pin,
-                    created: Date.now(),
-                    stats: {}
+                    createdAt: Date.now(),
+                    games: {
+                        darts_live: { top: [] }, darts_local: { top: [] },
+                        darts_ia: { top: [] }, darts_bobs: { top: [] },
+                        darts_180: { top: [] }, darts_bull: { top: [] },
+                        darts_checkout: { top: [] }
+                    }
                 });
-                showSuccess("Profil créé avec succès !");
+                showSuccess("Bienvenue au club, " + pseudo + " !");
                 login(pseudo, false);
             }
-        } catch (e) {
-            // Si Firebase n'est pas encore configuré, on permet de tester l'ergonomie
-            console.error(e);
-            showError("Mode démo (Firebase non configuré)");
-            setTimeout(() => login(pseudo, false), 1500);
+        } catch (error) {
+            console.error(error);
+            showError("Erreur : Vérifiez vos règles Firebase.");
         }
     }
 
@@ -182,7 +214,7 @@
         localStorage.setItem('is_guest', isGuest);
         setTimeout(() => {
             window.location.href = 'menu.html';
-        }, 1000);
+        }, 1200);
     }
 
     function showError(text) {
@@ -197,6 +229,5 @@
         msg.innerText = text;
     }
 </script>
-
 </body>
 </html>
