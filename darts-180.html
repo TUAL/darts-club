@@ -27,30 +27,43 @@
         footer {
             position: fixed; bottom: 0; left: 0; width: 100%;
             background: var(--bg); padding: 10px 0;
-            padding-bottom: calc(env(safe-area-inset-bottom) + 20px);
+            padding-bottom: calc(env(safe-area-inset-bottom) + 15px);
             text-align: center; z-index: 100; border-top: 1px solid #161b22;
         }
         .back-btn { color: #888; text-decoration: none; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; padding: 5px 15px; border: 1px solid #333; border-radius: 20px; }
 
-        #game-screen { display: flex; height: 100dvh; flex-direction: column; padding: 10px; padding-bottom: 70px; gap: 4px; }
+        #game-screen { display: flex; height: 100dvh; flex-direction: column; padding: 10px; padding-bottom: 80px; gap: 2px; }
         
-        .header { height: 10dvh; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex-shrink: 0; }
+        .header { height: 10dvh; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex-shrink: 0; margin-bottom: 5px; }
         .p-card { background: var(--card); border-radius: 10px; border: 1px solid var(--accent); display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .p-name { font-size: 0.6rem; color: #8b949e; text-transform: uppercase; }
-        .score-val { font-size: 2rem; font-weight: 900; color: #fff; line-height: 1; }
+        .score-val { font-size: 1.8rem; font-weight: 900; color: #fff; line-height: 1; }
 
-        .ia-last-volley { height: 18px; text-align: center; font-size: 0.65rem; color: var(--d-color); font-weight: bold; flex-shrink: 0; }
-        .turn-tracking { display: flex; justify-content: center; gap: 6px; height: 35px; flex-shrink: 0; }
-        .dart-slot { width: 30%; background: #010409; border: 1px solid #30363d; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; color: #484f58; }
+        .ia-last-volley { height: 10px; flex-shrink: 0; } /* Espace réduit */
+        .turn-tracking { display: flex; justify-content: center; gap: 6px; height: 30px; flex-shrink: 0; margin-bottom: 5px; }
+        .dart-slot { width: 30%; background: #010409; border: 1px solid #30363d; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85rem; color: #484f58; }
 
-        /* Ajustement taille boutons */
         .grid { flex: 1; display: flex; flex-direction: column; gap: 3px; min-height: 0; }
-        .mod-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; flex: 0.8; }
-        .num-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(5, 1fr); gap: 3px; flex: 4; } 
-        .special-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; flex: 0.8; }
-        .action-row { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 3px; flex: 1; }
+        .mod-row, .num-grid, .special-row, .action-row { display: grid; gap: 3px; }
+        
+        .mod-row { grid-template-columns: repeat(3, 1fr); }
+        .num-grid { grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(5, 1fr); }
+        .special-row { grid-template-columns: repeat(3, 1fr); }
+        .action-row { grid-template-columns: 1fr 2fr 1fr; }
 
-        button { border: none; border-radius: 6px; font-weight: 700; color: #fff; cursor: pointer; height: 100%; width: 100%; font-size: 0.9rem; }
+        /* CONTRAINTE HAUTEUR MAX 30PX */
+        button { 
+            border: none; 
+            border-radius: 6px; 
+            font-weight: 700; 
+            color: #fff; 
+            cursor: pointer; 
+            height: 30px; 
+            max-height: 30px; 
+            width: 100%; 
+            font-size: 0.85rem; 
+        }
+        
         .btn-mod { background: #21262d; border: 1px solid #30363d; }
         #modS.selected { background: var(--s-color); }
         #modD.selected { background: var(--d-color); }
@@ -61,19 +74,17 @@
         .grid.mode-d .num-btn { border-bottom-color: var(--d-color); }
         .grid.mode-t .num-btn { border-bottom-color: var(--t-color); }
 
-        .btn-valid { background: var(--accent) !important; font-size: 0.8rem; text-transform: uppercase; }
-        .btn-save { background: var(--s-color) !important; font-size: 0.8rem; text-transform: uppercase; }
-        .btn-del { background: #21262d; color: #8b949e; font-size: 1.2rem; }
-        .btn-undo-all { background: #161b22; color: #8b949e; font-size: 0.65rem; border: 1px solid #30363d; }
+        .btn-valid { background: var(--accent) !important; font-size: 0.75rem; text-transform: uppercase; }
+        .btn-save { background: var(--s-color) !important; font-size: 0.75rem; text-transform: uppercase; }
+        .btn-del { background: #21262d; color: #8b949e; font-size: 1.1rem; }
+        .btn-undo-all { background: #161b22; color: #8b949e; font-size: 0.6rem; border: 1px solid #30363d; }
 
         .overlay { display:none; position:fixed; inset:0; background: rgba(13,17,23,0.98); z-index:999; flex-direction:column; justify-content:center; align-items:center; padding: 20px; }
         .final-box { background: var(--card); padding: 15px; border-radius: 15px; border: 1px solid #30363d; width: 100%; max-width: 260px; text-align: center; }
-        
         #top-scores { margin: 10px 0; width: 100%; max-width: 260px; text-align: left; font-size: 0.7rem; background: rgba(255,255,255,0.03); padding: 10px; border-radius: 10px; border: 1px solid #333; }
         
-        /* Boutons fin de jeu plus compacts */
         .end-btn-container { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 260px; }
-        .end-btn { padding: 12px; border-radius: 10px; font-size: 0.8rem; text-transform: uppercase; font-weight: 800; }
+        .end-btn { height: 40px; max-height: 40px; border-radius: 10px; font-size: 0.8rem; text-transform: uppercase; font-weight: 800; }
     </style>
 </head>
 <body>
@@ -81,7 +92,7 @@
     <div id="game-screen">
         <div class="app-brand">
             <span class="app-logo">🎯</span>
-            <span class="app-title" id="title-label">180 Challenge</span>
+            <span class="app-title" id="title-label">180 - TEST</span>
         </div>
 
         <div class="header">
@@ -91,11 +102,11 @@
             </div>
             <div class="p-card">
                 <div class="p-name">JETS</div>
-                <div class="score-val" id="dartCountDisplay" style="font-size: 1.6rem;">0/9</div>
+                <div class="score-val" id="dartCountDisplay" style="font-size: 1.5rem;">0/9</div>
             </div>
         </div>
 
-        <div class="ia-last-volley" id="historyText">180 EN 9 JETS MAX</div>    
+        <div class="ia-last-volley" id="historyText"></div>    
         
         <div class="turn-tracking">
             <div class="dart-slot" id="d0">-</div>
@@ -158,7 +169,7 @@
         };
 
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        const pseudo = localStorage.getItem('darts_pseudo') || "ANONYME";
+        const pseudo = localStorage.getItem('darts_pseudo') || "TEST";
         const isGuest = localStorage.getItem('is_guest') === 'true';
 
         let score = 180, totalDartsUsed = 0, multiplier = 1, dartsInTurn = [], gameOver = false;
