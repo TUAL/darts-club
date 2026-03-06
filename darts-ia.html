@@ -19,6 +19,7 @@
             background: var(--bg); color: var(--text); 
             margin: 0; padding: 0; height: 100dvh;
             display: flex; flex-direction: column; overflow: hidden; 
+            position: fixed; width: 100%; /* Empêche l'ascenseur */
         }
 
         .app-brand { height: 30px; display: flex; align-items: center; justify-content: center; gap: 8px; flex-shrink: 0; }
@@ -37,10 +38,10 @@
         .header { height: 90px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; flex-shrink: 0; }
         .p-card { background: var(--card); border-radius: 8px; border: 1px solid #30363d; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.3s; padding: 5px; }
         .p-card.active { border-color: var(--accent); border-width: 2px; }
-        .p-name { font-size: 0.7rem; color: #8b949e; text-transform: uppercase; font-weight: 900; }
+        .p-name { font-size: 0.65rem; color: #8b949e; text-transform: uppercase; font-weight: 900; }
         .score-val { font-size: 1.8rem; font-weight: 900; color: #fff; line-height: 1; margin: 2px 0; }
-        .avg-label { font-size: 0.6rem; color: var(--accent); font-weight: bold; }
-        .last-turn-label { font-size: 0.6rem; color: #6e7681; margin-top: 2px; height: 12px; font-weight: bold; }
+        .avg-label { font-size: 0.5rem; color: var(--accent); font-weight: bold; }
+        .last-turn-label { font-size: 0.55rem; color: #6e7681; margin-top: 2px; height: 12px; font-weight: bold; }
 
         .turn-tracking { display: flex; justify-content: center; gap: 6px; height: 35px; flex-shrink: 0; margin: 5px 0; }
         .dart-slot { width: 30%; background: #010409; border: 1px solid #30363d; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; color: #484f58; }
@@ -63,7 +64,7 @@
         .grid.mode-t .num-btn { border-bottom-color: var(--t-color); }
         
         .btn-valid { background: var(--accent) !important; font-size: 0.9rem; text-transform: uppercase; }
-        .btn-save { background: var(--accent) !important; font-size: 0.85rem; text-transform: uppercase; font-weight: 800; border-radius: 10px; height: 50px; }
+        .btn-valid:disabled { opacity: 0.3; pointer-events: none; } /* Style bouton désactivé */
         
         .btn-del { background: #21262d; color: #8b949e; font-size: 1.4rem; }
         .btn-undo-all { background: #161b22; color: #8b949e; font-size: 0.7rem; border: 1px solid #30363d; }
@@ -74,6 +75,22 @@
         .overlay { display:none; position:fixed; inset:0; background: rgba(13,17,23,0.98); z-index:999; flex-direction:column; justify-content:center; align-items:center; padding: 20px; }
         .final-box { background: var(--card); padding: 15px; border-radius: 15px; border: 1px solid #30363d; width: 100%; max-width: 260px; text-align: center; }
         .end-btn-container { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 260px; margin-top: 15px; }
+
+.btn-save { 
+    background: var(--accent) !important; 
+    font-size: 0.85rem !important; 
+    text-transform: uppercase; 
+    font-weight: 800; 
+    border-radius: 10px; 
+    height: 50px; 
+    color: white;
+    cursor: pointer;
+}
+
+.btn-save:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
     </style>
 </head>
 <body>
@@ -127,7 +144,7 @@
             </div>
             <div class="action-row">
                 <button class="btn-undo-all" onclick="location.reload()">ABANDON</button>
-                <button class="btn-valid" id="btn-validate" onclick="confirmTurn()">VALIDER</button>
+                <button class="btn-valid" id="btn-validate" onclick="confirmTurn()" disabled>VALIDER</button>
                 <button class="btn-del" onclick="undoLast()">⌫</button>
             </div>
         </div>
@@ -150,7 +167,7 @@
         </div>
 
         <div class="end-btn-container">
-            <button id="btn-save-only" class="btn-save" style="display:none;" onclick="handleJustSave()">ENREGISTRER MOYENNE</button>
+			<button id="btn-save-only" class="btn-save" style="display:none;" onclick="handleJustSave()">ENREGISTRER</button>
             <button class="btn-valid" style="height:50px; border-radius:10px;" onclick="location.reload()">REJOUER</button>
             <a href="menu.html" style="color: #555; text-decoration: none; font-size: 0.75rem; text-align: center; margin-top:5px;">RETOUR AU MENU</a>
         </div>
@@ -184,6 +201,7 @@
             const pad = document.getElementById('numPad');
             pad.innerHTML = "";
             for(let i=1; i<=20; i++) pad.innerHTML += `<button class="num-btn" onclick="addDart(${i})">${i}</button>`;
+            updateValButton();
         }
 
         function setMod(m) {
@@ -207,7 +225,7 @@
                 slot.innerText = "BUST"; 
                 slot.style.color = "var(--t-color)";
                 turnDarts.push(0); 
-                // On NE fait PAS setMod(1) ici pour garder le D ou T actif après un BUST
+                updateValButton();
                 return;
             }
 
@@ -218,8 +236,14 @@
             slot.style.color = (m===3?"var(--t-color)":m===2?"var(--d-color)":"var(--s-color)");
             document.getElementById('p-score').innerText = pScore;
             
-            // Retour au simple uniquement sur jet réussi
             setMod(1);
+            updateValButton();
+        }
+
+        function updateValButton() {
+            const btn = document.getElementById('btn-validate');
+            // Actif si : 3 fléchettes OU Bust OU Victoire (0)
+            btn.disabled = !(turnDarts.length === 3 || isBust || pScore === 0);
         }
 
         function confirmTurn() {
@@ -268,7 +292,8 @@
             document.getElementById('gameGrid').style.pointerEvents = "auto";
             document.getElementById('card-ia').classList.remove('active');
             document.getElementById('card-p').classList.add('active');
-            setMod(1); // Reset multiplicateur au début de chaque tour
+            setMod(1);
+            updateValButton();
         }
 
         function undoLast() {
@@ -277,15 +302,14 @@
             if(isBust) {
                 turnDarts.pop();
                 isBust = false;
-                const slot = document.getElementById(`d${turnDarts.length}`);
-                slot.innerText = "-"; slot.style.color = "#484f58";
             } else {
                 pScore += turnDarts.pop();
                 turnLabels.pop();
                 document.getElementById('p-score').innerText = pScore;
-                const slot = document.getElementById(`d${turnDarts.length}`);
-                slot.innerText = "-"; slot.style.color = "#484f58";
             }
+            const slot = document.getElementById(`d${turnDarts.length}`);
+            slot.innerText = "-"; slot.style.color = "#484f58";
+            updateValButton();
         }
 
         function showEnd(win) {
