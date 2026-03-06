@@ -6,7 +6,7 @@
     <title>Darts Club - Live</title>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
-<style>
+    <style>
         :root { 
             --bg: #0b0e14; --card: #161b22; --text: #f0f6fc;
             --s-color: #238636; --d-color: #d29922; --t-color: #da3633;
@@ -36,7 +36,7 @@
         .stand-name { display: block; font-weight: 800; font-size: 0.75rem; color: #fff; }
         .stand-status { font-size: 0.6rem; font-weight: bold; color: #8b949e; }
 
-        /* GAME SCREEN - STRICT LOCAL UI COPY */
+        /* GAME SCREEN - STRICT LOCAL UI */
         #game-screen { display: none; height: 100dvh; flex-direction: column; padding: 8px; padding-bottom: 60px; gap: 4px; }
         .app-brand { height: 30px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .app-title { font-size: 0.75rem; font-weight: 900; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; }
@@ -79,7 +79,7 @@
         .back-btn { color: #888; text-decoration: none; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; padding: 8px 20px; border: 1px solid #333; border-radius: 20px; font-weight: 600; }
 
         .overlay { display:none; position:fixed; inset:0; background: rgba(13,17,23,0.98); z-index:10000; flex-direction:column; justify-content:center; align-items:center; }
-        .final-box { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid #30363d; width: 100%; max-width: 300px; text-align: center; }
+        .final-box { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid #30363d; width: 90%; max-width: 320px; text-align: center; }
     </style>
 </head>
 <body>
@@ -124,26 +124,19 @@
     </footer>
 
     <div id="end-screen" class="overlay">
-        <div class="final-box" style="background: var(--card); padding: 20px; border-radius: 15px; text-align: center; width: 90%; max-width: 320px; border: 1px solid var(--accent);">
+        <div class="final-box">
             <h1 style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase; margin: 0;">MATCH TERMINÉ</h1>
             <div id="final-result" style="font-size: 2rem; font-weight: 900; margin: 5px 0; color: var(--s-color);">VICTOIRE</div>
             <p id="winner-display" style="font-size: 0.8rem; color: #fff; margin-bottom: 15px; font-weight: bold;"></p>
             
             <div id="stats-summary" style="margin: 10px 0; width: 100%; font-size: 0.75rem;">
-                <div id="local-stats-list" style="background: #0d1117; border-radius: 8px; padding: 12px; border: 1px solid #30363d; text-align: left;">
-                </div>
+                <div id="local-stats-list" style="background: #0d1117; border-radius: 8px; padding: 12px; border: 1px solid #30363d; text-align: left;"></div>
             </div>
 
-            <div class="end-btn-container" style="display: flex; flex-direction: column; width: 100%; gap: 10px; margin-top: 15px;">
-                <button id="btn-save-only" class="btn-valid ready" style="height: 45px; font-size: 0.75rem; display:none;" onclick="saveGameData()">
-                    ENREGISTRER MOYENNE
-                </button>
-                <button class="btn-valid" style="height: 45px; background: #21262d; border: 1px solid #30363d;" onclick="closeRoom()">
-                    LIBÉRER LE STAND
-                </button>
-                <a href="menu.html" style="color: #555; text-decoration: none; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-top: 5px;">
-                    ⬅ RETOUR AU MENU
-                </a>
+            <div style="display: flex; flex-direction: column; width: 100%; gap: 10px; margin-top: 15px;">
+                <button id="btn-save-only" class="btn-valid ready" style="height: 45px; display:none;" onclick="saveGameData()">ENREGISTRER MOYENNE</button>
+                <button class="btn-valid" style="height: 45px; background: #21262d;" onclick="closeRoom()">LIBÉRER LE STAND</button>
+                <a href="menu.html" style="color: #555; text-decoration: none; font-size: 0.7rem; text-transform: uppercase; margin-top: 5px;">⬅ RETOUR AU MENU</a>
             </div>
         </div>
     </div>
@@ -167,7 +160,10 @@
 
         window.onload = () => {
             const saved = localStorage.getItem('darts_pseudo');
-            if(saved) document.getElementById('pName').value = saved;
+            if(saved) {
+                document.getElementById('pName').value = saved;
+                myName = saved.toUpperCase();
+            }
             const pad = document.getElementById('numPad'); 
             pad.innerHTML = "";
             for(let i=1; i<=20; i++) pad.innerHTML += `<button class="num-btn" onclick="addDart(${i})">${i}</button>`;
@@ -213,11 +209,8 @@
                     document.getElementById('game-screen').style.display = 'none';
                     document.getElementById('end-screen').style.display = 'flex';
                     document.getElementById('winner-display').innerText = gameState.winner + " GAGNE !";
-                    
                     showFinalStats();
-                    if(gameState.winner === myName) {
-                        document.getElementById('btn-save-only').style.display = 'block';
-                    }
+                    if(gameState.winner === myName) document.getElementById('btn-save-only').style.display = 'block';
                 } else {
                     document.getElementById('setup-screen').style.display = 'none';
                     document.getElementById('game-screen').style.display = 'flex';
@@ -241,72 +234,45 @@
             const slot = document.getElementById(`d${dartsInTurn.length}`);
 
             if (p.score - pts < 0 || p.score - pts === 1 || (p.score - pts === 0 && m !== 2 && val !== 50)) {
-                isBust = true;
-                visualDarts.push("BUST");
-                slot.innerText = "BUST";
-                slot.style.color = "var(--t-color)";
+                isBust = true; visualDarts.push("BUST");
+                slot.innerText = "BUST"; slot.style.color = "var(--t-color)";
             } else {
                 p.score -= pts;
                 let label = (val === 50) ? "BULL" : (m === 3 ? "T" : m === 2 ? "D" : "S") + val;
-                visualDarts.push(label);
-                slot.innerText = label;
+                visualDarts.push(label); slot.innerText = label;
                 slot.style.color = (m === 3 ? "var(--t-color)" : m === 2 ? "var(--d-color)" : "var(--s-color)");
-                
-                if(p.score === 0) { 
-                    db.ref(`rooms/${roomName}`).update({ status: "finished", winner: myName });
-                    return; 
-                }
+                if(p.score === 0) { db.ref(`rooms/${roomName}`).update({ status: "finished", winner: myName }); return; }
             }
-            dartsInTurn.push(pts);
-            setMod(1);
-            syncUI();
-
+            dartsInTurn.push(pts); setMod(1); syncUI();
             const btn = document.getElementById('btn-validate');
-            if(dartsInTurn.length === 3 || isBust) { 
-                btn.disabled = false; 
-                btn.classList.add('ready'); 
-            }
+            if(dartsInTurn.length === 3 || isBust) { btn.disabled = false; btn.classList.add('ready'); }
         }
 
         function finishTurn() {
             let p = gameState.players[myIndex];
-            // On compte les points des flèches qui n'ont pas provoqué de bust
-            let ptsTurn = dartsInTurn.reduce((acc, val, idx) => {
-                if(isBust && idx === dartsInTurn.length - 1) return acc;
-                return acc + val;
-            }, 0);
-
+            let ptsTurn = dartsInTurn.reduce((acc, val, idx) => (isBust && idx === dartsInTurn.length - 1) ? acc : acc + val, 0);
             db.ref(`rooms/${roomName}/players/${p.id}`).update({ 
-                score: p.score,
-                totalDarts: p.totalDarts + dartsInTurn.length,
-                totalPoints: p.totalPoints + ptsTurn,
-                lastTurn: isBust ? "BUST" : visualDarts.join(" ")
+                score: p.score, totalDarts: p.totalDarts + dartsInTurn.length,
+                totalPoints: p.totalPoints + ptsTurn, lastTurn: isBust ? "BUST" : visualDarts.join(" ")
             });
-            
-            db.ref(`rooms/${roomName}`).update({ 
-                currentPlayer: (gameState.currentPlayer + 1) % gameState.players.length,
-                lastPlayerIdx: myIndex 
-            });
+            db.ref(`rooms/${roomName}`).update({ currentPlayer: (gameState.currentPlayer + 1) % gameState.players.length, lastPlayerIdx: myIndex });
             resetTurn();
         }
 
         function undoLastDart() {
             if (dartsInTurn.length === 0) return;
-            let lastPts = dartsInTurn.pop();
-            visualDarts.pop();
+            let lastPts = dartsInTurn.pop(); visualDarts.pop();
             if (!isBust) gameState.players[myIndex].score += lastPts;
             isBust = false;
             document.getElementById(`d${dartsInTurn.length}`).innerText = "-";
             document.getElementById(`d${dartsInTurn.length}`).style.color = "#484f58";
             const btn = document.getElementById('btn-validate');
-            btn.disabled = true;
-            btn.classList.remove('ready');
+            btn.disabled = true; btn.classList.remove('ready');
             syncUI();
         }
 
         function undoLastTurn() {
-            if(gameState.lastPlayerIdx === undefined) return;
-            db.ref(`rooms/${roomName}`).update({ currentPlayer: gameState.lastPlayerIdx });
+            if(gameState.lastPlayerIdx !== undefined) db.ref(`rooms/${roomName}`).update({ currentPlayer: gameState.lastPlayerIdx });
         }
 
         function syncUI() {
@@ -321,67 +287,68 @@
                     <div class="last-turn-label">${p.lastTurn || ""}</div>
                 </div>`;
             }).join('');
-            
             const isMyTurn = (gameState.currentPlayer === myIndex);
-            document.querySelectorAll('#gameGrid button').forEach(b => {
-                if(!b.classList.contains('btn-undo-all')) b.disabled = !isMyTurn;
-            });
+            document.querySelectorAll('#gameGrid button').forEach(b => { if(!b.classList.contains('btn-undo-all')) b.disabled = !isMyTurn; });
         }
 
         function resetTurn() {
             dartsInTurn = []; visualDarts = []; isBust = false; 
-            for(let i=0; i<3; i++) { 
-                document.getElementById(`d${i}`).innerText = "-"; 
-                document.getElementById(`d${i}`).style.color = "#484f58"; 
-            }
-            setMod(1); 
-            const btn = document.getElementById('btn-validate');
-            btn.disabled = true; 
-            btn.classList.remove('ready');
+            for(let i=0; i<3; i++) { document.getElementById(`d${i}`).innerText = "-"; document.getElementById(`d${i}`).style.color = "#484f58"; }
+            setMod(1); const btn = document.getElementById('btn-validate');
+            btn.disabled = true; btn.classList.remove('ready');
         }
 
-        function closeRoom() { 
-            db.ref(`rooms/${roomName}`).remove().then(() => location.reload()); 
-        }
+        function closeRoom() { db.ref(`rooms/${roomName}`).remove().then(() => location.reload()); }
 
         function saveGameData() {
             const p = gameState.players[myIndex];
             if (!p) return;
             const finalAvg = p.totalDarts > 0 ? parseFloat(((p.totalPoints / p.totalDarts) * 3).toFixed(2)) : 0;
+            const dateStr = new Date().toLocaleDateString('fr-FR');
+            
+            // ARCHIVE LOCALE
             const storageKey = `top_scores_${p.name}`;
             let topScores = JSON.parse(localStorage.getItem(storageKey)) || [];
-
-            topScores.push({ avg: finalAvg, date: new Date().toLocaleDateString('fr-FR'), darts: p.totalDarts });
+            topScores.push({ avg: finalAvg, date: dateStr, darts: p.totalDarts });
             topScores.sort((a, b) => b.avg - a.avg);
             const isTopThree = topScores.findIndex(s => s.avg === finalAvg) < 3;
-            topScores = topScores.slice(0, 3);
-            localStorage.setItem(storageKey, JSON.stringify(topScores));
+            localStorage.setItem(storageKey, JSON.stringify(topScores.slice(0, 3)));
 
-            const btnSave = document.getElementById('btn-save-only');
-            btnSave.innerText = isTopThree ? "🔥 NOUVEAU RECORD !" : "SCORE ENREGISTRÉ";
-            btnSave.disabled = true;
-            btnSave.style.opacity = "0.5";
-            showFinalStats();
+            // ARCHIVE FIREBASE (users/NAME/games/live_multi)
+            const liveGamesRef = db.ref(`users/${p.name}/games/live_multi`);
+            liveGamesRef.once('value').then(snap => {
+                let d = snap.val() || {};
+                let top = d.top || [];
+                top.push({ avg: finalAvg, darts: p.totalDarts, date: dateStr });
+                top.sort((a, b) => b.avg - a.avg);
+                return liveGamesRef.update({
+                    top: top.slice(0, 5),
+                    wins: (gameState.winner === p.name ? (d.wins || 0) + 1 : (d.wins || 0)),
+                    last_game: dateStr,
+                    total_points: (d.total_points || 0) + p.totalPoints,
+                    total_darts: (d.total_darts || 0) + p.totalDarts
+                });
+            }).then(() => {
+                const btn = document.getElementById('btn-save-only');
+                btn.innerText = "✅ PROFIL SYNCHRONISÉ";
+                btn.style.background = "#238636";
+                btn.disabled = true;
+                showFinalStats();
+            });
         }
 
         function showFinalStats() {
             const list = document.getElementById('local-stats-list');
+            const nameToSearch = (gameState.players[myIndex] ? gameState.players[myIndex].name : myName);
+            if(!nameToSearch) return;
+            const topScores = JSON.parse(localStorage.getItem(`top_scores_${nameToSearch}`)) || [];
             const p = gameState.players[myIndex];
-            if(!p) return;
-            const storageKey = `top_scores_${p.name}`;
-            const topScores = JSON.parse(localStorage.getItem(storageKey)) || [];
-            let currentAvg = p.totalDarts > 0 ? ((p.totalPoints / p.totalDarts) * 3).toFixed(2) : "0.00";
-
-            let html = `<div style="margin-bottom:10px; border-bottom:1px solid #333; padding-bottom:5px;">
-                          <strong>MOYENNE MATCH :</strong> ${currentAvg}
-                        </div>
-                        <div style="color:var(--accent); font-size:0.65rem; margin-bottom:5px;">MES MEILLEURS SCORES (TOP 3) :</div>`;
-            
+            let currentAvg = p ? ((p.totalPoints / p.totalDarts) * 3).toFixed(2) : "0.00";
+            let html = `<div style="border-bottom:1px solid #333; padding-bottom:5px; margin-bottom:10px;"><strong>MATCH :</strong> ${currentAvg} AVG</div>`;
             topScores.forEach((s, i) => {
-                html += `<div style="display:flex; justify-content:space-between; margin-bottom:2px; ${i===0?'color:var(--d-color)':''}">
-                            <span>#${i+1} - ${s.date}</span>
-                            <span><strong>${s.avg}</strong> (${s.darts} fl.)</span>
-                         </div>`;
+                html += `<div style="display:flex; justify-content:space-between; margin-bottom:2px; font-size:0.7rem; ${i===0?'color:var(--d-color)':''}">
+                    <span>#${i+1} - ${s.date}</span><span><strong>${s.avg}</strong> (${s.darts} fl.)</span>
+                </div>`;
             });
             list.innerHTML = html;
         }
