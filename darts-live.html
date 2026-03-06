@@ -34,8 +34,72 @@
         .stand-btn.locked { border-left: 4px solid var(--t-color); opacity: 0.5; pointer-events: none; }
         .stand-name { display: block; font-weight: 800; font-size: 0.75rem; color: #fff; }
         .stand-status { font-size: 0.6rem; font-weight: bold; color: #8b949e; }
+		
+		
+		
+/* GAME SCREEN - FIXATION DES HAUTEURS */
+#game-screen { 
+    display: none; 
+    height: calc(100% - 65px); 
+    flex-direction: column; 
+    padding: 8px; 
+    gap: 4px; 
+    overflow: hidden; /* Empêche le scroll parasite */
+}
 
-        #game-screen { display: none; height: calc(100% - 65px); flex-direction: column; padding: 8px; gap: 4px; }
+/* Grille principale qui contient tout le pavé */
+.grid { 
+    flex: 1; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 4px; 
+    min-height: 0; /* Important pour le flex interne */
+}
+
+/* FIXATION STRICTE DES HAUTEURS DE LIGNES */
+.mod-row { 
+    display: grid; 
+    grid-template-columns: repeat(3, 1fr); 
+    height: 50px !important; /* Hauteur forcée */
+    flex-shrink: 0; 
+}
+
+.num-grid { 
+    display: grid; 
+    grid-template-columns: repeat(4, 1fr); 
+    flex: 1; /* C'est la seule zone qui s'adapte */
+    gap: 4px;
+}
+
+.special-row { 
+    display: grid; 
+    grid-template-columns: repeat(3, 1fr); 
+    height: 55px !important; /* Hauteur forcée */
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.action-row { 
+    display: grid; 
+    grid-template-columns: 1fr 2fr 1fr; 
+    height: 65px !important; /* Hauteur forcée */
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+/* Boutons individuels */
+button { 
+    height: 100%; /* Ils prennent toute la place de leur ligne forcée */
+    border: none; 
+    border-radius: 8px; 
+    font-weight: 700; 
+    color: #fff; 
+    cursor: pointer; 
+}		
+		
+		
+		
+
         .app-brand { height: 30px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .app-title { font-size: 0.75rem; font-weight: 900; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; }
 
@@ -50,14 +114,6 @@
         .turn-tracking { display: flex; justify-content: center; gap: 6px; height: 35px; flex-shrink: 0; margin: 5px 0; }
         .dart-slot { width: 30%; background: #010409; border: 1px solid #30363d; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; color: #484f58; }
 
-        .grid { flex: 1; display: flex; flex-direction: column; gap: 4px; }
-        .mod-row, .num-grid, .special-row, .action-row { display: grid; gap: 4px; }
-        .mod-row { grid-template-columns: repeat(3, 1fr); height: 50px; }
-        .num-grid { grid-template-columns: repeat(4, 1fr); flex: 1; }
-        .special-row { grid-template-columns: repeat(3, 1fr); height: 55px; }
-        .action-row { grid-template-columns: 1fr 2fr 1fr; height: 65px; }
-
-        button { border: none; border-radius: 8px; font-weight: 700; color: #fff; cursor: pointer; }
         .btn-mod { background: #21262d; border: 1px solid #30363d; }
         #modS.selected { background: var(--s-color); }
         #modD.selected { background: var(--d-color); }
