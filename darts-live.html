@@ -234,22 +234,38 @@
             roomName = name; myName = pseudo; joinRoom();
         }
 
-        function joinRoom() {
-            let myQualif = parseInt(document.getElementById('qualifInput').value) || 0;
-            db.ref('rooms/' + roomName).once('value', (snapshot) => {
-                const data = snapshot.val();
-                if (!data) {
-                    db.ref('rooms/' + roomName).set({ status: "active", currentPlayer: 0, players: [{ name: myName, score: 501, totalDarts: 0, lastDarts: "- • - • -", q: myQualif }] });
-                } else {
-                    let found = data.players.findIndex(p => p.name === myName);
-                    if (found === -1) {
-                        let newPlayers = [...data.players, { name: myName, score: 501, totalDarts: 0, lastDarts: "- • - • -", q: myQualif }];
-                        newPlayers.sort((a, b) => (b.q || 0) - (a.q || 0));
-                        db.ref('rooms/' + roomName + '/players').set(newPlayers);
-                    }
-                }
-            });
-            db.ref('rooms/' + roomName).on('value', (snapshot) => {
+function joinRoom() {
+    let myQualif = parseInt(document.getElementById('qualifInput').value) || 0;
+    const roomRef = db.ref('rooms/' + roomName);
+
+    // Utilisation d'une transaction pour éviter que les joueurs ne s'écrasent
+    roomRef.transaction((currentData) => {
+        if (currentData === null) {
+            // Premier joueur à créer la room
+            return {
+                status: "active",
+                currentPlayer: 0,
+                players: [{ name: myName, score: 501, totalDarts: 0, lastDarts: "- • - • -", q: myQualif }]
+            };
+        } else {
+            // La room existe déjà
+            if (!currentData.players) currentData.players = [];
+            
+            // On vérifie si on n'est pas déjà dedans
+            const exists = currentData.players.find(p => p.name === myName);
+            if (!exists) {
+                if (currentData.players.length >= 3) return; // Room pleine
+                
+                currentData.players.push({ name: myName, score: 501, totalDarts: 0, lastDarts: "- • - • -", q: myQualif });
+                // On trie par score de bulle (décroissant)
+                currentData.players.sort((a, b) => (b.q || 0) - (a.q || 0));
+            }
+            return currentData;
+        }
+    }, (error, committed, snapshot) => {
+        if (committed) {
+            // Une fois inscrit avec succès, on active l'écouteur temps réel
+            roomRef.on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
                     gameState = data;
@@ -264,6 +280,8 @@
                 }
             });
         }
+    });
+}
 
         function syncUI() {
             myIndex = gameState.players.findIndex(p => p.name === myName);
