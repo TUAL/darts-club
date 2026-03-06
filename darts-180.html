@@ -34,37 +34,25 @@
 
         #game-screen { display: flex; height: 100dvh; flex-direction: column; padding: 8px; padding-bottom: 60px; gap: 4px; }
         
-        /* Header plus compact pour laisser de la place aux boutons */
-        .header { height: 65px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; flex-shrink: 0; }
-        .p-card { background: var(--card); border-radius: 8px; border: 1px solid var(--accent); display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .p-name { font-size: 0.55rem; color: #8b949e; text-transform: uppercase; }
-        .score-val { font-size: 1.6rem; font-weight: 900; color: #fff; line-height: 1; }
+        .header { height: 85px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; flex-shrink: 0; }
+        .p-card { background: var(--card); border-radius: 8px; border: 1px solid #30363d; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px; }
+        .p-card.active { border: 2px solid var(--accent); }
+        .p-name { font-size: 0.55rem; color: #8b949e; text-transform: uppercase; font-weight: 900; }
+        .score-val { font-size: 1.8rem; font-weight: 900; color: #fff; line-height: 1; margin: 2px 0; }
+        .last-turn-label { font-size: 0.55rem; color: #6e7681; margin-top: 2px; height: 12px; font-weight: bold; }
 
-        .ia-last-volley { height: 2px; flex-shrink: 0; } 
-        .turn-tracking { display: flex; justify-content: center; gap: 6px; height: 35px; flex-shrink: 0; }
+        .turn-tracking { display: flex; justify-content: center; gap: 6px; height: 35px; flex-shrink: 0; margin: 5px 0; }
         .dart-slot { width: 30%; background: #010409; border: 1px solid #30363d; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; color: #484f58; }
 
         .grid { flex: 1; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
         .mod-row, .num-grid, .special-row, .action-row { display: grid; gap: 4px; }
-        
         .mod-row { grid-template-columns: repeat(3, 1fr); }
         .num-grid { grid-template-columns: repeat(4, 1fr); }
         .special-row { grid-template-columns: repeat(3, 1fr); }
         .action-row { grid-template-columns: 1fr 2fr 1fr; }
 
-        /* HAUTEUR À 60PX COMME DEMANDÉ */
-        button { 
-            border: none; 
-            border-radius: 8px; 
-            font-weight: 700; 
-            color: #fff; 
-            cursor: pointer; 
-            height: 60px; 
-            width: 100%; 
-            font-size: 1.1rem; 
-        }
-        
-        .btn-mod { background: #21262d; border: 1px solid #30363d; height: 50px; } /* Légèrement moins haut pour les modes */
+        button { border: none; border-radius: 8px; font-weight: 700; color: #fff; cursor: pointer; height: 60px; width: 100%; font-size: 1.1rem; }
+        .btn-mod { background: #21262d; border: 1px solid #30363d; height: 50px; }
         #modS.selected { background: var(--s-color); }
         #modD.selected { background: var(--d-color); }
         #modT.selected { background: var(--t-color); }
@@ -80,10 +68,8 @@
 
         .overlay { display:none; position:fixed; inset:0; background: rgba(13,17,23,0.98); z-index:999; flex-direction:column; justify-content:center; align-items:center; padding: 20px; }
         .final-box { background: var(--card); padding: 15px; border-radius: 15px; border: 1px solid #30363d; width: 100%; max-width: 260px; text-align: center; }
-        
         .end-btn-container { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 260px; margin-top: 15px; }
-        .end-btn { height: 50px; border-radius: 10px; font-size: 0.85rem; text-transform: uppercase; font-weight: 800; }
-        .btn-save { background: var(--s-color) !important; }
+        .btn-save { background: var(--accent) !important; height: 50px; border-radius: 10px; font-size: 0.85rem; text-transform: uppercase; font-weight: 800; }
     </style>
 </head>
 <body>
@@ -91,22 +77,22 @@
     <div id="game-screen">
         <div class="app-brand">
             <span class="app-logo">🎯</span>
-            <span class="app-title" id="title-label">180 - TEST</span>
+            <span class="app-title" id="title-label">180 CHALLENGE</span>
         </div>
 
         <div class="header">
-            <div class="p-card">
+            <div class="p-card active">
                 <div class="p-name">RESTE</div>
                 <div class="score-val" id="scoreDisplay">180</div>
+                <div class="last-turn-label" id="p-last-turn"></div>
             </div>
             <div class="p-card">
-                <div class="p-name">JETS</div>
+                <div class="p-name">FLÉCHETTES</div>
                 <div class="score-val" id="dartCountDisplay">0/9</div>
+                <div class="last-turn-label">MAX 9</div>
             </div>
         </div>
 
-        <div class="ia-last-volley"></div>    
-        
         <div class="turn-tracking">
             <div class="dart-slot" id="d0">-</div>
             <div class="dart-slot" id="d1">-</div>
@@ -119,15 +105,14 @@
                 <button class="btn-mod" id="modD" onclick="setMod(2)">D</button>
                 <button class="btn-mod" id="modT" onclick="setMod(3)">T</button>
             </div>
-            <div id="numPad" class="num-grid">
-                </div>
+            <div id="numPad" class="num-grid"></div>
             <div class="special-row">
                 <button class="num-btn" onclick="addDart(0)">0</button>
                 <button class="num-btn" onclick="addDart(25)">25</button>
                 <button class="num-btn" onclick="addDart(50)">BULL</button>
             </div>
             <div class="action-row">
-                <button class="btn-undo-all" onclick="location.reload()">REJOUER</button>
+                <button class="btn-undo-all" onclick="location.reload()">REPLAY</button>
                 <button class="btn-valid" onclick="finishTurn()">VALIDER</button>
                 <button class="btn-del" onclick="undoLastDart()">⌫</button>
             </div>
@@ -140,20 +125,20 @@
 
     <div id="end-screen" class="overlay">
         <div class="final-box">
-            <h1 id="end-title-label" style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;">Résultat</h1>
+            <h1 id="end-title-label" style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;">RÉSULTAT</h1>
             <div id="final-score-display" style="font-size: 3.5rem; font-weight: 900; margin: 5px 0;">180</div>
             <p id="end-msg" style="font-size: 0.85rem; color: #fff; font-weight: bold;"></p>
         </div>
 
         <div id="top-scores" style="margin: 10px 0; width: 100%; max-width: 260px; font-size: 0.75rem;">
-            <div style="color: var(--accent); font-weight: bold; text-align: center; margin-bottom: 5px;">🏆 TOP 3</div>
+            <div style="color: var(--accent); font-weight: bold; text-align: center; margin-bottom: 5px;">🏆 TOP 3 (Fléchettes)</div>
             <div id="top-list">...</div>
         </div>
 
         <div class="end-btn-container">
-            <button id="btn-save-only" class="end-btn btn-save" style="display:none;" onclick="handleJustSave()">ENREGISTRER LE SCORE</button>
-            <button class="end-btn btn-valid" onclick="location.reload()">RECOMMENCER</button>
-            <a href="menu.html" style="color: #555; text-decoration: none; font-size: 0.75rem; text-align: center;">RETOUR AU MENU</a>
+            <button id="btn-save-only" class="btn-save" style="display:none;" onclick="handleJustSave()">ENREGISTRER</button>
+            <button class="btn-valid" style="height:50px; border-radius:10px;" onclick="location.reload()">RECOMMENCER</button>
+            <a href="menu.html" style="color: #555; text-decoration: none; font-size: 0.75rem; text-align: center; margin-top:5px;">RETOUR AU MENU</a>
         </div>
     </div>
 
@@ -172,7 +157,7 @@
         const pseudo = localStorage.getItem('darts_pseudo') || "TEST";
         const isGuest = localStorage.getItem('is_guest') === 'true';
 
-        let score = 180, totalDartsUsed = 0, multiplier = 1, dartsInTurn = [], gameOver = false;
+        let score = 180, totalDartsUsed = 0, multiplier = 1, dartsInTurn = [], labelsInTurn = [], gameOver = false;
 
         window.onload = () => {
             document.getElementById('title-label').innerText = "180 - " + pseudo;
@@ -183,7 +168,6 @@
         };
 
         function setMod(m) {
-            if(gameOver) return;
             multiplier = m;
             document.querySelectorAll('.btn-mod').forEach(b => b.classList.remove('selected'));
             document.getElementById(['modS','modD','modT'][m-1]).classList.add('selected');
@@ -194,42 +178,56 @@
             document.getElementById('dartCountDisplay').innerText = `${totalDartsUsed + dartsInTurn.length}/9`;
         }
 
-        function addDart(val) {
-            if (gameOver || dartsInTurn.length >= 3 || (totalDartsUsed + dartsInTurn.length) >= 9) return;
+function addDart(val) {
+            if (dartsInTurn.length >= 3 || (totalDartsUsed + dartsInTurn.length) >= 9 || score === 0) return;
+            
             let m = (val === 50 || val === 25 || val === 0) ? 1 : multiplier;
             let pts = (val === 50) ? 50 : val * m;
+            let label = (val === 50) ? "BULL" : (val === 0) ? "0" : (m === 3 ? "T" : m === 2 ? "D" : "S") + val;
+
+            // Sécurité : on ne descend pas en dessous de 0
+            if (score - pts < 0) {
+                // Option : On peut soit bloquer la fléchette, soit forcer à 0. 
+                // Ici, on bloque pour forcer l'utilisateur à saisir le bon chiffre ou faire un 0.
+                return; 
+            }
+
             score -= pts;
-            document.getElementById('scoreDisplay').innerText = Math.max(0, score);
+            document.getElementById('scoreDisplay').innerText = score;
+            
             const slot = document.getElementById(`d${dartsInTurn.length}`);
-            slot.innerText = (val === 50) ? "BULL" : (val === 0) ? "0" : (m === 3 ? "T" : m === 2 ? "D" : "") + val;
+            slot.innerText = label;
             slot.style.color = (m === 3 ? "var(--t-color)" : m === 2 ? "var(--d-color)" : "var(--s-color)");
+            
             dartsInTurn.push(pts);
+            labelsInTurn.push(label);
             updateCounter();
             setMod(1);
-            if (score <= 0) {
-                gameOver = true;
-                setTimeout(showEnd, 600);
-            } else if (totalDartsUsed + dartsInTurn.length >= 9) {
-                setTimeout(() => { if(!gameOver) finishTurn(); }, 600);
-            }
         }
 
         function finishTurn() {
-            if (gameOver) return;
+            if (dartsInTurn.length === 0) return;
+
             totalDartsUsed += dartsInTurn.length;
-            if (totalDartsUsed >= 9 && score > 0) { showEnd(); return; }
-            dartsInTurn = [];
-            updateCounter();
-            for(let i=0; i<3; i++) {
-                const slot = document.getElementById(`d${i}`);
-                slot.innerText = "-";
-                slot.style.color = "#484f58";
+            document.getElementById('p-last-turn').innerText = labelsInTurn.join(' ');
+
+            if (score <= 0 || totalDartsUsed >= 9) {
+                showEnd();
+            } else {
+                dartsInTurn = [];
+                labelsInTurn = [];
+                updateCounter();
+                for(let i=0; i<3; i++) {
+                    const slot = document.getElementById(`d${i}`);
+                    slot.innerText = "-"; slot.style.color = "#484f58";
+                }
             }
         }
 
         function undoLastDart() {
-            if (gameOver || dartsInTurn.length === 0) return;
+            if (dartsInTurn.length === 0) return;
             score += dartsInTurn.pop();
+            labelsInTurn.pop();
             document.getElementById('scoreDisplay').innerText = score;
             updateCounter();
             const slot = document.getElementById(`d${dartsInTurn.length}`);
@@ -240,6 +238,7 @@
             gameOver = true;
             document.getElementById('game-screen').style.display = 'none';
             document.getElementById('end-screen').style.display = 'flex';
+            
             const win = score <= 0;
             const fs = document.getElementById('final-score-display');
             const msg = document.getElementById('end-msg');
@@ -248,24 +247,23 @@
             if (win) {
                 document.getElementById('end-title-label').innerText = "RÉUSSI !";
                 fs.innerText = "180"; fs.style.color = "var(--s-color)";
-                msg.innerText = `${totalDartsUsed + dartsInTurn.length} fléchettes.`;
+                msg.innerText = `Bouclé en ${totalDartsUsed} fléchettes.`;
                 if(!isGuest) saveBtn.style.display = 'block';
             } else {
                 document.getElementById('end-title-label').innerText = "ÉCHOUÉ";
                 fs.innerText = 180 - score; fs.style.color = "var(--t-color)";
-                msg.innerText = `Il manquait ${score} pts.`;
+                msg.innerText = `Il manquait ${score} points.`;
                 saveBtn.style.display = 'none';
             }
             displayTop3();
         }
 
         function handleJustSave() {
-            const finalDarts = totalDartsUsed + dartsInTurn.length;
             const topRef = firebase.database().ref(`users/${pseudo}/games/darts_180/top`);
             topRef.once('value', (snapshot) => {
                 let scores = snapshot.val() || [];
-                scores.push({ date: new Date().toLocaleDateString('fr-FR'), score: finalDarts });
-                scores.sort((a, b) => a.score - b.score);
+                scores.push({ date: new Date().toLocaleDateString('fr-FR'), score: totalDartsUsed });
+                scores.sort((a, b) => a.score - b.score); // Plus petit nombre de fléchettes en premier
                 topRef.set(scores.slice(0, 3)).then(() => {
                     const sb = document.getElementById('btn-save-only');
                     sb.style.opacity = "0.5";

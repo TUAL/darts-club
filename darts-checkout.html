@@ -50,9 +50,7 @@
         .special-row { grid-template-columns: repeat(3, 1fr); }
         .action-row { grid-template-columns: 1fr 2fr 1fr; }
 
-        button { 
-            border: none; border-radius: 8px; font-weight: 700; color: #fff; cursor: pointer; height: 60px; width: 100%; font-size: 1.1rem; 
-        }
+        button { border: none; border-radius: 8px; font-weight: 700; color: #fff; cursor: pointer; height: 60px; width: 100%; font-size: 1.1rem; }
         
         .btn-mod { background: #21262d; border: 1px solid #30363d; height: 50px; }
         #modS.selected { background: var(--s-color); }
@@ -186,49 +184,52 @@
             document.getElementById('gameGrid').className = "grid mode-" + ['s','d','t'][m-1];
         }
 
+        function updateCounter() {
+            document.getElementById('dartCountDisplay').innerText = `${totalDartsUsed + dartsInTurn.length}/6`;
+        }
+
         function addDart(val) {
-            if (gameOver || isBust || dartsInTurn.length >= 3 || (totalDartsUsed + dartsInTurn.length) >= 6) return;
-            
+            if (dartsInTurn.length >= 3 || (totalDartsUsed + dartsInTurn.length) >= 6 || isBust || score === 0) return;
+
             let m = (val === 50 || val === 25 || val === 0) ? 1 : multiplier;
-            let actualM = (val === 50) ? 2 : m; 
             let pts = (val === 50) ? 50 : val * m;
+            let label = (val === 50) ? "BULL" : (val === 0) ? "0" : (m === 3 ? "T" : m === 2 ? "D" : "S") + val;
             
             const slot = document.getElementById(`d${dartsInTurn.length}`);
 
-            if (score - pts < 0 || score - pts === 1 || (score - pts === 0 && actualM !== 2)) {
+            // RÈGLE DU BUST : On consomme la fléchette mais on ajoute 0 point
+            if (score - pts < 0 || score - pts === 1 || (score - pts === 0 && m !== 2 && val !== 50)) {
                 isBust = true;
-                slot.innerText = "BUST"; slot.style.color = "var(--t-color)";
-                dartsInTurn.push(0); 
+                slot.innerText = "BUST";
+                slot.style.color = "var(--t-color)";
+                dartsInTurn.push(0); // La fléchette est comptée mais vaut 0
                 updateCounter();
-                return;
+                return; 
             }
 
             score -= pts;
             document.getElementById('scoreDisplay').innerText = score;
-            slot.innerText = (val === 50) ? "BULL" : (val === 0) ? "0" : (m === 3 ? "T" : m === 2 ? "D" : "") + val;
+            slot.innerText = label;
             slot.style.color = (m === 3 ? "var(--t-color)" : m === 2 ? "var(--d-color)" : "var(--s-color)");
             
             dartsInTurn.push(pts);
             updateCounter();
             setMod(1);
-
-            if (score === 0) {
-                gameOver = true;
-                setTimeout(showEnd, 600);
-            } else if (totalDartsUsed + dartsInTurn.length >= 6) {
-                setTimeout(() => { if(!gameOver) finishTurn(); }, 600);
-            }
-        }
-
-        function updateCounter() {
-            document.getElementById('dartCountDisplay').innerText = `${totalDartsUsed + dartsInTurn.length}/6`;
         }
 
         function finishTurn() {
             if (gameOver) return;
             totalDartsUsed += dartsInTurn.length;
-            if (totalDartsUsed >= 6 && score > 0) { showEnd(); return; }
-            dartsInTurn = []; isBust = false;
+            
+            // Si fini ou épuisé
+            if (score === 0 || totalDartsUsed >= 6) {
+                showEnd();
+                return;
+            }
+            
+            // Nouveau tour
+            dartsInTurn = [];
+            isBust = false;
             updateCounter();
             for(let i=0; i<3; i++) {
                 const slot = document.getElementById(`d${i}`);
@@ -238,8 +239,13 @@
 
         function undoLastDart() {
             if (gameOver || dartsInTurn.length === 0) return;
+            
             let lastPts = dartsInTurn.pop();
-            if (!isBust) score += lastPts;
+            // Si on annule un BUST, le score n'avait pas bougé donc pas de += lastPts
+            if (!isBust) {
+                score += lastPts;
+            }
+            
             isBust = false;
             document.getElementById('scoreDisplay').innerText = score;
             updateCounter();
@@ -259,19 +265,19 @@
             if (win) {
                 document.getElementById('end-title-label').innerText = "RÉUSSI !";
                 fs.innerText = initialScore; fs.style.color = "var(--s-color)";
-                msg.innerText = `Fini en ${totalDartsUsed + dartsInTurn.length} fléchettes.`;
+                msg.innerText = `Fini en ${totalDartsUsed} fléchettes.`;
                 if(!isGuest) saveBtn.style.display = 'block';
             } else {
                 document.getElementById('end-title-label').innerText = "ÉCHOUÉ";
                 fs.innerText = initialScore - score; fs.style.color = "var(--t-color)";
-                msg.innerText = `Il restait ${score} pts.`;
+                msg.innerText = `Il restait ${score} pts sur ${initialScore}.`;
                 saveBtn.style.display = 'none';
             }
             displayTop3();
         }
 
         function handleJustSave() {
-            const finalDarts = totalDartsUsed + dartsInTurn.length;
+            const finalDarts = totalDartsUsed;
             const moyenneMatch = parseFloat(((initialScore / finalDarts) * 3).toFixed(2));
             const topRef = firebase.database().ref(`users/${pseudo}/games/checkouts/top_moyennes`);
             
