@@ -23,6 +23,14 @@
             display: flex; flex-direction: column;
         }
 
+        /* Indicateur de connexion */
+        #connection-status {
+            position: fixed; top: 10px; right: 10px; font-size: 0.6rem;
+            display: flex; align-items: center; gap: 5px; color: #8b949e; z-index: 1000;
+        }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #444; }
+        .status-dot.online { background: var(--s-color); box-shadow: 0 0 5px var(--s-color); }
+
         /* LOBBY */
         #lobby { max-width: 400px; margin: 0 auto; width: 100%; padding: 20px; text-align: center; overflow-y: auto; }
         .input-group { margin-bottom: 15px; text-align: left; }
@@ -58,7 +66,6 @@
         .mod-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; height: 12%; }
         .num-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; flex: 1; }
 
-        /* BARRES DE COULEURS BOUTONS */
         .num-btn { background: #21262d; position: relative; overflow: hidden; font-size: 1.2rem; }
         .num-btn::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 4px; background: transparent; }
         .grid.mode-s .num-btn::after { background: var(--s-color); }
@@ -79,10 +86,19 @@
         .btn-del { background: #21262d; color: #8b949e; font-size: 1.6rem; }
         .btn-undo-all { background: #161b22; color: #8b949e; font-size: 0.55rem; text-transform: uppercase; border: 1px solid #30363d; }
 
-        footer { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--bg); padding: 15px 0; border-top: 1px solid #161b22; }
-        .back-btn { color: #888; text-decoration: none; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; padding: 6px 18px; border: 1px solid #333; border-radius: 20px; }
+        /* FOOTER CENTRÉ */
+        footer { 
+            position: fixed; bottom: 0; left: 0; width: 100%; 
+            background: var(--bg); padding: 20px 0; 
+            border-top: 1px solid #161b22;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .back-btn { 
+            color: #888; text-decoration: none; font-size: 0.8rem; 
+            text-transform: uppercase; letter-spacing: 2px; 
+            padding: 8px 25px; border: 1px solid #333; border-radius: 20px; 
+        }
 
-        /* VICTORY LAYER */
         #victory-layer { display:none; position:fixed; inset:0; background: rgba(13,17,23,0.98); z-index:9999; flex-direction:column; justify-content:center; align-items:center; padding: 20px; }
         .final-box { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid #30363d; width: 100%; max-width: 320px; text-align: center; }
         .stats-table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.8rem; }
@@ -93,6 +109,11 @@
     </style>
 </head>
 <body>
+
+    <div id="connection-status">
+        <div id="status-dot" class="status-dot"></div>
+        <span id="status-text">OFFLINE</span>
+    </div>
 
     <div id="lobby">
         <div style="font-size: 2.5rem; margin-bottom: 5px;">🎯</div>
@@ -111,7 +132,9 @@
         <div id="standGrid" class="stand-grid"></div>
     </div>
 
-    <footer id="main-footer"><a href="menu.html" class="back-btn">⬅ Menu Principal</a></footer>
+    <footer id="main-footer">
+        <a href="menu.html" class="back-btn">⬅ Menu Principal</a>
+    </footer>
 
     <div id="game-screen">
         <div class="header" id="gamePlayers"></div>
@@ -154,6 +177,20 @@
         const firebaseConfig = { databaseURL: "https://dartsclub-1aab9-default-rtdb.europe-west1.firebasedatabase.app/" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+
+        // GESTION DE LA CONNEXION
+        const connectedRef = db.ref(".info/connected");
+        connectedRef.on("value", (snap) => {
+            const dot = document.getElementById("status-dot");
+            const txt = document.getElementById("status-text");
+            if (snap.val() === true) {
+                dot.className = "status-dot online";
+                txt.innerText = "ONLINE";
+            } else {
+                dot.className = "status-dot";
+                txt.innerText = "OFFLINE";
+            }
+        });
 
         const STANDS_NAMES = ["1 - Littler", "2 - Humphries", "3 - Price", "4 - Van Veen", "5 - Van Gerwen", "6 - Tricole"];
         let roomName, myName, myIndex = -1, dartsInTurn = [], visualDarts = [], multiplier = 1, isBust = false;
@@ -295,14 +332,12 @@
             if (!myData) return;
             const date = new Date().toLocaleDateString('fr-FR');
             
-            // Stats de fréquentation
             const refStats = db.ref(`users/${myName}/games/live/stats`);
             refStats.once('value', snap => {
                 let s = snap.val() || { wins: 0, total_games: 0 };
                 refStats.set({ wins: s.wins + (myData.isWinner ? 1 : 0), total_games: s.total_games + 1 });
             });
 
-            // Top 3 pour le gagnant
             if (myData.isWinner) {
                 const refTop = db.ref(`users/${myName}/games/live/top`);
                 refTop.once('value', snap => {
