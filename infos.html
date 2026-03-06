@@ -14,6 +14,7 @@
             --live: #ffa500;
             --ia: #ff4444;
             --fun: #bc13fe;
+            --info: #58a6ff;
         }
 
         body {
@@ -55,7 +56,6 @@
             margin: 10px auto;
         }
 
-        /* Style des liens sur les cadres */
         .mode-link {
             text-decoration: none;
             color: inherit;
@@ -72,7 +72,6 @@
             transition: transform 0.1s;
         }
 
-        /* Animation au clic sur le cadre */
         .mode-link:active .mode-section {
             transform: scale(0.97);
             background: #1a1a1a;
@@ -92,11 +91,20 @@
         .local-h2 { color: var(--accent); }
         .ia-h2 { color: var(--ia); }
         .fun-h2 { color: var(--fun); }
+        .info-h2 { color: var(--info); }
 
-        p { font-size: 0.85rem; color: #bbb; margin-bottom: 12px; }
+        p { font-size: 0.85rem; color: #bbb; margin-bottom: 12px; line-height: 1.4; }
         ul { margin: 0; padding-left: 18px; font-size: 0.8rem; color: #999; }
         li { margin-bottom: 6px; }
         .highlight { color: #fff; font-weight: bold; }
+
+        .info-box {
+            background: rgba(88, 166, 255, 0.05);
+            border: 1px dashed #30363d;
+            margin-top: 10px;
+            border-radius: 15px;
+            padding: 20px;
+        }
 
         footer {
             height: 80px;
@@ -214,10 +222,20 @@
                 </ul>
             </section>
         </a>
+
+        <section class="mode-section info-box">
+            <h2 class="info-h2">💾 ENREGISTREMENT DES RECORDS</h2>
+            <p>Pour les modes <span class="highlight">180, BULL et BOB'S 27</span>, vos meilleures performances peuvent être sauvegardées :</p>
+            <ul>
+                <li>Une fois le défi réussi, cliquez sur le bouton <span class="highlight" style="color:var(--info)">ARCHIVER</span> sur l'écran de fin.</li>
+                <li>L'application compare votre score avec votre <span class="highlight">Top 3 personnel</span> stocké sur votre profil.</li>
+                <li>Si vous battez un record, il sera automatiquement mis à jour dans le tableau des scores.</li>
+            </ul>
+        </section>
     </div>
 
     <footer>
-        <a href="index.html" class="back-btn">⬅ Menu Principal</a>
+        <a href="menu.html" class="back-btn">⬅ Menu Principal</a>
     </footer>
 
 </body>
