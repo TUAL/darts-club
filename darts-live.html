@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Darts Club - Live</title>
-    <script src="protection.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <style>
@@ -33,28 +32,26 @@
         .stand-name { font-weight: 800; font-size: 0.85rem; color: #fff; }
         .stand-status { font-size: 0.6rem; text-transform: uppercase; font-weight: bold; }
 
-        #game-screen { display: none; height: 100dvh; flex-direction: column; padding: 10px; padding-bottom: 90px; gap: 5px; }
-        .header { height: 22dvh; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-        .p-card { background: var(--card); border-radius: 12px; border: 1px solid #30363d; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.3; transition: 0.3s; padding: 5px; overflow: hidden; }
-        .p-card.active { opacity: 1; border-color: var(--accent); border-width: 3px; }
-        .p-name { font-size: 0.65rem; color: #8b949e; text-transform: uppercase; font-weight: 900; text-align: center; width: 100%; white-space: nowrap; overflow: hidden; }
-        .score-val { font-size: 2.1rem; font-weight: 900; color: #fff; margin: 4px 0; }
+        #game-screen { display: none; height: 100dvh; flex-direction: column; padding: 10px; padding-bottom: 20px; gap: 5px; }
+        .header { height: 18dvh; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 5px; }
+        .p-card { background: var(--card); border-radius: 12px; border: 1px solid #30363d; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.4; transition: 0.3s; padding: 5px; }
+        .p-card.active { opacity: 1; border-color: var(--accent); border-width: 3px; transform: scale(1.02); }
+        .p-name { font-size: 0.65rem; color: #8b949e; text-transform: uppercase; font-weight: 900; text-align: center; }
+        .score-val { font-size: 1.8rem; font-weight: 900; color: #fff; margin: 2px 0; }
         
-        .turn-tracking { display: flex; justify-content: center; gap: 8px; height: 7dvh; margin: 5px 0; }
+        .turn-tracking { display: flex; justify-content: center; gap: 8px; height: 6dvh; margin-bottom: 10px; }
         .dart-slot { width: 30%; background: #010409; border: 1px solid #30363d; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #484f58; }
 
         .grid { flex: 1; display: flex; flex-direction: column; gap: 4px; }
         .num-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; flex: 1; }
-        .num-btn { background: #21262d; position: relative; font-size: 1.2rem; border: none; border-radius: 6px; color: #fff; font-weight: 700; }
-        .num-btn::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 4px; background: transparent; }
-        .grid.mode-s .num-btn::after { background: var(--s-color); }
-        .grid.mode-d .num-btn::after { background: var(--d-color); }
-        .grid.mode-t .num-btn::after { background: var(--t-color); }
+        .num-btn { background: #21262d; position: relative; font-size: 1.2rem; border: none; border-radius: 6px; color: #fff; font-weight: 700; transition: 0.1s; }
+        .num-btn:active { transform: scale(0.95); opacity: 0.7; }
+        .num-btn:disabled { opacity: 0.2; transform: none; }
 
-        footer { position: fixed; bottom: 0; width: 100%; background: var(--bg); padding: 20px 0; border-top: 1px solid #161b22; display: flex; justify-content: center; }
-        .back-btn { color: #888; text-decoration: none; font-size: 0.8rem; text-transform: uppercase; padding: 8px 25px; border: 1px solid #333; border-radius: 20px; }
+        .footer-nav { display: flex; justify-content: center; padding: 15px; border-top: 1px solid #30363d; }
+        .back-btn { color: #8b949e; text-decoration: none; font-size: 0.8rem; font-weight: bold; padding: 10px 20px; border: 1px solid #30363d; border-radius: 30px; }
 
-        #victory-layer { display:none; position:fixed; inset:0; background: rgba(13,17,23,0.98); z-index:9999; flex-direction:column; justify-content:center; align-items:center; padding: 20px; }
+        #victory-layer { display:none; position:fixed; inset:0; background: rgba(13,17,23,0.98); z-index:9999; flex-direction:column; justify-content:center; align-items:center; }
     </style>
 </head>
 <body>
@@ -62,53 +59,63 @@
     <div id="connection-status"><div id="status-dot" class="status-dot"></div><span id="status-text">OFFLINE</span></div>
 
     <div id="lobby">
-        <div style="font-size: 2.5rem; margin-top:20px;">🎯</div>
-        <h1 style="color: var(--accent); letter-spacing: 2px; font-size: 1.2rem;">DARTS CLUB LIVE</h1>
+        <div style="font-size: 3rem; margin-top:30px;">🎯</div>
+        <h1 style="color: var(--accent); letter-spacing: 3px; font-size: 1.4rem; margin-bottom: 30px;">DARTS CLUB LIVE</h1>
+        
         <div class="input-group">
             <label>Pseudo</label>
             <input type="text" id="nameInput" placeholder="TON NOM...">
         </div>
+        
         <div class="input-group">
-            <label>Score Bulle (Optionnel)</label>
+            <label>Score Bulle (Ordre de passage)</label>
             <input type="number" id="qualifInput" placeholder="EX: 50">
         </div>
-        <div id="standGrid" class="stand-grid"></div>
-    </div>
 
-    <footer id="main-footer"><a href="menu.html" class="back-btn">⬅ Menu Principal</a></footer>
+        <div id="standGrid" class="stand-grid"></div>
+
+        <div class="footer-nav">
+            <a href="menu.html" class="back-btn">⬅ RETOUR AU MENU</a>
+        </div>
+    </div>
 
     <div id="game-screen">
         <div class="header" id="gamePlayers"></div>
+        
         <div class="turn-tracking">
             <div class="dart-slot" id="d0">-</div>
             <div class="dart-slot" id="d1">-</div>
             <div class="dart-slot" id="d2">-</div>
         </div>
+
         <div class="grid mode-s" id="gameGrid">
             <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:4px; height:12%;">
                 <button class="num-btn" id="modS" style="background:var(--s-color)" onclick="setMod(1)">S</button>
                 <button class="num-btn" id="modD" onclick="setMod(2)">D</button>
                 <button class="num-btn" id="modT" onclick="setMod(3)">T</button>
             </div>
+            
             <div id="numPad" class="num-grid"></div>
+            
             <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:4px; height:12%;">
                 <button class="num-btn" onclick="addDart(0)">0</button>
                 <button class="num-btn" onclick="addDart(25)">25</button>
                 <button class="num-btn" onclick="addDart(50)">BULL</button>
             </div>
+            
             <div style="display:grid; grid-template-columns: 1fr 2fr 1fr; gap:4px; height:15%;">
-                <button class="num-btn" style="background:#161b22; color:#555; font-size:0.5rem;" onclick="undoLastTurn()">ANNULER<br>VOLÉE</button>
-                <button id="btn-validate" class="num-btn" style="background:var(--accent); font-weight:bold;" onclick="finishTurn()" disabled>VALIDER</button>
-                <button class="num-btn" style="background:#21262d; font-size:1.5rem;" onclick="undoLastDart()">⌫</button>
+                <button class="num-btn" style="font-size:0.6rem; color:#888;" onclick="location.reload()">QUITTER</button>
+                <button id="btn-validate" class="num-btn" style="background:var(--accent); font-weight:bold;" onclick="finishTurn()" disabled>VALIDER LA VOLÉE</button>
+                <button class="num-btn" style="background:#30363d; font-size:1.5rem;" onclick="undoLastDart()">⌫</button>
             </div>
         </div>
     </div>
 
     <div id="victory-layer">
-        <div style="background:var(--card); padding:20px; border-radius:15px; text-align:center; width:90%;">
-            <h2 id="winner-name" style="color:var(--s-color); font-size:2rem;"></h2>
-            <div id="stats-container"></div>
-            <button style="background:var(--t-color); color:white; padding:15px; width:100%; border:none; border-radius:10px; margin-top:15px; font-weight:bold;" onclick="closeRoom()">LIBÉRER LE STAND</button>
+        <div style="background:var(--card); padding:30px; border-radius:20px; text-align:center; width:85%; border:1px solid var(--accent);">
+            <h2 id="winner-name" style="color:var(--s-color); font-size:2rem; margin:0;"></h2>
+            <p style="color:#8b949e;">PARTIE TERMINÉE</p>
+            <button style="background:var(--accent); color:white; padding:15px; width:100%; border:none; border-radius:12px; margin-top:20px; font-weight:bold;" onclick="closeRoom()">LIBÉRER LE STAND</button>
         </div>
     </div>
 
@@ -118,19 +125,15 @@
     const db = firebase.database();
 
     let roomName, myName, myIndex = -1, dartsInTurn = [], visualDarts = [], multiplier = 1, isBust = false;
-    let gameState = { players: [], currentPlayer: 0, status: "active" };
+    let gameState = { players: [], currentPlayer: 0, status: "waiting" };
 
-    // 1. État de la connexion
+    // CONNEXION STATUS
     db.ref(".info/connected").on("value", (snap) => {
-        const dot = document.getElementById("status-dot");
-        const txt = document.getElementById("status-text");
-        if (dot && txt) {
-            dot.className = snap.val() ? "status-dot online" : "status-dot";
-            txt.innerText = snap.val() ? "ONLINE" : "OFFLINE";
-        }
+        document.getElementById("status-dot").className = snap.val() ? "status-dot online" : "status-dot";
+        document.getElementById("status-text").innerText = snap.val() ? "ONLINE" : "OFFLINE";
     });
 
-    // 2. Affichage des Stands en temps réel
+    // STANDS LISTING
     const STANDS = ["1 - Littler", "2 - Humphries", "3 - Price", "4 - Van Veen", "5 - Van Gerwen", "6 - Tricole"];
     db.ref('rooms').on('value', (snap) => {
         const rooms = snap.val() || {};
@@ -145,90 +148,60 @@
             let colorClass = players.length > 0 ? "joinable" : "free";
             if(isLocked) { colorClass = "locked"; status = "MATCH"; }
 
-            grid.innerHTML += `<div class="stand-btn ${colorClass}" onclick="entrerDansLeStand('${name}', ${players.length}, ${isLocked})">
+            grid.innerHTML += `<div class="stand-btn ${colorClass}" onclick="rejoindreStand('${name}', ${players.length}, ${isLocked})">
                 <span class="stand-name">${name}</span>
                 <span class="stand-status">${status}</span>
             </div>`;
         });
     });
 
-    // 3. Fonction pour rejoindre (Fusionnée et sécurisée)
-    function entrerDansLeStand(name, count, locked) {
-        const input = document.getElementById('nameInput');
-        myName = input.value.trim().toUpperCase();
-        if(!myName) return alert("Choisis un pseudo");
-        if(locked || count >= 3) return alert("Stand occupé ou en match");
-        
+    function rejoindreStand(name, count, locked) {
+        myName = document.getElementById('nameInput').value.trim().toUpperCase();
+        if(!myName) return alert("ENTRE TON PSEUDO !");
+        if(locked || count >= 3) return;
+
         roomName = name;
         localStorage.setItem('darts_pseudo', myName);
         let q = parseInt(document.getElementById('qualifInput').value) || 0;
 
-        console.log("Tentative d'entrée dans le stand : " + name);
+        // Si premier joueur, on initialise la room
+        if(count === 0) {
+            db.ref(`rooms/${name}`).update({ currentPlayer: 0, status: "playing" });
+        }
 
-        // On crée l'entrée du joueur dans Firebase
         const playerRef = db.ref(`rooms/${name}/players`).push();
-        playerRef.set({ 
-            name: myName, 
-            score: 501, 
-            totalDarts: 0,
-            lastDarts: "- • - • -",
-            q: q 
-        }, (error) => {
-            if (error) {
-                alert("ERREUR FIREBASE : Vérifie tes règles de sécurité !");
-                console.error(error);
-            } else {
-                demarrerLeLive(name);
-            }
-        });
-    }
+        playerRef.set({ name: myName, score: 501, q: q, lastDarts: "-" });
 
-    // 4. Écouteur Live (Synchronisation entre joueurs)
-    function demarrerLeLive(name) {
         db.ref(`rooms/${name}`).on('value', snap => {
             const data = snap.val();
             if(!data || !data.players) return;
             
-            // Conversion objet -> tableau et tri par score de bulle (q)
             const pArray = Object.entries(data.players).map(([id, p]) => ({...p, id}));
-            pArray.sort((a,b) => (b.q || 0) - (a.q || 0));
+            pArray.sort((a,b) => b.q - a.q);
             
             gameState = {...data, players: pArray};
-
-            if(gameState.status === "finished") {
-                showVictory();
-            } else {
-                document.getElementById('lobby').style.display = 'none';
-                document.getElementById('game-screen').style.display = 'flex';
-                // Masquer le footer pour gagner de la place en jeu
-                const footer = document.getElementById('main-footer');
-                if(footer) footer.style.display = 'none';
-                syncUI();
-            }
+            if(gameState.status === "finished") return showVictory();
+            
+            document.getElementById('lobby').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'flex';
+            syncUI();
         });
     }
 
-    // 5. Interface de jeu
     function syncUI() {
         myIndex = gameState.players.findIndex(p => p.name === myName);
         const container = document.getElementById('gamePlayers');
-        if(!container) return;
-
         container.innerHTML = gameState.players.map((p, i) => {
             const active = (i === (gameState.currentPlayer || 0)) ? "active" : "";
-            return `
-                <div class="p-card ${active}">
-                    <div class="p-name">${p.name}</div>
-                    <div class="score-val">${p.score}</div>
-                    <div style="font-size:0.55rem; color:var(--accent); font-weight:bold; height:12px;">${p.lastDarts || "-"}</div>
-                </div>`;
+            return `<div class="p-card ${active}"><div class="p-name">${p.name}</div><div class="score-val">${p.score}</div><div style="font-size:0.5rem; color:var(--accent);">${p.lastDarts}</div></div>`;
         }).join('');
         
         const isMyTurn = (gameState.currentPlayer === myIndex);
-        document.querySelectorAll('#gameGrid button').forEach(b => b.disabled = !isMyTurn);
+        document.querySelectorAll('#gameGrid button').forEach(b => {
+            if(!b.classList.contains('back-btn')) b.disabled = !isMyTurn;
+        });
     }
 
-    // 6. Logique des fléchettes
     function addDart(val) {
         if(dartsInTurn.length >= 3 || isBust) return;
         let pts = (val === 50 || val === 25) ? val : val * multiplier;
@@ -239,65 +212,63 @@
         } else {
             p.score -= pts;
             visualDarts.push((multiplier === 3 ? "T":"") + (multiplier === 2 ? "D":"") + val);
-            // Mise à jour immédiate du score dans Firebase pour le live
             db.ref(`rooms/${roomName}/players/${p.id}/score`).set(p.score);
             if(p.score === 0) return finishTurn(true);
         }
         dartsInTurn.push(pts);
-        const slot = document.getElementById(`d${dartsInTurn.length-1}`);
-        if(slot) slot.innerText = visualDarts[visualDarts.length-1];
-        
+        document.getElementById(`d${dartsInTurn.length-1}`).innerText = visualDarts[visualDarts.length-1];
         document.getElementById('btn-validate').disabled = !(dartsInTurn.length === 3 || isBust);
         setMod(1);
     }
 
     function finishTurn(win = false) {
         let p = gameState.players[myIndex];
-        let label = visualDarts.join(" • ");
-        
-        // Mise à jour de la volée
         db.ref(`rooms/${roomName}/players/${p.id}`).update({
             score: p.score,
-            totalDarts: (p.totalDarts || 0) + dartsInTurn.length,
-            lastDarts: label
+            lastDarts: visualDarts.join(" • ")
         });
 
         if(win) {
             db.ref(`rooms/${roomName}`).update({ status: "finished", winner: myName });
         } else {
             let next = (gameState.currentPlayer + 1) % gameState.players.length;
-            db.ref(`rooms/${roomName}`).update({ currentPlayer: next, status: "playing" });
+            db.ref(`rooms/${roomName}`).update({ currentPlayer: next });
         }
         resetTurn();
     }
 
     function resetTurn() {
         dartsInTurn = []; visualDarts = []; isBust = false;
-        for(let i=0; i<3; i++) {
-            const d = document.getElementById(`d${i}`);
-            if(d) d.innerText = "-";
-        }
-        const btnV = document.getElementById('btn-validate');
-        if(btnV) btnV.disabled = true;
+        for(let i=0; i<3; i++) document.getElementById(`d${i}`).innerText = "-";
+        document.getElementById('btn-validate').disabled = true;
+    }
+
+    function undoLastDart() {
+        if(dartsInTurn.length === 0) return;
+        let p = gameState.players[myIndex];
+        let lastPts = dartsInTurn.pop();
+        visualDarts.pop();
+        if(!isBust) p.score += lastPts;
+        isBust = false;
+        db.ref(`rooms/${roomName}/players/${p.id}/score`).set(p.score);
+        resetTurnVisuals();
+    }
+
+    function resetTurnVisuals() {
+        for(let i=0; i<3; i++) document.getElementById(`d${i}`).innerText = visualDarts[i] || "-";
+        document.getElementById('btn-validate').disabled = !(dartsInTurn.length === 3 || isBust);
     }
 
     function setMod(m) {
         multiplier = m;
-        const btnS = document.getElementById('modS');
-        const btnD = document.getElementById('modD');
-        const btnT = document.getElementById('modT');
-        if(btnS) btnS.style.background = m===1 ? 'var(--s-color)':'#21262d';
-        if(btnD) btnD.style.background = m===2 ? 'var(--d-color)':'#21262d';
-        if(btnT) btnT.style.background = m===3 ? 'var(--t-color)':'#21262d';
-        const grid = document.getElementById('gameGrid');
-        if(grid) grid.className = "grid mode-" + (m===1?'s':m===2?'d':'t');
+        document.getElementById('modS').style.background = m===1 ? 'var(--s-color)':'#21262d';
+        document.getElementById('modD').style.background = m===2 ? 'var(--d-color)':'#21262d';
+        document.getElementById('modT').style.background = m===3 ? 'var(--t-color)':'#21262d';
     }
 
     function showVictory() {
-        const layer = document.getElementById('victory-layer');
-        const winName = document.getElementById('winner-name');
-        if(layer) layer.style.display = 'flex';
-        if(winName) winName.innerText = "VICTOIRE : " + gameState.winner;
+        document.getElementById('victory-layer').style.display = 'flex';
+        document.getElementById('winner-name').innerText = "VICTOIRE : " + gameState.winner;
     }
 
     function closeRoom() { 
@@ -309,11 +280,9 @@
         if(saved) document.getElementById('nameInput').value = saved;
 
         const pad = document.getElementById('numPad');
-        if(pad) {
-            pad.innerHTML = "";
-            for(let i=1; i<=20; i++) {
-                pad.innerHTML += `<button class="num-btn" onclick="addDart(${i})">${i}</button>`;
-            }
+        pad.innerHTML = "";
+        for(let i=1; i<=20; i++) {
+            pad.innerHTML += `<button class="num-btn" onclick="addDart(${i})">${i}</button>`;
         }
     };
 </script>
