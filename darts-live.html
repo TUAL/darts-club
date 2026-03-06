@@ -4,319 +4,385 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Darts Club - Live</title>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     <style>
-        :root {
+        :root { 
             --bg: #0b0e14; --card: #161b22; --text: #f0f6fc;
             --s-color: #238636; --d-color: #d29922; --t-color: #da3633;
             --accent: #58a6ff;
         }
         * { box-sizing: border-box; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; height: 100dvh; overflow: hidden; display: flex; flex-direction: column; }
         
-        /* Design Statut */
-        #connection-status { position: fixed; top: 10px; right: 10px; font-size: 0.6rem; display: flex; align-items: center; gap: 5px; color: #8b949e; z-index: 1000; }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #444; }
-        .status-dot.online { background: var(--s-color); box-shadow: 0 0 5px var(--s-color); }
+        body { 
+            font-family: -apple-system, system-ui, sans-serif; 
+            background: var(--bg); color: var(--text); 
+            margin: 0; padding: 0; height: 100dvh;
+            display: flex; flex-direction: column; overflow: hidden; 
+            position: fixed; width: 100%;
+        }
 
-        /* Design Lobby (Identique Local) */
-        #lobby { max-width: 400px; margin: 0 auto; width: 100%; padding: 20px; text-align: center; overflow-y: auto; flex: 1; }
-        .input-group { margin-bottom: 15px; text-align: left; }
-        label { font-size: 0.7rem; color: var(--accent); letter-spacing: 2px; font-weight: bold; text-transform: uppercase; }
-        input { width: 100%; background: var(--card); border: 1px solid #30363d; color: white; padding: 15px; border-radius: 12px; font-size: 1rem; outline: none; margin-top: 5px; }
-        
-        .stand-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .stand-btn { background: var(--card); border: 1px solid #30363d; padding: 15px 10px; border-radius: 12px; display: flex; flex-direction: column; gap: 5px; cursor: pointer; transition: 0.2s; }
+        #setup-screen { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; padding-bottom: 80px; overflow-y: auto; }
+        .setup-box { width: 100%; max-width: 320px; text-align: center; }
+        label { display: block; text-align: left; font-size: 0.65rem; font-weight: 900; letter-spacing: 1px; color: var(--accent); text-transform: uppercase; margin-bottom: 5px; }
+        input { width: 100%; background: var(--card); border: 1px solid #30363d; color: white; padding: 12px; border-radius: 12px; font-size: 1rem; outline: none; margin-bottom: 15px; }
+
+        .stand-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; margin-top: 10px; }
+        .stand-btn { background: var(--card); border: 1px solid #30363d; padding: 12px; border-radius: 10px; text-align: left; cursor: pointer; }
         .stand-btn.free { border-left: 4px solid var(--s-color); }
-        .stand-btn.joinable { border-left: 4px solid var(--accent); background: rgba(88, 166, 255, 0.1); }
+        .stand-btn.joinable { border-left: 4px solid var(--accent); }
         .stand-btn.locked { border-left: 4px solid var(--t-color); opacity: 0.5; pointer-events: none; }
-        .stand-name { font-weight: 800; font-size: 0.85rem; color: #fff; }
-        .stand-status { font-size: 0.6rem; text-transform: uppercase; font-weight: bold; }
+        .stand-name { display: block; font-weight: 800; font-size: 0.75rem; color: #fff; }
+        .stand-status { font-size: 0.6rem; font-weight: bold; color: #8b949e; }
 
-        /* Design Écran de Jeu (Identique Local) */
-        #game-screen { display: none; height: 100dvh; flex-direction: column; padding: 10px; padding-bottom: env(safe-area-inset-bottom); gap: 5px; }
-        .header { height: 22dvh; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-        .p-card { background: var(--card); border-radius: 12px; border: 1px solid #30363d; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.3; transition: 0.3s; padding: 5px; position: relative;}
-        .p-card.active { opacity: 1; border-color: var(--accent); border-width: 3px; background: rgba(88, 166, 255, 0.05); }
-        .p-name { font-size: 0.65rem; color: #8b949e; text-transform: uppercase; font-weight: 900; text-align: center; width: 90%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .score-val { font-size: 2.2rem; font-weight: 900; color: #fff; margin: 2px 0; }
-        .last-darts { font-size: 0.55rem; color: var(--accent); font-weight: bold; min-height: 12px; }
+        #game-screen { display: none; height: calc(100% - 65px); flex-direction: column; padding: 8px; gap: 4px; }
+        .app-brand { height: 30px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .app-title { font-size: 0.75rem; font-weight: 900; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; }
 
-        .turn-tracking { display: flex; justify-content: center; gap: 8px; height: 7dvh; margin: 5px 0; }
-        .dart-slot { width: 30%; background: #010409; border: 1px solid #30363d; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #fff; font-size: 1.1rem; }
+        .header { height: 95px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; flex-shrink: 0; }
+        .p-card { background: var(--card); border-radius: 8px; border: 1px solid #30363d; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px; opacity: 0.4; }
+        .p-card.active { border-color: var(--accent); border-width: 2px; opacity: 1; }
+        .p-name { font-size: 0.65rem; color: #8b949e; text-transform: uppercase; font-weight: 900; }
+        .score-val { font-size: 1.8rem; font-weight: 900; color: #fff; line-height: 1; margin: 2px 0; }
+        .avg-label { font-size: 0.55rem; color: var(--accent); font-weight: bold; }
+        .last-turn-label { font-size: 0.55rem; color: #6e7681; margin-top: 2px; height: 12px; }
 
-        /* Clavier (Identique Local) */
+        .turn-tracking { display: flex; justify-content: center; gap: 6px; height: 35px; flex-shrink: 0; margin: 5px 0; }
+        .dart-slot { width: 30%; background: #010409; border: 1px solid #30363d; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; color: #484f58; }
+
         .grid { flex: 1; display: flex; flex-direction: column; gap: 4px; }
-        .num-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; flex: 1; }
-        .num-btn { background: #21262d; border: none; border-radius: 6px; color: #fff; font-weight: 700; font-size: 1.2rem; }
-        .num-btn:active { background: #30363d; }
-        .num-btn:disabled { opacity: 0.1; }
+        .mod-row, .num-grid, .special-row, .action-row { display: grid; gap: 4px; }
+        .mod-row { grid-template-columns: repeat(3, 1fr); height: 50px; }
+        .num-grid { grid-template-columns: repeat(4, 1fr); flex: 1; }
+        .special-row { grid-template-columns: repeat(3, 1fr); height: 55px; }
+        .action-row { grid-template-columns: 1fr 2fr 1fr; height: 65px; }
 
-        /* Modificateurs S, D, T */
-        .mod-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; height: 12%; }
-        .mod-btn { background: #21262d; border: none; border-radius: 6px; color: #fff; font-weight: 800; }
+        button { border: none; border-radius: 8px; font-weight: 700; color: #fff; cursor: pointer; }
+        .btn-mod { background: #21262d; border: 1px solid #30363d; }
+        #modS.selected { background: var(--s-color); }
+        #modD.selected { background: var(--d-color); }
+        #modT.selected { background: var(--t-color); }
 
-        /* Pied de page */
-        footer { padding: 15px; border-top: 1px solid #161b22; display: flex; justify-content: center; }
-        .back-link { color: #8b949e; text-decoration: none; font-size: 0.8rem; text-transform: uppercase; font-weight: bold; padding: 10px 25px; border: 1px solid #30363d; border-radius: 20px; }
+        .num-btn { background: #21262d; position: relative; overflow: hidden; font-size: 1.1rem; }
+        .num-btn::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 4px; background: transparent; }
+        .grid.mode-s .num-btn::after { background: var(--s-color); }
+        .grid.mode-d .num-btn::after { background: var(--d-color); }
+        .grid.mode-t .num-btn::after { background: var(--t-color); }
+        
+        .btn-valid { background: #1a2a3a; color: #484f58; border: 1px solid #30363d; font-size: 0.7rem; text-transform: uppercase; }
+        .btn-valid.ready { background: var(--accent) !important; color: white; }
+        .btn-del { background: #21262d; color: #8b949e; font-size: 1.4rem; }
+        .btn-undo-all { background: #161b22; color: #8b949e; font-size: 0.55rem; border: 1px solid #30363d; text-transform: uppercase; line-height: 1.2; }
 
-        #victory-layer { display:none; position:fixed; inset:0; background: rgba(13,17,23,0.98); z-index:9999; flex-direction:column; justify-content:center; align-items:center; }
+        footer { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--bg); padding: 15px 0; text-align: center; border-top: 1px solid #161b22; z-index: 9999; }
+        .back-btn { color: #888; text-decoration: none; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; padding: 8px 20px; border: 1px solid #333; border-radius: 20px; font-weight: 600; }
+
+        .overlay { display:none; position:fixed; inset:0; background: rgba(13,17,23,0.98); z-index:10000; flex-direction:column; justify-content:center; align-items:center; }
     </style>
 </head>
 <body>
 
-    <div id="connection-status"><div id="status-dot" class="status-dot"></div><span id="status-text">OFFLINE</span></div>
-
-    <div id="lobby">
-        <div style="font-size: 3rem; margin-top:30px;">🎯</div>
-        <h1 style="color: var(--accent); letter-spacing: 2px; font-size: 1.2rem;">DARTS CLUB LIVE</h1>
-        
-        <div class="input-group">
-            <label>Pseudo</label>
-            <input type="text" id="nameInput" placeholder="NOM DU JOUEUR...">
+    <div id="setup-screen">
+        <div class="setup-box">
+            <h1 style="color:var(--accent); font-size:1.2rem; letter-spacing:2px; margin-bottom:20px;">🎯 DARTS CLUB LIVE</h1>
+            <label>NOM DU JOUEUR</label>
+            <input type="text" id="pName" placeholder="EX: MOMO" autocomplete="off">
+            <label>SCORE BULLE (ORDRE)</label>
+            <input type="number" id="qualifInput" value="0">
+            <div id="standGrid" class="stand-grid"></div>
         </div>
-        
-        <div class="input-group">
-            <label>Score Bulle (Qualif)</label>
-            <input type="number" id="qualifInput" placeholder="0">
-        </div>
-
-        <div id="standGrid" class="stand-grid"></div>
-
-        <footer style="margin-top: 30px; border:none;">
-            <a href="menu.html" class="back-link">⬅ MENU PRINCIPAL</a>
-        </footer>
     </div>
 
     <div id="game-screen">
+        <div class="app-brand"><span class="app-title">DARTS CLUB — LIVE</span></div>
         <div class="header" id="gamePlayers"></div>
-        
-        <div class="turn-tracking">
-            <div class="dart-slot" id="d0">-</div>
-            <div class="dart-slot" id="d1">-</div>
-            <div class="dart-slot" id="d2">-</div>
-        </div>
-
-        <div class="grid" id="gameGrid">
+        <div class="turn-tracking"><div class="dart-slot" id="d0">-</div><div class="dart-slot" id="d1">-</div><div class="dart-slot" id="d2">-</div></div>
+        <div class="grid mode-s" id="gameGrid">
             <div class="mod-row">
-                <button class="mod-btn" id="modS" style="background:var(--s-color)" onclick="setMod(1)">S</button>
-                <button class="mod-btn" id="modD" onclick="setMod(2)">D</button>
-                <button class="mod-btn" id="modT" onclick="setMod(3)">T</button>
+                <button class="btn-mod selected" id="modS" onclick="setMod(1)">S</button>
+                <button class="btn-mod" id="modD" onclick="setMod(2)">D</button>
+                <button class="btn-mod" id="modT" onclick="setMod(3)">T</button>
             </div>
-            
             <div id="numPad" class="num-grid"></div>
-            
-            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:4px; height:12%;">
+            <div class="special-row">
                 <button class="num-btn" onclick="addDart(0)">0</button>
                 <button class="num-btn" onclick="addDart(25)">25</button>
                 <button class="num-btn" onclick="addDart(50)">BULL</button>
             </div>
-            
-            <div style="display:grid; grid-template-columns: 1fr 2fr 1fr; gap:4px; height:15%;">
-                <button class="num-btn" style="background:#161b22; color:#444; font-size:0.6rem;" onclick="location.reload()">QUITTER</button>
-                <button id="btn-validate" class="num-btn" style="background:var(--accent); color:white;" onclick="finishTurn()" disabled>VALIDER</button>
-                <button class="num-btn" style="background:#21262d; font-size:1.5rem;" onclick="undoLastDart()">⌫</button>
+            <div class="action-row">
+                <button class="btn-undo-all" onclick="undoLastTurn()">ANNULER<br>VOLÉE<br>PRÉCÉDENTE</button>
+                <button class="btn-valid" id="btn-validate" onclick="finishTurn()" disabled>VALIDER VOLÉE</button>
+                <button class="btn-del" onclick="undoLastDart()">⌫</button>
             </div>
         </div>
     </div>
 
-    <div id="victory-layer">
-        <div style="background:var(--card); padding:30px; border-radius:20px; text-align:center; width:85%; border:1px solid var(--accent);">
-            <h2 id="winner-name" style="color:var(--s-color); font-size:2rem;"></h2>
-            <button style="background:var(--t-color); color:white; padding:15px; width:100%; border:none; border-radius:12px; margin-top:20px; font-weight:bold;" onclick="closeRoom()">LIBÉRER LE STAND</button>
+    <footer id="main-footer">
+        <a href="menu.html" class="back-btn">⬅ MENU PRINCIPAL</a>
+    </footer>
+
+    <div id="end-screen" class="overlay">
+        <div class="final-box" style="background: var(--card); padding: 20px; border-radius: 15px; text-align: center; width: 90%; max-width: 320px; border: 1px solid var(--accent);">
+            <h1 style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase; margin: 0;">MATCH TERMINÉ</h1>
+            <div id="final-result" style="font-size: 2rem; font-weight: 900; margin: 5px 0; color: var(--s-color);">VICTOIRE</div>
+            <p id="winner-display" style="font-size: 0.8rem; color: #fff; margin-bottom: 15px; font-weight: bold;"></p>
+            
+            <div id="stats-summary" style="margin: 10px 0; width: 100%; font-size: 0.75rem;">
+                <div id="local-stats-list" style="background: #0d1117; border-radius: 8px; padding: 12px; border: 1px solid #30363d; text-align: left;">
+                </div>
+            </div>
+
+            <div class="end-btn-container" style="display: flex; flex-direction: column; width: 100%; gap: 10px; margin-top: 15px;">
+                <button id="btn-save-only" class="btn-valid ready" style="height: 45px; font-size: 0.75rem; display:none;" onclick="saveGameData()">
+                    ENREGISTRER MOYENNE
+                </button>
+                <button class="btn-valid" style="height: 45px; background: #21262d; border: 1px solid #30363d;" onclick="closeRoom()">
+                    LIBÉRER LE STAND
+                </button>
+                <a href="menu.html" style="color: #555; text-decoration: none; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-top: 5px;">
+                    ⬅ RETOUR AU MENU
+                </a>
+            </div>
         </div>
     </div>
 
-<script>
-    const firebaseConfig = { databaseURL: "https://dartsclub-1aab9-default-rtdb.europe-west1.firebasedatabase.app/" };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyD8AIw0f3L65XMZM9OBX8wDWNbSvl4ACZM",
+            authDomain: "dartsclub-1aab9.firebaseapp.com",
+            databaseURL: "https://dartsclub-1aab9-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "dartsclub-1aab9",
+            storageBucket: "dartsclub-1aab9.firebasestorage.app",
+            messagingSenderId: "769714266505",
+            appId: "1:769714266505:web:ea1758db2c96702979c158"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-    let roomName, myName, myIndex = -1, dartsInTurn = [], visualDarts = [], multiplier = 1, isBust = false;
-    let gameState = { players: [], currentPlayer: 0, status: "waiting" };
+        let roomName, myName, myIndex = -1, dartsInTurn = [], visualDarts = [], multiplier = 1, isBust = false;
+        let gameState = { players: [], currentPlayer: 0, status: "waiting" };
+        const STANDS = ["1 - LITTLER", "2 - HUMPHRIES", "3 - PRICE", "4 - VAN VEEN", "5 - VAN GERWEN", "6 - TRICOLE"];
 
-    // 1. Connection status
-    db.ref(".info/connected").on("value", snap => {
-        document.getElementById("status-dot").className = snap.val() ? "status-dot online" : "status-dot";
-        document.getElementById("status-text").innerText = snap.val() ? "ONLINE" : "OFFLINE";
-    });
+        window.onload = () => {
+            const saved = localStorage.getItem('darts_pseudo');
+            if(saved) document.getElementById('pName').value = saved;
+            const pad = document.getElementById('numPad'); 
+            pad.innerHTML = "";
+            for(let i=1; i<=20; i++) pad.innerHTML += `<button class="num-btn" onclick="addDart(${i})">${i}</button>`;
+            refreshStands();
+        };
 
-    // 2. Gestion des Stands (Lobby)
-    const STANDS = ["1 - Littler", "2 - Humphries", "3 - Price", "4 - Van Veen", "5 - Van Gerwen", "6 - Tricole"];
-    db.ref('rooms').on('value', snap => {
-        const rooms = snap.val() || {};
-        const grid = document.getElementById('standGrid');
-        if(!grid) return;
-        grid.innerHTML = "";
-        STANDS.forEach(name => {
-            const r = rooms[name] || {};
-            const players = r.players ? Object.values(r.players) : [];
-            const isPlaying = r.status === "playing";
-            
-            let statusText = players.length + "/3";
-            let colorClass = players.length > 0 ? "joinable" : "free";
-            if(players.length >= 3) { colorClass = "locked"; statusText = "COMPLET"; }
-
-            grid.innerHTML += `
-                <div class="stand-btn ${colorClass}" onclick="entrerPartie('${name}', ${players.length})">
-                    <span class="stand-name">${name}</span>
-                    <span class="stand-status">${statusText}</span>
-                </div>`;
-        });
-    });
-
-    // 3. Rejoindre la partie
-    function entrerPartie(name, count) {
-        myName = document.getElementById('nameInput').value.trim().toUpperCase();
-        if(!myName) return alert("ENTRE TON PSEUDO !");
-        
-        roomName = name;
-        localStorage.setItem('darts_pseudo', myName);
-        let q = parseInt(document.getElementById('qualifInput').value) || 0;
-
-        // Si c'est le premier joueur, on initialise proprement la room
-        if(count === 0) {
-            db.ref(`rooms/${name}`).set({
-                status: "waiting",
-                currentPlayer: 0,
-                createdAt: Date.now()
+        function refreshStands() {
+            db.ref('rooms').on('value', snap => {
+                const rooms = snap.val() || {};
+                const grid = document.getElementById('standGrid');
+                if(!grid) return; grid.innerHTML = "";
+                STANDS.forEach(name => {
+                    const r = rooms[name] || {};
+                    const players = r.players ? Object.values(r.players) : [];
+                    let colorClass = (players.length > 0 && r.status === "playing") ? "joinable" : "free";
+                    if(r.status === "finished" || players.length >= 3) colorClass = "locked";
+                    grid.innerHTML += `<div class="stand-btn ${colorClass}" onclick="joinStand('${name}', ${players.length})">
+                        <span class="stand-name">${name}</span>
+                        <span class="stand-status">${players.length}/3 EN LIGNE</span>
+                    </div>`;
+                });
             });
         }
 
-        const playerRef = db.ref(`rooms/${name}/players`).push();
-        playerRef.set({ name: myName, score: 501, q: q, lastDarts: "-" });
+        function joinStand(name, count) {
+            myName = document.getElementById('pName').value.trim().toUpperCase();
+            if(!myName) return alert("PSEUDO REQUIS");
+            roomName = name;
+            localStorage.setItem('darts_pseudo', myName);
+            let q = parseInt(document.getElementById('qualifInput').value) || 0;
 
-        // Ecouter les changements de la room
-        db.ref(`rooms/${name}`).on('value', snap => {
-            const data = snap.val();
-            if(!data || !data.players) return;
-            
-            const pArray = Object.entries(data.players).map(([id, p]) => ({...p, id}));
-            // Tri par score bulle
-            pArray.sort((a,b) => b.q - a.q);
-            
-            gameState = {...data, players: pArray};
+            if(count === 0) db.ref(`rooms/${name}`).set({ status: "playing", currentPlayer: 0, lastAction: Date.now() });
+            const playerRef = db.ref(`rooms/${name}/players`).push();
+            playerRef.set({ name: myName, score: 501, q: q, totalDarts: 0, totalPoints: 0, lastTurn: "" });
 
-            if(gameState.status === "finished") {
-                showVictory();
+            db.ref(`rooms/${name}`).on('value', snap => {
+                const data = snap.val();
+                if(!data || !data.players) return;
+                const pArray = Object.entries(data.players).map(([id, p]) => ({...p, id})).sort((a,b) => b.q - a.q);
+                gameState = {...data, players: pArray};
+                
+                if(gameState.status === "finished") {
+                    document.getElementById('game-screen').style.display = 'none';
+                    document.getElementById('end-screen').style.display = 'flex';
+                    document.getElementById('winner-display').innerText = gameState.winner + " GAGNE !";
+                    
+                    showFinalStats();
+                    if(gameState.winner === myName) {
+                        document.getElementById('btn-save-only').style.display = 'block';
+                    }
+                } else {
+                    document.getElementById('setup-screen').style.display = 'none';
+                    document.getElementById('game-screen').style.display = 'flex';
+                    syncUI();
+                }
+            });
+        }
+
+        function setMod(m) {
+            multiplier = m;
+            document.querySelectorAll('.btn-mod').forEach(b => b.classList.remove('selected'));
+            document.getElementById(['modS','modD','modT'][m-1]).classList.add('selected');
+            document.getElementById('gameGrid').className = "grid mode-" + ['s','d','t'][m-1];
+        }
+
+        function addDart(val) {
+            if (dartsInTurn.length >= 3 || isBust) return;
+            let m = (val === 50 || val === 25 || val === 0) ? 1 : multiplier;
+            let pts = (val === 50) ? 50 : val * m;
+            let p = gameState.players[myIndex];
+            const slot = document.getElementById(`d${dartsInTurn.length}`);
+
+            if (p.score - pts < 0 || p.score - pts === 1 || (p.score - pts === 0 && m !== 2 && val !== 50)) {
+                isBust = true;
+                visualDarts.push("BUST");
+                slot.innerText = "BUST";
+                slot.style.color = "var(--t-color)";
             } else {
-                document.getElementById('lobby').style.display = 'none';
-                document.getElementById('game-screen').style.display = 'flex';
-                syncUI();
+                p.score -= pts;
+                let label = (val === 50) ? "BULL" : (m === 3 ? "T" : m === 2 ? "D" : "S") + val;
+                visualDarts.push(label);
+                slot.innerText = label;
+                slot.style.color = (m === 3 ? "var(--t-color)" : m === 2 ? "var(--d-color)" : "var(--s-color)");
+                
+                if(p.score === 0) { 
+                    db.ref(`rooms/${roomName}`).update({ status: "finished", winner: myName });
+                    return; 
+                }
             }
-        });
-    }
+            dartsInTurn.push(pts);
+            setMod(1);
+            syncUI();
 
-    // 4. Interface de Jeu
-    function syncUI() {
-        myIndex = gameState.players.findIndex(p => p.name === myName);
-        const container = document.getElementById('gamePlayers');
-        if(!container) return;
+            const btn = document.getElementById('btn-validate');
+            if(dartsInTurn.length === 3 || isBust) { 
+                btn.disabled = false; 
+                btn.classList.add('ready'); 
+            }
+        }
 
-        container.innerHTML = gameState.players.map((p, i) => {
-            const active = (i === (gameState.currentPlayer || 0)) ? "active" : "";
-            return `
-                <div class="p-card ${active}">
+        function finishTurn() {
+            let p = gameState.players[myIndex];
+            // On compte les points des flèches qui n'ont pas provoqué de bust
+            let ptsTurn = dartsInTurn.reduce((acc, val, idx) => {
+                if(isBust && idx === dartsInTurn.length - 1) return acc;
+                return acc + val;
+            }, 0);
+
+            db.ref(`rooms/${roomName}/players/${p.id}`).update({ 
+                score: p.score,
+                totalDarts: p.totalDarts + dartsInTurn.length,
+                totalPoints: p.totalPoints + ptsTurn,
+                lastTurn: isBust ? "BUST" : visualDarts.join(" ")
+            });
+            
+            db.ref(`rooms/${roomName}`).update({ 
+                currentPlayer: (gameState.currentPlayer + 1) % gameState.players.length,
+                lastPlayerIdx: myIndex 
+            });
+            resetTurn();
+        }
+
+        function undoLastDart() {
+            if (dartsInTurn.length === 0) return;
+            let lastPts = dartsInTurn.pop();
+            visualDarts.pop();
+            if (!isBust) gameState.players[myIndex].score += lastPts;
+            isBust = false;
+            document.getElementById(`d${dartsInTurn.length}`).innerText = "-";
+            document.getElementById(`d${dartsInTurn.length}`).style.color = "#484f58";
+            const btn = document.getElementById('btn-validate');
+            btn.disabled = true;
+            btn.classList.remove('ready');
+            syncUI();
+        }
+
+        function undoLastTurn() {
+            if(gameState.lastPlayerIdx === undefined) return;
+            db.ref(`rooms/${roomName}`).update({ currentPlayer: gameState.lastPlayerIdx });
+        }
+
+        function syncUI() {
+            myIndex = gameState.players.findIndex(p => p.name === myName);
+            const container = document.getElementById('gamePlayers');
+            container.innerHTML = gameState.players.map((p, i) => {
+                let avg = p.totalDarts > 0 ? ((p.totalPoints / p.totalDarts) * 3).toFixed(1) : "0.0";
+                return `<div class="p-card ${i === gameState.currentPlayer ? 'active' : ''}">
                     <div class="p-name">${p.name}</div>
                     <div class="score-val">${p.score}</div>
-                    <div class="last-darts">${p.lastDarts || "-"}</div>
+                    <div class="avg-label">AVG: ${avg} — FL: ${p.totalDarts}</div>
+                    <div class="last-turn-label">${p.lastTurn || ""}</div>
                 </div>`;
-        }).join('');
-        
-        // Verrouillage du clavier si ce n'est pas mon tour
-        const isMyTurn = (gameState.currentPlayer === myIndex);
-        document.querySelectorAll('#gameGrid button').forEach(b => {
-            b.disabled = !isMyTurn;
-        });
-    }
-
-    // 5. Logique des fléchettes
-    function addDart(val) {
-        if(dartsInTurn.length >= 3 || isBust) return;
-        let pts = (val === 50 || val === 25) ? val : val * multiplier;
-        let p = gameState.players[myIndex];
-        
-        if(p.score - pts < 0 || p.score - pts === 1) {
-            isBust = true;
-            visualDarts.push("BUST");
-        } else {
-            p.score -= pts;
-            let prefix = multiplier === 3 ? "T" : (multiplier === 2 ? "D" : "");
-            visualDarts.push(prefix + val);
-            // On met à jour le score dans Firebase pour le Live
-            db.ref(`rooms/${roomName}/players/${p.id}/score`).set(p.score);
-            if(p.score === 0) return finishTurn(true);
+            }).join('');
+            
+            const isMyTurn = (gameState.currentPlayer === myIndex);
+            document.querySelectorAll('#gameGrid button').forEach(b => {
+                if(!b.classList.contains('btn-undo-all')) b.disabled = !isMyTurn;
+            });
         }
-        
-        dartsInTurn.push(pts);
-        document.getElementById(`d${dartsInTurn.length-1}`).innerText = visualDarts[visualDarts.length-1];
-        document.getElementById('btn-validate').disabled = !(dartsInTurn.length === 3 || isBust);
-        setMod(1);
-    }
 
-    function finishTurn(win = false) {
-        let p = gameState.players[myIndex];
-        db.ref(`rooms/${roomName}/players/${p.id}`).update({
-            score: p.score,
-            lastDarts: visualDarts.join(" • ")
-        });
-
-        if(win) {
-            db.ref(`rooms/${roomName}`).update({ status: "finished", winner: myName });
-        } else {
-            let next = (gameState.currentPlayer + 1) % gameState.players.length;
-            db.ref(`rooms/${roomName}`).update({ currentPlayer: next });
+        function resetTurn() {
+            dartsInTurn = []; visualDarts = []; isBust = false; 
+            for(let i=0; i<3; i++) { 
+                document.getElementById(`d${i}`).innerText = "-"; 
+                document.getElementById(`d${i}`).style.color = "#484f58"; 
+            }
+            setMod(1); 
+            const btn = document.getElementById('btn-validate');
+            btn.disabled = true; 
+            btn.classList.remove('ready');
         }
-        resetTurn();
-    }
 
-    function undoLastDart() {
-        if(dartsInTurn.length === 0) return;
-        let p = gameState.players[myIndex];
-        let lastPts = dartsInTurn.pop();
-        visualDarts.pop();
-        if(!isBust) p.score += lastPts;
-        isBust = false;
-        db.ref(`rooms/${roomName}/players/${p.id}/score`).set(p.score);
-        
-        // Rafraichir les slots
-        for(let i=0; i<3; i++) document.getElementById(`d${i}`).innerText = visualDarts[i] || "-";
-        document.getElementById('btn-validate').disabled = !(dartsInTurn.length === 3 || isBust);
-    }
-
-    function resetTurn() {
-        dartsInTurn = []; visualDarts = []; isBust = false;
-        for(let i=0; i<3; i++) document.getElementById(`d${i}`).innerText = "-";
-        document.getElementById('btn-validate').disabled = true;
-    }
-
-    function setMod(m) {
-        multiplier = m;
-        document.getElementById('modS').style.background = m===1 ? 'var(--s-color)':'#21262d';
-        document.getElementById('modD').style.background = m===2 ? 'var(--d-color)':'#21262d';
-        document.getElementById('modT').style.background = m===3 ? 'var(--t-color)':'#21262d';
-    }
-
-    function showVictory() {
-        document.getElementById('victory-layer').style.display = 'flex';
-        document.getElementById('winner-name').innerText = "VICTOIRE : " + gameState.winner;
-    }
-
-    function closeRoom() { 
-        db.ref(`rooms/${roomName}`).remove().then(() => location.reload()); 
-    }
-
-    window.onload = () => {
-        const saved = localStorage.getItem('darts_pseudo');
-        if(saved) document.getElementById('nameInput').value = saved;
-
-        const pad = document.getElementById('numPad');
-        pad.innerHTML = "";
-        for(let i=1; i<=20; i++) {
-            pad.innerHTML += `<button class="num-btn" onclick="addDart(${i})">${i}</button>`;
+        function closeRoom() { 
+            db.ref(`rooms/${roomName}`).remove().then(() => location.reload()); 
         }
-    };
-</script>
+
+        function saveGameData() {
+            const p = gameState.players[myIndex];
+            if (!p) return;
+            const finalAvg = p.totalDarts > 0 ? parseFloat(((p.totalPoints / p.totalDarts) * 3).toFixed(2)) : 0;
+            const storageKey = `top_scores_${p.name}`;
+            let topScores = JSON.parse(localStorage.getItem(storageKey)) || [];
+
+            topScores.push({ avg: finalAvg, date: new Date().toLocaleDateString('fr-FR'), darts: p.totalDarts });
+            topScores.sort((a, b) => b.avg - a.avg);
+            const isTopThree = topScores.findIndex(s => s.avg === finalAvg) < 3;
+            topScores = topScores.slice(0, 3);
+            localStorage.setItem(storageKey, JSON.stringify(topScores));
+
+            const btnSave = document.getElementById('btn-save-only');
+            btnSave.innerText = isTopThree ? "🔥 NOUVEAU RECORD !" : "SCORE ENREGISTRÉ";
+            btnSave.disabled = true;
+            btnSave.style.opacity = "0.5";
+            showFinalStats();
+        }
+
+        function showFinalStats() {
+            const list = document.getElementById('local-stats-list');
+            const p = gameState.players[myIndex];
+            if(!p) return;
+            const storageKey = `top_scores_${p.name}`;
+            const topScores = JSON.parse(localStorage.getItem(storageKey)) || [];
+            let currentAvg = p.totalDarts > 0 ? ((p.totalPoints / p.totalDarts) * 3).toFixed(2) : "0.00";
+
+            let html = `<div style="margin-bottom:10px; border-bottom:1px solid #333; padding-bottom:5px;">
+                          <strong>MOYENNE MATCH :</strong> ${currentAvg}
+                        </div>
+                        <div style="color:var(--accent); font-size:0.65rem; margin-bottom:5px;">MES MEILLEURS SCORES (TOP 3) :</div>`;
+            
+            topScores.forEach((s, i) => {
+                html += `<div style="display:flex; justify-content:space-between; margin-bottom:2px; ${i===0?'color:var(--d-color)':''}">
+                            <span>#${i+1} - ${s.date}</span>
+                            <span><strong>${s.avg}</strong> (${s.darts} fl.)</span>
+                         </div>`;
+            });
+            list.innerHTML = html;
+        }
+    </script>
 </body>
 </html>
