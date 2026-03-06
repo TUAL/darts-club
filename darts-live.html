@@ -112,155 +112,210 @@
         </div>
     </div>
 
-    <script>
-        const firebaseConfig = { databaseURL: "https://dartsclub-1aab9-default-rtdb.europe-west1.firebasedatabase.app/" };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+<script>
+    const firebaseConfig = { databaseURL: "https://dartsclub-1aab9-default-rtdb.europe-west1.firebasedatabase.app/" };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-        let roomName, myName, myIndex = -1, dartsInTurn = [], visualDarts = [], multiplier = 1, isBust = false;
-        let gameState = { players: [], currentPlayer: 0, status: "active" };
+    let roomName, myName, myIndex = -1, dartsInTurn = [], visualDarts = [], multiplier = 1, isBust = false;
+    let gameState = { players: [], currentPlayer: 0, status: "active" };
 
-        // Connexion
-        db.ref(".info/connected").on("value", (snap) => {
-            document.getElementById("status-dot").className = snap.val() ? "status-dot online" : "status-dot";
-            document.getElementById("status-text").innerText = snap.val() ? "ONLINE" : "OFFLINE";
+    // 1. État de la connexion
+    db.ref(".info/connected").on("value", (snap) => {
+        const dot = document.getElementById("status-dot");
+        const txt = document.getElementById("status-text");
+        if (dot && txt) {
+            dot.className = snap.val() ? "status-dot online" : "status-dot";
+            txt.innerText = snap.val() ? "ONLINE" : "OFFLINE";
+        }
+    });
+
+    // 2. Affichage des Stands en temps réel
+    const STANDS = ["1 - Littler", "2 - Humphries", "3 - Price", "4 - Van Veen", "5 - Van Gerwen", "6 - Tricole"];
+    db.ref('rooms').on('value', (snap) => {
+        const rooms = snap.val() || {};
+        const grid = document.getElementById('standGrid');
+        if(!grid) return;
+        grid.innerHTML = "";
+        STANDS.forEach(name => {
+            const r = rooms[name] || {};
+            const players = r.players ? Object.values(r.players) : [];
+            const isLocked = r.status === "playing";
+            let status = players.length + "/3";
+            let colorClass = players.length > 0 ? "joinable" : "free";
+            if(isLocked) { colorClass = "locked"; status = "MATCH"; }
+
+            grid.innerHTML += `<div class="stand-btn ${colorClass}" onclick="entrerDansLeStand('${name}', ${players.length}, ${isLocked})">
+                <span class="stand-name">${name}</span>
+                <span class="stand-status">${status}</span>
+            </div>`;
         });
+    });
 
-        // Stands
-        const STANDS = ["1 - Littler", "2 - Humphries", "3 - Price", "4 - Van Veen", "5 - Van Gerwen", "6 - Tricole"];
-        db.ref('rooms').on('value', (snap) => {
-            const rooms = snap.val() || {};
-            const grid = document.getElementById('standGrid');
-            if(!grid) return;
-            grid.innerHTML = "";
-            STANDS.forEach(name => {
-                const r = rooms[name] || {};
-                const players = r.players ? Object.values(r.players) : [];
-                const isLocked = r.status === "playing";
-                let status = players.length + "/3";
-                let colorClass = players.length > 0 ? "joinable" : "free";
-                if(isLocked) { colorClass = "locked"; status = "MATCH"; }
+    // 3. Fonction pour rejoindre (Fusionnée et sécurisée)
+    function entrerDansLeStand(name, count, locked) {
+        const input = document.getElementById('nameInput');
+        myName = input.value.trim().toUpperCase();
+        if(!myName) return alert("Choisis un pseudo");
+        if(locked || count >= 3) return alert("Stand occupé ou en match");
+        
+        roomName = name;
+        localStorage.setItem('darts_pseudo', myName);
+        let q = parseInt(document.getElementById('qualifInput').value) || 0;
 
-                grid.innerHTML += `<div class="stand-btn ${colorClass}" onclick="join('${name}', ${players.length}, ${isLocked})">
-                    <span class="stand-name">${name}</span>
-                    <span class="stand-status">${status}</span>
-                </div>`;
-            });
+        console.log("Tentative d'entrée dans le stand : " + name);
+
+        // On crée l'entrée du joueur dans Firebase
+        const playerRef = db.ref(`rooms/${name}/players`).push();
+        playerRef.set({ 
+            name: myName, 
+            score: 501, 
+            totalDarts: 0,
+            lastDarts: "- • - • -",
+            q: q 
+        }, (error) => {
+            if (error) {
+                alert("ERREUR FIREBASE : Vérifie tes règles de sécurité !");
+                console.error(error);
+            } else {
+                demarrerLeLive(name);
+            }
         });
+    }
 
-        function join(name, count, locked) {
-            const input = document.getElementById('nameInput');
-            myName = input.value.trim().toUpperCase();
-            if(!myName || locked || count >= 3) return;
+    // 4. Écouteur Live (Synchronisation entre joueurs)
+    function demarrerLeLive(name) {
+        db.ref(`rooms/${name}`).on('value', snap => {
+            const data = snap.val();
+            if(!data || !data.players) return;
             
-            roomName = name;
-            localStorage.setItem('darts_pseudo', myName); // Sauvegarder le pseudo
-            let q = parseInt(document.getElementById('qualifInput').value) || 0;
+            // Conversion objet -> tableau et tri par score de bulle (q)
+            const pArray = Object.entries(data.players).map(([id, p]) => ({...p, id}));
+            pArray.sort((a,b) => (b.q || 0) - (a.q || 0));
+            
+            gameState = {...data, players: pArray};
 
-            const playerRef = db.ref(`rooms/${name}/players`).push();
-            playerRef.set({ name: myName, score: 501, totalDarts: 0, lastDarts: "- • - • -", q: q });
-            
-            db.ref(`rooms/${name}`).on('value', snap => {
-                const data = snap.val();
-                if(!data || !data.players) return;
-                
-                const pArray = Object.entries(data.players).map(([id, p]) => ({...p, id}));
-                pArray.sort((a,b) => b.q - a.q);
-                
-                gameState = {...data, players: pArray};
-                if(gameState.status === "finished") return showVictory();
-                
+            if(gameState.status === "finished") {
+                showVictory();
+            } else {
                 document.getElementById('lobby').style.display = 'none';
                 document.getElementById('game-screen').style.display = 'flex';
-                document.getElementById('main-footer').style.display = 'none';
+                // Masquer le footer pour gagner de la place en jeu
+                const footer = document.getElementById('main-footer');
+                if(footer) footer.style.display = 'none';
                 syncUI();
-            });
-        }
-
-        function syncUI() {
-            myIndex = gameState.players.findIndex(p => p.name === myName);
-            const container = document.getElementById('gamePlayers');
-            container.innerHTML = gameState.players.map((p, i) => {
-                const active = (i === (gameState.currentPlayer || 0)) ? "active" : "";
-                return `<div class="p-card ${active}"><div class="p-name">${p.name}</div><div class="score-val">${p.score}</div><div style="font-size:0.5rem; color:var(--accent); font-weight:bold;">${p.lastDarts}</div></div>`;
-            }).join('');
-            
-            const isMyTurn = (gameState.currentPlayer === myIndex);
-            document.querySelectorAll('#gameGrid button').forEach(b => b.disabled = !isMyTurn);
-        }
-
-        function addDart(val) {
-            if(dartsInTurn.length >= 3 || isBust) return;
-            let pts = (val === 50 || val === 25) ? val : val * multiplier;
-            let p = gameState.players[myIndex];
-            
-            if(p.score - pts < 0 || p.score - pts === 1) {
-                isBust = true; visualDarts.push("BUST");
-            } else {
-                p.score -= pts;
-                visualDarts.push((multiplier === 3 ? "T":"") + (multiplier === 2 ? "D":"") + val);
-                db.ref(`rooms/${roomName}/players/${p.id}/score`).set(p.score);
-                if(p.score === 0) return finishTurn(true);
             }
-            dartsInTurn.push(pts);
-            document.getElementById(`d${dartsInTurn.length-1}`).innerText = visualDarts[visualDarts.length-1];
-            document.getElementById('btn-validate').disabled = !(dartsInTurn.length === 3 || isBust);
-            setMod(1);
+        });
+    }
+
+    // 5. Interface de jeu
+    function syncUI() {
+        myIndex = gameState.players.findIndex(p => p.name === myName);
+        const container = document.getElementById('gamePlayers');
+        if(!container) return;
+
+        container.innerHTML = gameState.players.map((p, i) => {
+            const active = (i === (gameState.currentPlayer || 0)) ? "active" : "";
+            return `
+                <div class="p-card ${active}">
+                    <div class="p-name">${p.name}</div>
+                    <div class="score-val">${p.score}</div>
+                    <div style="font-size:0.55rem; color:var(--accent); font-weight:bold; height:12px;">${p.lastDarts || "-"}</div>
+                </div>`;
+        }).join('');
+        
+        const isMyTurn = (gameState.currentPlayer === myIndex);
+        document.querySelectorAll('#gameGrid button').forEach(b => b.disabled = !isMyTurn);
+    }
+
+    // 6. Logique des fléchettes
+    function addDart(val) {
+        if(dartsInTurn.length >= 3 || isBust) return;
+        let pts = (val === 50 || val === 25) ? val : val * multiplier;
+        let p = gameState.players[myIndex];
+        
+        if(p.score - pts < 0 || p.score - pts === 1) {
+            isBust = true; visualDarts.push("BUST");
+        } else {
+            p.score -= pts;
+            visualDarts.push((multiplier === 3 ? "T":"") + (multiplier === 2 ? "D":"") + val);
+            // Mise à jour immédiate du score dans Firebase pour le live
+            db.ref(`rooms/${roomName}/players/${p.id}/score`).set(p.score);
+            if(p.score === 0) return finishTurn(true);
         }
+        dartsInTurn.push(pts);
+        const slot = document.getElementById(`d${dartsInTurn.length-1}`);
+        if(slot) slot.innerText = visualDarts[visualDarts.length-1];
+        
+        document.getElementById('btn-validate').disabled = !(dartsInTurn.length === 3 || isBust);
+        setMod(1);
+    }
 
-        function finishTurn(win = false) {
-            let p = gameState.players[myIndex];
-            let label = visualDarts.join(" • ");
-            db.ref(`rooms/${roomName}/players/${p.id}`).update({
-                score: p.score,
-                totalDarts: p.totalDarts + dartsInTurn.length,
-                lastDarts: label
-            });
+    function finishTurn(win = false) {
+        let p = gameState.players[myIndex];
+        let label = visualDarts.join(" • ");
+        
+        // Mise à jour de la volée
+        db.ref(`rooms/${roomName}/players/${p.id}`).update({
+            score: p.score,
+            totalDarts: (p.totalDarts || 0) + dartsInTurn.length,
+            lastDarts: label
+        });
 
-            if(win) {
-                db.ref(`rooms/${roomName}`).update({ status: "finished", winner: myName });
-            } else {
-                let next = (gameState.currentPlayer + 1) % gameState.players.length;
-                db.ref(`rooms/${roomName}`).update({ currentPlayer: next, status: "playing" });
+        if(win) {
+            db.ref(`rooms/${roomName}`).update({ status: "finished", winner: myName });
+        } else {
+            let next = (gameState.currentPlayer + 1) % gameState.players.length;
+            db.ref(`rooms/${roomName}`).update({ currentPlayer: next, status: "playing" });
+        }
+        resetTurn();
+    }
+
+    function resetTurn() {
+        dartsInTurn = []; visualDarts = []; isBust = false;
+        for(let i=0; i<3; i++) {
+            const d = document.getElementById(`d${i}`);
+            if(d) d.innerText = "-";
+        }
+        const btnV = document.getElementById('btn-validate');
+        if(btnV) btnV.disabled = true;
+    }
+
+    function setMod(m) {
+        multiplier = m;
+        const btnS = document.getElementById('modS');
+        const btnD = document.getElementById('modD');
+        const btnT = document.getElementById('modT');
+        if(btnS) btnS.style.background = m===1 ? 'var(--s-color)':'#21262d';
+        if(btnD) btnD.style.background = m===2 ? 'var(--d-color)':'#21262d';
+        if(btnT) btnT.style.background = m===3 ? 'var(--t-color)':'#21262d';
+        const grid = document.getElementById('gameGrid');
+        if(grid) grid.className = "grid mode-" + (m===1?'s':m===2?'d':'t');
+    }
+
+    function showVictory() {
+        const layer = document.getElementById('victory-layer');
+        const winName = document.getElementById('winner-name');
+        if(layer) layer.style.display = 'flex';
+        if(winName) winName.innerText = "VICTOIRE : " + gameState.winner;
+    }
+
+    function closeRoom() { 
+        db.ref(`rooms/${roomName}`).remove().then(() => location.reload()); 
+    }
+
+    window.onload = () => {
+        const saved = localStorage.getItem('darts_pseudo');
+        if(saved) document.getElementById('nameInput').value = saved;
+
+        const pad = document.getElementById('numPad');
+        if(pad) {
+            pad.innerHTML = "";
+            for(let i=1; i<=20; i++) {
+                pad.innerHTML += `<button class="num-btn" onclick="addDart(${i})">${i}</button>`;
             }
-            resetTurn();
         }
-
-        function resetTurn() {
-            dartsInTurn = []; visualDarts = []; isBust = false;
-            for(let i=0; i<3; i++) document.getElementById(`d${i}`).innerText = "-";
-            document.getElementById('btn-validate').disabled = true;
-        }
-
-        function setMod(m) {
-            multiplier = m;
-            document.getElementById('modS').style.background = m===1 ? 'var(--s-color)':'#21262d';
-            document.getElementById('modD').style.background = m===2 ? 'var(--d-color)':'#21262d';
-            document.getElementById('modT').style.background = m===3 ? 'var(--t-color)':'#21262d';
-            document.getElementById('gameGrid').className = "grid mode-" + (m===1?'s':m===2?'d':'t');
-        }
-
-        function showVictory() {
-            document.getElementById('victory-layer').style.display = 'flex';
-            document.getElementById('winner-name').innerText = "VICTOIRE : " + gameState.winner;
-        }
-
-        function closeRoom() { db.ref(`rooms/${roomName}`).remove().then(() => location.reload()); }
-
-        window.onload = () => {
-            // Restaurer le pseudo
-            const saved = localStorage.getItem('darts_pseudo');
-            if(saved) document.getElementById('nameInput').value = saved;
-
-            // Créer le pavé numérique
-            const pad = document.getElementById('numPad');
-            if(pad) {
-                pad.innerHTML = "";
-                for(let i=1; i<=20; i++) {
-                    pad.innerHTML += `<button class="num-btn" onclick="addDart(${i})">${i}</button>`;
-                }
-            }
-        };
-    </script>
+    };
+</script>
 </body>
 </html>
