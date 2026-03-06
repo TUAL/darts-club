@@ -6,7 +6,7 @@
     <title>Darts Club - Live</title>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
-    <style>
+<style>
         :root { 
             --bg: #0b0e14; --card: #161b22; --text: #f0f6fc;
             --s-color: #238636; --d-color: #d29922; --t-color: #da3633;
@@ -22,7 +22,8 @@
             position: fixed; width: 100%;
         }
 
-        #setup-screen { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; padding-bottom: 80px; overflow-y: auto; }
+        /* SETUP SCREEN */
+        #setup-screen { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; overflow-y: auto; }
         .setup-box { width: 100%; max-width: 320px; text-align: center; }
         label { display: block; text-align: left; font-size: 0.65rem; font-weight: 900; letter-spacing: 1px; color: var(--accent); text-transform: uppercase; margin-bottom: 5px; }
         input { width: 100%; background: var(--card); border: 1px solid #30363d; color: white; padding: 12px; border-radius: 12px; font-size: 1rem; outline: none; margin-bottom: 15px; }
@@ -34,72 +35,9 @@
         .stand-btn.locked { border-left: 4px solid var(--t-color); opacity: 0.5; pointer-events: none; }
         .stand-name { display: block; font-weight: 800; font-size: 0.75rem; color: #fff; }
         .stand-status { font-size: 0.6rem; font-weight: bold; color: #8b949e; }
-		
-		
-		
-/* GAME SCREEN - FIXATION DES HAUTEURS */
-#game-screen { 
-    display: none; 
-    height: calc(100% - 65px); 
-    flex-direction: column; 
-    padding: 8px; 
-    gap: 4px; 
-    overflow: hidden; /* Empêche le scroll parasite */
-}
 
-/* Grille principale qui contient tout le pavé */
-.grid { 
-    flex: 1; 
-    display: flex; 
-    flex-direction: column; 
-    gap: 4px; 
-    min-height: 0; /* Important pour le flex interne */
-}
-
-/* FIXATION STRICTE DES HAUTEURS DE LIGNES */
-.mod-row { 
-    display: grid; 
-    grid-template-columns: repeat(3, 1fr); 
-    height: 50px !important; /* Hauteur forcée */
-    flex-shrink: 0; 
-}
-
-.num-grid { 
-    display: grid; 
-    grid-template-columns: repeat(4, 1fr); 
-    flex: 1; /* C'est la seule zone qui s'adapte */
-    gap: 4px;
-}
-
-.special-row { 
-    display: grid; 
-    grid-template-columns: repeat(3, 1fr); 
-    height: 55px !important; /* Hauteur forcée */
-    gap: 4px;
-    flex-shrink: 0;
-}
-
-.action-row { 
-    display: grid; 
-    grid-template-columns: 1fr 2fr 1fr; 
-    height: 65px !important; /* Hauteur forcée */
-    gap: 4px;
-    flex-shrink: 0;
-}
-
-/* Boutons individuels */
-button { 
-    height: 100%; /* Ils prennent toute la place de leur ligne forcée */
-    border: none; 
-    border-radius: 8px; 
-    font-weight: 700; 
-    color: #fff; 
-    cursor: pointer; 
-}		
-		
-		
-		
-
+        /* GAME SCREEN - STRICT LOCAL UI COPY */
+        #game-screen { display: none; height: 100dvh; flex-direction: column; padding: 8px; padding-bottom: 60px; gap: 4px; }
         .app-brand { height: 30px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .app-title { font-size: 0.75rem; font-weight: 900; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; }
 
@@ -114,6 +52,13 @@ button {
         .turn-tracking { display: flex; justify-content: center; gap: 6px; height: 35px; flex-shrink: 0; margin: 5px 0; }
         .dart-slot { width: 30%; background: #010409; border: 1px solid #30363d; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; color: #484f58; }
 
+        .grid { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+        .mod-row { display: grid; grid-template-columns: repeat(3, 1fr); height: 50px; gap: 4px; flex-shrink: 0; }
+        .num-grid { display: grid; grid-template-columns: repeat(4, 1fr); flex: 1; gap: 4px; }
+        .special-row { display: grid; grid-template-columns: repeat(3, 1fr); height: 55px; gap: 4px; flex-shrink: 0; }
+        .action-row { display: grid; grid-template-columns: 1fr 2fr 1fr; height: 65px; gap: 4px; flex-shrink: 0; }
+
+        button { border: none; border-radius: 8px; font-weight: 700; color: #fff; cursor: pointer; height: 100%; }
         .btn-mod { background: #21262d; border: 1px solid #30363d; }
         #modS.selected { background: var(--s-color); }
         #modD.selected { background: var(--d-color); }
@@ -134,6 +79,7 @@ button {
         .back-btn { color: #888; text-decoration: none; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; padding: 8px 20px; border: 1px solid #333; border-radius: 20px; font-weight: 600; }
 
         .overlay { display:none; position:fixed; inset:0; background: rgba(13,17,23,0.98); z-index:10000; flex-direction:column; justify-content:center; align-items:center; }
+        .final-box { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid #30363d; width: 100%; max-width: 300px; text-align: center; }
     </style>
 </head>
 <body>
