@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Darts Club</title>    
+    <title>Darts Club Elite</title>    
     <link rel="icon" type="image/png" sizes="192x192" href="icon.png">
     <link rel="icon" type="image/png" sizes="512x512" href="icon.png">
-	<link rel="shortcut icon" href="icon.png">
+    <link rel="shortcut icon" href="icon.png">
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="manifest" href="manifest.json">    
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -22,34 +22,32 @@
             --live: #ffa500;
             --ia: #ff4444;
             --fun: #bc13fe;
+            --info: #58a6ff;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-		body {
-			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-			background: var(--bg);
-			color: var(--text);
-			margin: 0;
-			padding: 0 15px;
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			/* Le body s'adapte maintenant au contenu */
-			min-height: 100%; 
-			overflow-y: auto;
-		}
-        
-        body::-webkit-scrollbar { display: none; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100dvh;
+            overflow: hidden;
+        }
 
         header {
             text-align: center;
-            padding-top: calc(env(safe-area-inset-top) + 20px);
-            margin-bottom: 20px;
+            padding-top: calc(env(safe-area-inset-top) + 15px);
+            margin-bottom: 10px;
         }
 
         h1 {
-            font-size: 2.3rem;
+            font-size: 2.1rem;
             letter-spacing: 5px;
             margin: 0;
             background: linear-gradient(to bottom, #fff 30%, #444 100%);
@@ -61,7 +59,7 @@
 
         .subtitle {
             color: var(--accent);
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             letter-spacing: 5px;
             text-transform: uppercase;
             font-weight: bold;
@@ -69,20 +67,59 @@
             opacity: 0.8;
         }
 
+        #user-bar {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 15px;
+        }
+
+        .player-badge {
+            background: rgba(0, 255, 136, 0.05);
+            border: 1px solid var(--accent);
+            padding: 5px 12px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #player-display {
+            font-size: 0.7rem;
+            font-weight: 900;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-logout {
+            background: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            font-size: 9px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* GRILLE DE NAVIGATION */
         .menu-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(6, 1fr);
             gap: 10px;
             width: 100%;
             max-width: 500px;
-            padding-bottom: 20px;
         }
 
         .menu-item {
             background: linear-gradient(145deg, #1a1a1a, #0a0a0a);
             border: 1px solid #222;
-            border-radius: 20px;
-            padding: 12px;
+            border-radius: 18px;
             text-decoration: none;
             color: white;
             display: flex;
@@ -92,130 +129,44 @@
             text-align: center;
             transition: all 0.2s ease;
             position: relative;
-            overflow: hidden;
         }
 
-        .menu-item:active { transform: scale(0.97); background: #151515; }
+        .menu-item:active { transform: scale(0.96); background: #151515; }
 
-        .live { border-top: 1px solid var(--live); }
+        /* Largeurs modulables sur 6 colonnes */
+        .span-6 { grid-column: span 6; padding: 18px; flex-direction: row; gap: 20px; justify-content: flex-start; text-align: left; }
+        .span-3 { grid-column: span 3; padding: 15px; }
+        .span-2 { grid-column: span 2; padding: 18px 5px; }
+
+        /* Styles spécifiques par mode */
+        .live { border-top: 2px solid var(--live); }
         .online { border-top: 1px solid var(--accent); }
         .ia { border-top: 1px solid var(--ia); }
         .fun { border-top: 1px solid var(--fun); }
+        .nav-btn { border-top: 1px solid var(--info); }
 
-        .icon { font-size: 1.7rem; margin-bottom: 5px; }
-        .title { font-size: 0.9rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px; }
-        .desc { font-size: 0.8rem; color: #888; line-height: 1.2; }
+        /* Icônes et Textes */
+        .icon { font-size: 1.6rem; margin-bottom: 4px; }
+        .span-6 .icon { font-size: 2.2rem; margin-bottom: 0; }
+        .span-2 .icon { font-size: 1.3rem; margin-bottom: 2px; }
 
-        /* DARTS LIVE : Hauteur doublée par le padding */
-        .full-live {
-            grid-column: span 2;
-            flex-direction: row;
-            padding: 25px 20px;
-            gap: 20px;
-            text-align: left;
-            justify-content: flex-start;
-        }
-        .full-live .icon { font-size: 2.2rem; margin-bottom: 0; }
-        .full-live .title { font-size: 1.1rem; }
-        .full-live .desc { max-width: none; }
+        .title { font-size: 0.85rem; font-weight: 800; text-transform: uppercase; }
+        .span-6 .title { font-size: 1.1rem; color: var(--live); }
+        .span-2 .title { font-size: 0.7rem; }
+        .nav-btn .title { color: var(--info); }
 
-        /* FOOTER : Bouton "En savoir plus" doublé */
-		footer {
-			margin-top: 30px; /* Espace fixe de 30px sous la grille */
-			width: 100%;
-			display: flex;
-			justify-content: center;
-			/* On garde le padding bas pour la zone de sécurité des téléphones */
-			padding-bottom: calc(env(safe-area-inset-bottom) + 30px);
-		}
+        .desc { font-size: 0.7rem; color: #888; line-height: 1.1; }
 
-        .info-link { 
-            color: #888; 
-            text-decoration: none; 
-            font-size: 0.8rem; 
-            text-transform: uppercase; 
-            letter-spacing: 2px; 
-            padding: 18px 45px; /* Hauteur doublée par rapport au bouton standard */
-            border: 1px solid #333; 
-            border-radius: 30px;
-            transition: 0.2s;
-            background: rgba(255, 255, 255, 0.02);
-        }
-
-        .info-link:active {
-            background: #161b22;
-            color: #fff;
-            border-color: #555;
-        }
 
         .badge-online {
-            position: absolute;
-            top: 10px;
-            right: 12px;
-            background: #FF0000;
-            color: #FFF;
-            font-size: 0.55rem;
-            font-weight: 900;
-            padding: 2px 8px;
-            border-radius: 50px;
+            position: absolute; top: 10px; right: 12px;
+            background: #FF0000; color: #FFF;
+            font-size: 0.55rem; font-weight: 900;
+            padding: 2px 8px; border-radius: 50px;
             animation: pulse 2s infinite;
         }
 
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.6; }
-            100% { opacity: 1; }
-        }
-		
-		/* Positionne la barre utilisateur avec un espace sous le titre et au-dessus de la grille */
-		#user-bar {
-			width: 100%;
-			max-width: 500px;
-			display: flex;
-			justify-content: flex-end;
-			padding: 0 5px;
-			margin-top: -10px; /* Remonte un peu vers le titre si besoin */
-			margin-bottom: 15px; /* CRÉÉ L'ESPACE avec le menu Darts Live */
-		}
-
-		/* Style du badge pour qu'il soit bien lisible */
-		.player-badge {
-			background: rgba(0, 255, 136, 0.1); /* Léger fond vert transparent */
-			border: 1px solid var(--accent);
-			padding: 6px 12px;
-			border-radius: 50px;
-			display: flex;
-			align-items: center;
-			gap: 10px;
-		}
-
-		#player-display {
-			font-size: 0.75rem;
-			font-weight: 900;
-			color: var(--accent);
-			letter-spacing: 1.5px;
-			text-transform: uppercase;
-		}
-
-		.btn-logout {
-			background: #ff4444;
-			color: white;
-			border: none;
-			border-radius: 50%;
-			width: 18px;
-			height: 18px;
-			font-size: 10px;
-			cursor: pointer;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			font-weight: bold;
-		}	
-
-/* Style pour la rangée de navigation basse */
-.nav-btn { border-top: 1px solid #58a6ff; }
-.nav-btn .title { color: #58a6ff; }
-.nav-btn:active { background: rgba(88, 166, 255, 0.1); }	
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
     </style>
 </head>
 <body>
@@ -225,99 +176,107 @@
         <div class="subtitle">Elite Scoring System</div>
     </header>
 
-<div id="user-bar">
-    <div class="player-badge">
-        <span id="player-display">PATRICK</span>
-        <button class="btn-logout" onclick="logout()">✕</button>
+    <div id="user-bar">
+        <div class="player-badge">
+            <span id="player-display">---</span>
+            <button class="btn-logout" onclick="logout()">✕</button>
+        </div>
     </div>
-</div>
 
     <div class="menu-grid">
-        <a href="darts-live.html" class="menu-item live full-live">
+        <a href="darts-live.html" class="menu-item live span-6">
             <div class="badge-online">ONLINE</div>
             <div class="icon">📡</div>
             <div>
-                <div class="title" style="color: var(--live);">Darts LIVE</div>
+                <div class="title">Darts LIVE</div>
                 <div class="desc">Compétition en temps réel via stands privés.</div>
             </div>
         </a>
 
-        <a href="darts-local.html" class="menu-item online">
+        <a href="darts-local.html" class="menu-item online span-3">
             <div class="icon">🏠</div>
-            <div class="title">Darts Local</div>
-            <div class="desc">En solo ou entre amis. </div>
+            <div class="title">Local</div>
+            <div class="desc">En solo ou entre amis.</div>
         </a>
-
-        <a href="darts-ia.html" class="menu-item ia">
+        <a href="darts-ia.html" class="menu-item ia span-3">
             <div class="icon">🤖</div>
-            <div class="title">DARTS IA</div>
-            <div class="desc">Défiez l'algorithme.<br></div>
+            <div class="title">IA</div>
+            <div class="desc">ADéfiez l'algorithme.</div>
         </a>
 
-        <a href="darts-bobs.html" class="menu-item fun">
+        <a href="darts-bobs.html" class="menu-item fun span-2">
             <div class="icon">🎡</div>
             <div class="title">Bob's 27</div>
-            <div class="desc">Maîtrise des doubles.<br></div>
+            <div class="desc">Maîtrise des doubles.</div>
         </a>
-
-        <a href="darts-180.html" class="menu-item fun">
+        <a href="darts-180.html" class="menu-item fun span-2">
             <div class="icon">🔥</div>
             <div class="title">180 !</div>
-            <div class="desc">À la quête de la perfection.<br></div>
+            <div class="desc">Quête de la perfection.</div>
         </a>
-
-
-        <a href="darts-bull.html" class="menu-item fun">
+        <a href="darts-bull.html" class="menu-item fun span-2">
             <div class="icon">🎯</div>
-            <div class="title">BULL</div>
-            <div class="desc">Focus centre.</div>
+            <div class="title">Bull</div>
+            <div class="desc">Focus centre cible.</div>
         </a>
 
-        <a href="darts-checkout.html" class="menu-item fun">
+        <a href="darts-checkout.html" class="menu-item fun span-2">
             <div class="icon">🏁</div>
-            <div class="title">FINISH</div>
-            <div class="desc">6 fléchettes.</div>
+            <div class="title">Checkout</div>
+            <div class="desc">Finish aléatoire 6 fléchettes.</div>
+        </a>
+        <a href="#" class="menu-item fun span-2" style="opacity: 0.3;">
+            <div class="icon"></div>
+            <div class="title"></div>
+            <div class="desc"></div>
+        </a>
+        <a href="#" class="menu-item fun span-2" style="opacity: 0.3;">
+            <div class="icon"></div>
+            <div class="title"></div>
+            <div class="desc"></div>
         </a>
 
-        <a href="records.html" class="menu-item nav-btn">
+        <a href="records.html" class="menu-item nav-btn span-2">
             <div class="icon">🏆</div>
-            <div class="title">RECORDS</div>
-            <div class="desc">Top & Scores</div>
+            <div class="title">Records</div>
+            <div class="desc">Top scores</div>
         </a>
-
-        <a href="infos.html" class="menu-item nav-btn">
+        <a href="#" class="menu-item nav-btn span-2" style="opacity: 0.3;">
+            <div class="icon"></div>
+            <div class="title"></div>
+            <div class="desc"></div>
+        </a>
+        <a href="infos.html" class="menu-item nav-btn span-2">
             <div class="icon">ℹ️</div>
-            <div class="title">INFOS</div>
-            <div class="desc">Guide & Aide</div>
+            <div class="title">Infos</div>
+            <div class="desc">GUIDE & RÈGLES</div>
         </a>
+    </div>
 
-	
-	<script>
-		document.addEventListener('DOMContentLoaded', () => {
-			const pseudo = localStorage.getItem('darts_pseudo');
-			const isGuest = localStorage.getItem('is_guest') === 'true';
-			const display = document.getElementById('player-display');
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const pseudo = localStorage.getItem('darts_pseudo');
+            const isGuest = localStorage.getItem('is_guest') === 'true';
+            const display = document.getElementById('player-display');
 
-			if (!pseudo) {
-				// Sécurité : Si pas de pseudo, on renvoie à l'index
-				window.location.href = 'index.html';
-				return;
-			}
+            if (!pseudo) {
+                window.location.href = 'index.html';
+                return;
+            }
 
-			if (isGuest) {
-				display.innerText = "SESSION LIBRE";
-				display.style.color = "#888";
-				// On peut cacher les badges "Online" en mode invité
-				document.querySelectorAll('.badge-online').forEach(b => b.style.display = 'none');
-			} else {
-				display.innerText = pseudo;
-			}
-		});
+            if (isGuest) {
+                display.innerText = "SESSION LIBRE";
+                display.style.color = "#888";
+                document.querySelectorAll('.badge-online').forEach(b => b.style.display = 'none');
+            } else {
+                display.innerText = pseudo;
+            }
+        });
 
-		function logout() {
-			localStorage.clear();
-			window.location.href = 'index.html';
-		}
-	</script>
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+    </script>
 </body>
 </html>
