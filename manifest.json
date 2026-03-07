@@ -1,8 +1,11 @@
 {
   "name": "Darts Club Elite",
   "short_name": "DartsClub",
+  "description": "Application de scoring et records de fléchettes",
   "start_url": "index.html",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#000000",
   "theme_color": "#00ff88",
   "icons": [
@@ -17,6 +20,12 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

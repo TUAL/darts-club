@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Darts Club - Bull Challenge</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="config.js"></script> 
+    <script src="protection.js"></script>  
+    <style>
+        :root { 
+            --bg: #0b0e14; --card: #161b22; --text: #f0f6fc;
+            --s-color: #238636; --d-color: #da3633; 
+            --accent: #58a6ff;
+        }
+        * { box-sizing: border-box; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+        body { 
+            font-family: -apple-system, system-ui, sans-serif; 
+            background: var(--bg); color: var(--text); 
+            margin: 0; padding: 0; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; 
+        }
+        .app-brand { height: 35px; display: flex; align-items: center; justify-content: center; gap: 8px; flex-shrink: 0; }
+        .app-title { font-size: 0.75rem; font-weight: 900; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; }
+        footer {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: var(--bg); padding: 10px 0;
+            padding-bottom: calc(env(safe-area-inset-bottom) + 10px);
+            text-align: center; z-index: 100; border-top: 1px solid #161b22;
+        }
+        .back-btn { color: #888; text-decoration: none; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; padding: 5px 15px; border: 1px solid #333; border-radius: 20px; }
+        #game-screen { flex: 1; display: flex; flex-direction: column; padding: 10px; padding-bottom: 105px; gap: 8px; }
+        .train-header { 
+            height: 12dvh; display: flex; justify-content: space-around; align-items: center;
+            background: var(--card); border-radius: 12px; border: 1px solid #30363d; flex-shrink: 0;
+        }
+        .stat-box { text-align: center; flex: 1; }
+        .stat-label { font-size: 0.6rem; color: #8b949e; text-transform: uppercase; font-weight: bold; }
+        .stat-val { font-size: 2.2rem; font-weight: 900; color: var(--accent); line-height: 1; }
+        .target-box { background: rgba(88, 166, 255, 0.1); border-radius: 10px; padding: 5px; border: 2px solid var(--accent); margin: 0 10px; }
+        .target-val { font-size: 1.8rem; font-weight: 900; color: #fff; line-height: 1; }
+        .turn-tracking { display: flex; justify-content: center; gap: 8px; height: 45px; flex-shrink: 0; margin-top: 10px;}
+        .dart-slot { 
+            flex: 1; background: #010409; border: 1px solid #30363d; border-radius: 8px; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            font-weight: 900; font-size: 0.8rem; color: #484f58;
+        }
+        .dart-slot.green { color: var(--s-color); border-color: var(--s-color); background: rgba(35, 134, 54, 0.1); }
+        .dart-slot.red { color: var(--d-color); border-color: var(--d-color); background: rgba(218, 54, 51, 0.1); }
+        .action-area { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 12px; min-height: 0; }
+        .hit-grid { display: grid; grid-template-columns: 1fr; gap: 8px; width: 100%; max-width: 320px; margin: 0 auto; }
+        .btn-bull { border: none; border-radius: 12px; height: 55px; font-size: 1rem; font-weight: 900; color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: #21262d; }
+        .btn-green { border-left: 8px solid var(--s-color); }
+        .btn-red { border-left: 8px solid var(--d-color); }
+        .btn-miss { border-left: 8px solid #484f58; }
+        .main-actions { display: grid; grid-template-columns: 1fr 2fr; gap: 12px; width: 100%; max-width: 320px; margin: 0 auto; margin-top: 5px; }
+        .btn-valid { background: var(--accent) !important; color: #fff; border-radius: 12px; height: 50px; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; border: none; }
+        .btn-undo { background: #161b22; color: #8b949e; border-radius: 12px; font-size: 1.2rem; border: 1px solid #30363d; }
+        .overlay { display:none; position:fixed; inset:0; background: rgba(13,17,23,0.98); z-index: 999; flex-direction:column; justify-content:center; align-items:center; padding: 20px; }
+        .final-box { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid #30363d; width: 100%; max-width: 280px; margin-bottom: 15px; text-align: center; }
+        .btn-save { background: transparent !important; border: 1px solid var(--accent); color: var(--accent); margin-bottom: 10px; width: 100%; max-width: 280px; padding: 12px; border-radius: 25px; font-weight: bold; text-transform: uppercase; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+
+    <div id="game-screen">
+        <div class="app-brand"><span class="app-logo">🎯</span><span class="app-title">Bull Challenge</span></div>
+        <div class="train-header">
+            <div class="stat-box"><div class="stat-label">Points</div><div id="scoreDisplay" class="stat-val">0/10</div></div>
+            <div class="stat-box target-box"><div class="stat-label">Fléchettes</div><div id="dartsDisplay" class="target-val">0/18</div></div>
+        </div>
+        <div class="turn-tracking">
+            <div class="dart-slot" id="d0"><span>-</span></div>
+            <div class="dart-slot" id="d1"><span>-</span></div>
+            <div class="dart-slot" id="d2"><span>-</span></div>
+        </div>
+        <div class="action-area">
+            <div class="hit-grid">
+                <button class="btn-bull btn-red" onclick="addDart(2, 'red')">BULLSEYE <span>2pts</span></button>
+                <button class="btn-bull btn-green" onclick="addDart(1, 'green')">BULL <span>1pt</span></button>
+                <button class="btn-bull btn-miss" onclick="addDart(0, 'miss')">ZÉRO <span>0pt</span></button>
+            </div>
+            <div class="main-actions">
+                <button class="btn-undo" onclick="undoInTurn()">⌫</button>
+                <button class="btn-valid" id="btnValid" onclick="validateTurn()" style="opacity: 0.3;">Valider Volée</button>
+            </div>
+        </div>
+    </div>
+
+    <footer><a href="menu.html" class="back-btn">⬅ Menu Principal</a></footer>
+
+    <div id="end-screen" class="overlay">
+        <div class="final-box">
+            <h1 id="end-title-label" style="font-size: 0.8rem; color: #8b949e; letter-spacing: 2px; margin: 0;">RÉSULTAT</h1>
+            <div id="final-score" style="font-size: 4rem; font-weight: 900; line-height: 1; margin: 10px 0;">0</div>
+            <p id="end-msg" style="font-size: 0.9rem; color: #fff; font-weight: bold; margin: 0;"></p>
+        </div>
+        <button id="btn-save-bull" class="btn-save" onclick="saveBullRecord()">Enregistrer mon Record</button>
+        <button class="btn-valid" style="padding: 15px 40px; width: 100%; max-width: 280px; height: auto; border-radius: 25px; color: white;" onclick="location.reload()">RECOMMENCER</button>
+        <a href="menu.html" style="margin-top: 20px; color: #555; text-decoration: none; font-size: 0.8rem;">Retour Menu</a>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyD8AIw0f3L65XMZM9OBX8wDWNbSvl4ACZM",
+            authDomain: "dartsclub-1aab9.firebaseapp.com",
+            databaseURL: "https://dartsclub-1aab9-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "dartsclub-1aab9",
+            storageBucket: "dartsclub-1aab9.firebasestorage.app",
+            messagingSenderId: "769714266505",
+            appId: "1:769714266505:web:ea1758db2c96702979c158"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+
+        const currentPseudo = localStorage.getItem('darts_pseudo');
+        let players = [], currentPlayer = 0, turnHistory = [];
+        let dartsInTurn = [], visualDarts = [], multiplier = 1, isBust = false;
+
+        window.onload = () => {
+            if(currentPseudo && currentPseudo !== "INVITÉ") {
+                document.getElementById('suggest-box').style.display = 'block';
+                document.getElementById('suggest-name').innerText = currentPseudo;
+            }
+            const pad = document.getElementById('numPad'); 
+            pad.innerHTML = "";
+            for(let i=1; i<=20; i++) pad.innerHTML += `<button class="num-btn" onclick="addDart(${i})">${i}</button>`;
+        };
+	
+        let totalScore = 0;
+        let totalDartsInBank = 0;
+        let turnDarts = [];
+
+        function addDart(pts, type) {
+            if (turnDarts.length >= 3) return;
+            turnDarts.push({pts, type});
+            updateSlots();
+            updateHeader();
+            if (turnDarts.length === 3 || (totalScore + currentTurnSum() >= 10)) {
+                document.getElementById('btnValid').style.opacity = "1";
+            }
+        }
+
+        function currentTurnSum() { return turnDarts.reduce((acc, d) => acc + d.pts, 0); }
+
+        function updateHeader() {
+            document.getElementById('scoreDisplay').innerText = totalScore + currentTurnSum();
+            document.getElementById('dartsDisplay').innerText = `${totalDartsInBank + turnDarts.length}/18`;
+        }
+
+        function updateSlots() {
+            for(let i=0; i<3; i++) {
+                const slot = document.getElementById(`d${i}`);
+                if (turnDarts[i]) {
+                    slot.className = `dart-slot ${turnDarts[i].type}`;
+                    slot.innerHTML = `<span>${turnDarts[i].pts > 0 ? 'HIT' : 'MISS'}</span><span class="slot-pts">${turnDarts[i].pts}pt</span>`;
+                } else {
+                    slot.className = "dart-slot"; slot.innerHTML = "<span>-</span>";
+                }
+            }
+        }
+
+        function undoInTurn() {
+            if (turnDarts.length > 0) {
+                turnDarts.pop(); updateSlots(); updateHeader();
+                document.getElementById('btnValid').style.opacity = "0.3";
+            }
+        }
+
+        function validateTurn() {
+            if (turnDarts.length === 0) return;
+            totalScore += currentTurnSum();
+            totalDartsInBank += turnDarts.length;
+            if (totalScore >= 10 || totalDartsInBank >= 18) { showEnd(); } 
+            else { turnDarts = []; updateSlots(); updateHeader(); document.getElementById('btnValid').style.opacity = "0.3"; }
+        }
+
+        function showEnd() {
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('end-screen').style.display = 'flex';
+            const fs = document.getElementById('final-score');
+            const msg = document.getElementById('end-msg');
+            const titleLabel = document.getElementById('end-title-label');
+            
+            fs.innerText = totalScore;
+            if (totalScore >= 10) {
+                titleLabel.innerText = "CHALLENGE RÉUSSI !";
+                fs.style.color = "var(--s-color)";
+                msg.innerText = `10 points atteints en ${totalDartsInBank} fléchettes.`;
+            } else {
+                titleLabel.innerText = "CHALLENGE ÉCHOUÉ";
+                fs.style.color = "var(--d-color)";
+                msg.innerText = `Score final : ${totalScore}/10 points.`;
+            }
+        }
+
+async function saveBullRecord() {
+    const btn = document.getElementById('btn-save-bull');
+    const date = new Date().toLocaleDateString('fr-FR');
+    // On récupère le pseudo et on force la majuscule pour correspondre à MOMO/JOE dans Firebase
+    let pseudo = localStorage.getItem('darts_pseudo');
+    if (!pseudo) return alert("Erreur : Aucun pseudo configuré dans les paramètres !");
+    
+    pseudo = pseudo.toUpperCase().trim();
+
+    try {
+        btn.disabled = true;
+        btn.innerText = "⌛ ENREGISTREMENT...";
+
+        // Référence précise vers le dossier du Bull Challenge
+        const ref = firebase.database().ref(`users/${pseudo}/games/bull_challenge/top`);
+        
+        // On récupère les données existantes
+        const snap = await ref.once('value');
+        let topScores = [];
+        
+        // Vérification si les données existent déjà et si c'est bien un tableau
+        if (snap.exists()) {
+            const val = snap.val();
+            topScores = Array.isArray(val) ? val : Object.values(val);
+        }
+
+        // Ajout de la nouvelle performance
+        topScores.push({ 
+            pts: totalScore, 
+            darts: totalDartsInBank, 
+            date: date 
+        });
+
+        // Tri intelligent (10 pts en priorité, puis moins de fléchettes)
+        topScores.sort((a, b) => {
+            if (a.pts === 10 && b.pts === 10) return a.darts - b.darts;
+            if (a.pts === 10) return -1;
+            if (b.pts === 10) return 1;
+            return b.pts - a.pts;
+        });
+
+        // On sauvegarde les 3 meilleurs
+        await ref.set(topScores.slice(0, 3));
+
+        btn.innerText = "✅ RECORD ARCHIVÉ";
+        btn.style.color = "#238636";
+        btn.style.borderColor = "#238636";
+        
+    } catch (error) {
+        console.error("Détail de l'erreur Firebase :", error);
+        btn.disabled = false;
+        btn.innerText = "ERREUR (RÉESSAYER)";
+        alert("Erreur Firebase : " + error.message);
+    }
+}
+    </script>
+</body>
+</html>

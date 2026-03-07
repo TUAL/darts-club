@@ -210,7 +210,12 @@
 			align-items: center;
 			justify-content: center;
 			font-weight: bold;
-		}		
+		}	
+
+/* Style pour la rangée de navigation basse */
+.nav-btn { border-top: 1px solid #58a6ff; }
+.nav-btn .title { color: #58a6ff; }
+.nav-btn:active { background: rgba(88, 166, 255, 0.1); }	
     </style>
 </head>
 <body>
@@ -261,22 +266,31 @@
             <div class="desc">À la quête de la perfection.<br></div>
         </a>
 
+
         <a href="darts-bull.html" class="menu-item fun">
             <div class="icon">🎯</div>
-            <div class="title">Bull</div>
-            <div class="desc">Focus centre cible.<br></div>
+            <div class="title">BULL</div>
+            <div class="desc">Focus centre.</div>
         </a>
 
         <a href="darts-checkout.html" class="menu-item fun">
             <div class="icon">🏁</div>
-            <div class="title">Check-out</div>
-            <div class="desc">Finish aléatoire 6 fléchettes.<br></div>
+            <div class="title">FINISH</div>
+            <div class="desc">6 fléchettes.</div>
         </a>
-    </div>
 
-    <footer>
-        <a href="infos.html" class="info-link">ℹ️ GUIDE & RÈGLES</a>
-    </footer>
+        <a href="records.html" class="menu-item nav-btn">
+            <div class="icon">🏆</div>
+            <div class="title">RECORDS</div>
+            <div class="desc">Top & Scores</div>
+        </a>
+
+        <a href="infos.html" class="menu-item nav-btn">
+            <div class="icon">ℹ️</div>
+            <div class="title">INFOS</div>
+            <div class="desc">Guide & Aide</div>
+        </a>
+
 	
 	<script>
 		document.addEventListener('DOMContentLoaded', () => {
