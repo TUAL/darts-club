@@ -154,8 +154,8 @@
         };
 
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        const pseudo = localStorage.getItem('darts_pseudo') || "TEST";
-        const isGuest = localStorage.getItem('is_guest') === 'true';
+        const pseudo = localStorage.getItem('darts_pseudo') || "INVITÉ";
+        const isGuest = localStorage.getItem('is_guest') === 'true' || pseudo === "INVITÉ";
 
         let score, initialScore, totalDartsUsed = 0, multiplier = 1, dartsInTurn = [], gameOver = false, isBust = false;
         const exclusions = [169, 168, 166, 165, 163, 162, 159];
@@ -197,12 +197,11 @@
             
             const slot = document.getElementById(`d${dartsInTurn.length}`);
 
-            // RÈGLE DU BUST : On consomme la fléchette mais on ajoute 0 point
             if (score - pts < 0 || score - pts === 1 || (score - pts === 0 && m !== 2 && val !== 50)) {
                 isBust = true;
                 slot.innerText = "BUST";
                 slot.style.color = "var(--t-color)";
-                dartsInTurn.push(0); // La fléchette est comptée mais vaut 0
+                dartsInTurn.push(0);
                 updateCounter();
                 return; 
             }
@@ -221,13 +220,11 @@
             if (gameOver) return;
             totalDartsUsed += dartsInTurn.length;
             
-            // Si fini ou épuisé
             if (score === 0 || totalDartsUsed >= 6) {
                 showEnd();
                 return;
             }
             
-            // Nouveau tour
             dartsInTurn = [];
             isBust = false;
             updateCounter();
@@ -239,13 +236,8 @@
 
         function undoLastDart() {
             if (gameOver || dartsInTurn.length === 0) return;
-            
             let lastPts = dartsInTurn.pop();
-            // Si on annule un BUST, le score n'avait pas bougé donc pas de += lastPts
-            if (!isBust) {
-                score += lastPts;
-            }
-            
+            if (!isBust) score += lastPts;
             isBust = false;
             document.getElementById('scoreDisplay').innerText = score;
             updateCounter();
@@ -266,6 +258,7 @@
                 document.getElementById('end-title-label').innerText = "RÉUSSI !";
                 fs.innerText = initialScore; fs.style.color = "var(--s-color)";
                 msg.innerText = `Fini en ${totalDartsUsed} fléchettes.`;
+                // N'affiche le bouton que si ce n'est PAS un invité
                 if(!isGuest) saveBtn.style.display = 'block';
             } else {
                 document.getElementById('end-title-label').innerText = "ÉCHOUÉ";
@@ -277,6 +270,8 @@
         }
 
         function handleJustSave() {
+            if(isGuest) return; // Sécurité supplémentaire
+
             const finalDarts = totalDartsUsed;
             const moyenneMatch = parseFloat(((initialScore / finalDarts) * 3).toFixed(2));
             const topRef = firebase.database().ref(`users/${pseudo}/games/checkouts/top_moyennes`);
@@ -302,7 +297,10 @@
 
         function displayTop3() {
             const listDiv = document.getElementById('top-list');
-            if (isGuest) { listDiv.innerText = "Mode Invité"; return; }
+            if (isGuest) { 
+                listDiv.innerHTML = "<div style='text-align:center; color:#555;'>Mode Invité</div>"; 
+                return; 
+            }
             firebase.database().ref(`users/${pseudo}/games/checkouts/top_moyennes`).once('value', (snapshot) => {
                 const scores = snapshot.val() || [];
                 if (scores.length === 0) { listDiv.innerHTML = "<div style='text-align:center; color:#555;'>Aucun record.</div>"; return; }
