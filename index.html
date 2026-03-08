@@ -122,10 +122,13 @@
     </div>
 </div>
 
+
 <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+
 <script>
-// 1. ENREGISTREMENT DU SERVICE WORKER (Indispensable pour l'installation)
+    // 1. ENREGISTREMENT DU SERVICE WORKER (Indispensable pour l'installation)
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('./sw.js')
@@ -139,7 +142,8 @@
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
-        document.getElementById('btn-install').style.display = 'block';
+        const btnInstall = document.getElementById('btn-install');
+        if (btnInstall) btnInstall.style.display = 'block';
     });
 
     async function installApp() {
@@ -152,7 +156,7 @@
         deferredPrompt = null;
     }
 
-    // 2. CONFIGURATION FIREBASE
+    // 3. CONFIGURATION FIREBASE
     const firebaseConfig = {
         apiKey: "AIzaSyD8AIw0f3L65XMZM9OBX8wDWNbSvl4ACZM",
         authDomain: "dartsclub-1aab9.firebaseapp.com",
@@ -163,9 +167,12 @@
         appId: "1:769714266505:web:ea1758db2c96702979c158"
     };
 
+    // Initialisation
     if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+    const auth = firebase.auth();
+    const db = firebase.database();
 
-    // 3. AUTHENTIFICATION
+    // 4. AUTHENTIFICATION SÉCURISÉE
     async function handleAuth() {
         const pseudoInput = document.getElementById('pseudo');
         const pinInput = document.getElementById('pin');
@@ -177,34 +184,60 @@
             return;
         }
 
-        const userRef = firebase.database().ref('users/' + pseudo);
         try {
+            // Connexion anonyme pour sécuriser l'accès à la base
+            await auth.signInAnonymously();
+            
+            const userRef = db.ref('users/' + pseudo);
             const snapshot = await userRef.once('value');
+
             if (snapshot.exists()) {
                 if (snapshot.val().pin === pin) {
                     showSuccess("Bon retour " + pseudo + " !");
                     login(pseudo, false);
                 } else {
-                    showError("Pseudo déjà réservé.");
+                    showError("Pseudo déjà réservé ou PIN incorrect.");
                 }
             } else {
-                await userRef.set({ pin: pin, createdAt: Date.now() });
+                // Création du nouveau profil
+                await userRef.set({ 
+                    pin: pin, 
+                    createdAt: Date.now(),
+                    // Initialisation des scores si besoin
+                    games: { darts_live: { top: [] } } 
+                });
                 showSuccess("Bienvenue " + pseudo + " !");
                 login(pseudo, false);
             }
-        } catch (error) { showError("Erreur de connexion."); }
+        } catch (error) { 
+            console.error(error);
+            showError("Erreur de connexion au serveur."); 
+        }
     }
 
-    function continueGuest() { login("INVITÉ", true); }
+    function continueGuest() { 
+        login("INVITÉ", true); 
+    }
 
     function login(pseudo, isGuest) {
         localStorage.setItem('darts_pseudo', pseudo);
         localStorage.setItem('is_guest', isGuest);
-        setTimeout(() => { window.location.href = 'menu.html'; }, 1000);
+        setTimeout(() => { 
+            window.location.href = 'menu.html'; 
+        }, 1000);
     }
 
-    function showError(t) { const m = document.getElementById('msg'); m.style.color = "var(--t-color)"; m.innerText = t; }
-    function showSuccess(t) { const m = document.getElementById('msg'); m.style.color = "var(--s-color)"; m.innerText = t; }
+    function showError(t) { 
+        const m = document.getElementById('msg'); 
+        m.style.color = "var(--t-color)"; 
+        m.innerText = t; 
+    }
+
+    function showSuccess(t) { 
+        const m = document.getElementById('msg'); 
+        m.style.color = "var(--s-color)"; 
+        m.innerText = t; 
+    }
 </script>
 </body>
 </html>
