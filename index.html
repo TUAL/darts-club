@@ -64,15 +64,15 @@
         }
         .btn:active { transform: scale(0.98); }
         .btn-login { background: var(--accent); color: white; }
+        .btn-login:disabled { opacity: 0.5; cursor: not-allowed; }
         
         .btn-guest { 
             background: rgba(255, 255, 255, 0.05); color: #8b949e; 
             border: 1px solid var(--border); margin-top: 5px;
         }
 
-        /* STYLE DU BOUTON INSTALLER */
         #btn-install {
-            display: none; /* Masqué par défaut */
+            display: none;
             background: linear-gradient(145deg, #004422, #001a0d);
             color: var(--install-color);
             border: 1px solid var(--install-color);
@@ -83,7 +83,7 @@
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        #msg { text-align: center; font-size: 0.8rem; font-weight: 600; min-height: 20px; margin-top: 10px; }
+        #msg { text-align: center; font-size: 0.8rem; font-weight: 600; min-height: 20px; margin-top: 10px; padding: 0 10px; }
         .footer-info { margin-top: auto; font-size: 0.65rem; color: #484f58; letter-spacing: 1px; text-align: center; }
     </style>
 </head>
@@ -106,7 +106,7 @@
             <input type="password" id="pin" placeholder="4 CHIFFRES" inputmode="numeric" maxlength="4">
         </div>
         
-        <button class="btn btn-login" onclick="handleAuth()">SE CONNECTER / CRÉER</button>
+        <button id="auth-submit" class="btn btn-login" onclick="handleAuth()">SE CONNECTER / CRÉER</button>
         
         <button class="btn btn-guest" onclick="continueGuest()">SESSION LIBRE</button>
 
@@ -122,41 +122,12 @@
     </div>
 </div>
 
-
 <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
 
 <script>
-    // 1. ENREGISTREMENT DU SERVICE WORKER (Indispensable pour l'installation)
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js')
-                .then(reg => console.log('Service Worker enregistré !'))
-                .catch(err => console.log('Erreur SW:', err));
-        });
-    }
-
-    // 2. LOGIQUE PWA (INSTALLATION)
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        const btnInstall = document.getElementById('btn-install');
-        if (btnInstall) btnInstall.style.display = 'block';
-    });
-
-    async function installApp() {
-        if (!deferredPrompt) return;
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-            document.getElementById('btn-install').style.display = 'none';
-        }
-        deferredPrompt = null;
-    }
-
-    // 3. CONFIGURATION FIREBASE
+    // 1. FIREBASE CONFIG
     const firebaseConfig = {
         apiKey: "AIzaSyD8AIw0f3L65XMZM9OBX8wDWNbSvl4ACZM",
         authDomain: "dartsclub-1aab9.firebaseapp.com",
@@ -167,64 +138,63 @@
         appId: "1:769714266505:web:ea1758db2c96702979c158"
     };
 
-    // Initialisation
-    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.database();
 
-    // 4. AUTHENTIFICATION SÉCURISÉE
+    // 2. AUTHENTIFICATION
     async function handleAuth() {
-        const pseudoInput = document.getElementById('pseudo');
-        const pinInput = document.getElementById('pin');
-        const pseudo = pseudoInput.value.trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
-        const pin = pinInput.value.trim();
+        const btn = document.getElementById('auth-submit');
+        const pseudo = document.getElementById('pseudo').value.trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
+        const pin = document.getElementById('pin').value.trim();
 
         if (pseudo.length < 2 || pin.length !== 4) {
             showError("Pseudo (min 2) et Code (4 chiffres) requis.");
             return;
         }
 
+        btn.disabled = true;
+        showSuccess("Vérification...");
+
         try {
-            // Connexion anonyme pour sécuriser l'accès à la base
-            await auth.signInAnonymously();
+            // Force la connexion anonyme si non connecté pour passer les règles de sécurité
+            if (!auth.currentUser) await auth.signInAnonymously();
             
             const userRef = db.ref('users/' + pseudo);
             const snapshot = await userRef.once('value');
 
             if (snapshot.exists()) {
-                if (snapshot.val().pin === pin) {
-                    showSuccess("Bon retour " + pseudo + " !");
+                const userData = snapshot.val();
+                if (String(userData.pin) === String(pin)) {
+                    showSuccess("Heureux de vous revoir !");
                     login(pseudo, false);
                 } else {
-                    showError("Pseudo déjà réservé ou PIN incorrect.");
+                    showError("Code PIN incorrect pour ce pseudo.");
+                    btn.disabled = false;
                 }
             } else {
-                // Création du nouveau profil
+                // Création auto
                 await userRef.set({ 
                     pin: pin, 
                     createdAt: Date.now(),
-                    // Initialisation des scores si besoin
-                    games: { darts_live: { top: [] } } 
+                    stats: { wins: 0, games_played: 0 }
                 });
-                showSuccess("Bienvenue " + pseudo + " !");
+                showSuccess("Profil créé avec succès !");
                 login(pseudo, false);
             }
         } catch (error) { 
             console.error(error);
-            showError("Erreur de connexion au serveur."); 
+            showError("Erreur : Vérifiez vos règles Firebase Database."); 
+            btn.disabled = false;
         }
     }
 
-    function continueGuest() { 
-        login("INVITÉ", true); 
-    }
+    function continueGuest() { login("INVITÉ", true); }
 
     function login(pseudo, isGuest) {
         localStorage.setItem('darts_pseudo', pseudo);
         localStorage.setItem('is_guest', isGuest);
-        setTimeout(() => { 
-            window.location.href = 'menu.html'; 
-        }, 1000);
+        setTimeout(() => { window.location.href = 'menu.html'; }, 800);
     }
 
     function showError(t) { 
@@ -237,6 +207,11 @@
         const m = document.getElementById('msg'); 
         m.style.color = "var(--s-color)"; 
         m.innerText = t; 
+    }
+
+    // PWA & Service Worker
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
     }
 </script>
 </body>
