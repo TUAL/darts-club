@@ -6,6 +6,7 @@
     <title>Darts Club - Live</title>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
     <style>
         :root { 
             --bg: #0b0e14; --card: #161b22; --text: #f0f6fc;
@@ -22,7 +23,6 @@
             position: fixed; width: 100%;
         }
 
-        /* SETUP SCREEN */
         #setup-screen { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; overflow-y: auto; }
         .setup-box { width: 100%; max-width: 320px; text-align: center; }
         label { display: block; text-align: left; font-size: 0.65rem; font-weight: 900; letter-spacing: 1px; color: var(--accent); text-transform: uppercase; margin-bottom: 5px; }
@@ -36,7 +36,6 @@
         .stand-name { display: block; font-weight: 800; font-size: 0.75rem; color: #fff; }
         .stand-status { font-size: 0.6rem; font-weight: bold; color: #8b949e; }
 
-        /* GAME SCREEN - STRICT LOCAL UI */
         #game-screen { display: none; height: 100dvh; flex-direction: column; padding: 8px; padding-bottom: 60px; gap: 4px; }
         .app-brand { height: 30px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .app-title { font-size: 0.75rem; font-weight: 900; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; }
@@ -119,20 +118,16 @@
         </div>
     </div>
 
-    <footer id="main-footer">
-        <a href="menu.html" class="back-btn">⬅ MENU PRINCIPAL</a>
-    </footer>
+    <footer id="main-footer"><a href="menu.html" class="back-btn">⬅ MENU PRINCIPAL</a></footer>
 
     <div id="end-screen" class="overlay">
         <div class="final-box">
             <h1 style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase; margin: 0;">MATCH TERMINÉ</h1>
             <div id="final-result" style="font-size: 2rem; font-weight: 900; margin: 5px 0; color: var(--s-color);">VICTOIRE</div>
             <p id="winner-display" style="font-size: 0.8rem; color: #fff; margin-bottom: 15px; font-weight: bold;"></p>
-            
             <div id="stats-summary" style="margin: 10px 0; width: 100%; font-size: 0.75rem;">
                 <div id="local-stats-list" style="background: #0d1117; border-radius: 8px; padding: 12px; border: 1px solid #30363d; text-align: left;"></div>
             </div>
-
             <div style="display: flex; flex-direction: column; width: 100%; gap: 10px; margin-top: 15px;">
                 <button id="btn-save-only" class="btn-valid ready" style="height: 45px; display:none;" onclick="saveGameData()">ENREGISTRER MOYENNE</button>
                 <button class="btn-valid" style="height: 45px; background: #21262d;" onclick="closeRoom()">LIBÉRER LE STAND</button>
@@ -142,12 +137,8 @@
     </div>
 
     <script>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
-    <script>
         const firebaseConfig = {
-			apiKey: "AIzaSyCSeggBmTOXR_XyspjuAsbhMfncp9MYUBA",
+            apiKey: "AIzaSyCSeggBmTOXR_XyspjuAsbhMfncp9MYUBA",
             authDomain: "dartsclub-1aab9.firebaseapp.com",
             databaseURL: "https://dartsclub-1aab9-default-rtdb.europe-west1.firebasedatabase.app",
             projectId: "dartsclub-1aab9",
@@ -155,30 +146,11 @@
             messagingSenderId: "769714266505",
             appId: "1:769714266505:web:ea1758db2c96702979c158"
         };
-if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
 
-const auth = firebase.auth(); // Ajoute cette ligne
-const db = firebase.database(); // Ajoute cette ligne
-
-// AJOUTE CE BLOC : Force la connexion pour valider les permissions
-auth.onAuthStateChanged(async (user) => {
-    if (!user) {
-        await auth.signInAnonymously();
-    }
-});
-
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+        auth.onAuthStateChanged(async (user) => { if (!user) await auth.signInAnonymously(); });
 
         let roomName, myName, myIndex = -1, dartsInTurn = [], visualDarts = [], multiplier = 1, isBust = false;
         let gameState = { players: [], currentPlayer: 0, status: "waiting" };
@@ -186,10 +158,7 @@ auth.onAuthStateChanged(async (user) => {
 
         window.onload = () => {
             const saved = localStorage.getItem('darts_pseudo');
-            if(saved) {
-                document.getElementById('pName').value = saved;
-                myName = saved.toUpperCase();
-            }
+            if(saved) { document.getElementById('pName').value = saved; myName = saved.toUpperCase(); }
             const pad = document.getElementById('numPad'); 
             pad.innerHTML = "";
             for(let i=1; i<=20; i++) pad.innerHTML += `<button class="num-btn" onclick="addDart(${i})">${i}</button>`;
@@ -220,7 +189,6 @@ auth.onAuthStateChanged(async (user) => {
             roomName = name;
             localStorage.setItem('darts_pseudo', myName);
             let q = parseInt(document.getElementById('qualifInput').value) || 0;
-
             if(count === 0) db.ref(`rooms/${name}`).set({ status: "playing", currentPlayer: 0, lastAction: Date.now() });
             const playerRef = db.ref(`rooms/${name}/players`).push();
             playerRef.set({ name: myName, score: 501, q: q, totalDarts: 0, totalPoints: 0, lastTurn: "" });
@@ -230,7 +198,6 @@ auth.onAuthStateChanged(async (user) => {
                 if(!data || !data.players) return;
                 const pArray = Object.entries(data.players).map(([id, p]) => ({...p, id})).sort((a,b) => b.q - a.q);
                 gameState = {...data, players: pArray};
-                
                 if(gameState.status === "finished") {
                     document.getElementById('game-screen').style.display = 'none';
                     document.getElementById('end-screen').style.display = 'flex';
@@ -267,22 +234,29 @@ auth.onAuthStateChanged(async (user) => {
                 let label = (val === 50) ? "BULL" : (m === 3 ? "T" : m === 2 ? "D" : "S") + val;
                 visualDarts.push(label); slot.innerText = label;
                 slot.style.color = (m === 3 ? "var(--t-color)" : m === 2 ? "var(--d-color)" : "var(--s-color)");
-                if(p.score === 0) { db.ref(`rooms/${roomName}`).update({ status: "finished", winner: myName }); return; }
             }
-            dartsInTurn.push(pts); setMod(1); syncUI();
+            dartsInTurn.push(pts); setMod(1);
             const btn = document.getElementById('btn-validate');
-            if(dartsInTurn.length === 3 || isBust) { btn.disabled = false; btn.classList.add('ready'); }
+            if(dartsInTurn.length === 3 || isBust || p.score === 0) { btn.disabled = false; btn.classList.add('ready'); }
+            syncUI();
         }
 
         function finishTurn() {
             let p = gameState.players[myIndex];
             let ptsTurn = dartsInTurn.reduce((acc, val, idx) => (isBust && idx === dartsInTurn.length - 1) ? acc : acc + val, 0);
+            const isWinner = (p.score === 0);
+            
             db.ref(`rooms/${roomName}/players/${p.id}`).update({ 
                 score: p.score, totalDarts: p.totalDarts + dartsInTurn.length,
                 totalPoints: p.totalPoints + ptsTurn, lastTurn: isBust ? "BUST" : visualDarts.join(" ")
+            }).then(() => {
+                if(isWinner) {
+                    db.ref(`rooms/${roomName}`).update({ status: "finished", winner: myName });
+                } else {
+                    db.ref(`rooms/${roomName}`).update({ currentPlayer: (gameState.currentPlayer + 1) % gameState.players.length, lastPlayerIdx: myIndex });
+                    resetTurn();
+                }
             });
-            db.ref(`rooms/${roomName}`).update({ currentPlayer: (gameState.currentPlayer + 1) % gameState.players.length, lastPlayerIdx: myIndex });
-            resetTurn();
         }
 
         function undoLastDart() {
@@ -329,19 +303,18 @@ auth.onAuthStateChanged(async (user) => {
         function saveGameData() {
             const p = gameState.players[myIndex];
             if (!p) return;
-            const finalAvg = p.totalDarts > 0 ? parseFloat(((p.totalPoints / p.totalDarts) * 3).toFixed(2)) : 0;
+            // Correction moyenne : 501 points divisés par (fléchettes / 3)
+            const finalAvg = p.totalDarts > 0 ? parseFloat(((501 / p.totalDarts) * 3).toFixed(2)) : 0;
             const dateStr = new Date().toLocaleDateString('fr-FR');
+            const pseudoUpper = p.name.toUpperCase();
             
-            // ARCHIVE LOCALE
-            const storageKey = `top_scores_${p.name}`;
+            const storageKey = `top_scores_${pseudoUpper}`;
             let topScores = JSON.parse(localStorage.getItem(storageKey)) || [];
             topScores.push({ avg: finalAvg, date: dateStr, darts: p.totalDarts });
             topScores.sort((a, b) => b.avg - a.avg);
-            const isTopThree = topScores.findIndex(s => s.avg === finalAvg) < 3;
             localStorage.setItem(storageKey, JSON.stringify(topScores.slice(0, 3)));
 
-            // ARCHIVE FIREBASE (users/NAME/games/live_multi)
-            const liveGamesRef = db.ref(`users/${p.name}/games/live_multi`);
+            const liveGamesRef = db.ref(`users/${pseudoUpper}/games/live_501`);
             liveGamesRef.once('value').then(snap => {
                 let d = snap.val() || {};
                 let top = d.top || [];
@@ -350,13 +323,11 @@ auth.onAuthStateChanged(async (user) => {
                 return liveGamesRef.update({
                     top: top.slice(0, 5),
                     wins: (gameState.winner === p.name ? (d.wins || 0) + 1 : (d.wins || 0)),
-                    last_game: dateStr,
-                    total_points: (d.total_points || 0) + p.totalPoints,
-                    total_darts: (d.total_darts || 0) + p.totalDarts
+                    last_game: dateStr
                 });
             }).then(() => {
                 const btn = document.getElementById('btn-save-only');
-                btn.innerText = "✅ PROFIL SYNCHRONISÉ";
+                btn.innerText = "✅ SYNCHRONISÉ";
                 btn.style.background = "#238636";
                 btn.disabled = true;
                 showFinalStats();
@@ -365,11 +336,10 @@ auth.onAuthStateChanged(async (user) => {
 
         function showFinalStats() {
             const list = document.getElementById('local-stats-list');
-            const nameToSearch = (gameState.players[myIndex] ? gameState.players[myIndex].name : myName);
-            if(!nameToSearch) return;
+            const nameToSearch = (gameState.players[myIndex] ? gameState.players[myIndex].name : myName).toUpperCase();
             const topScores = JSON.parse(localStorage.getItem(`top_scores_${nameToSearch}`)) || [];
             const p = gameState.players[myIndex];
-            let currentAvg = p ? ((p.totalPoints / p.totalDarts) * 3).toFixed(2) : "0.00";
+            let currentAvg = p ? ((501 / p.totalDarts) * 3).toFixed(2) : "0.00";
             let html = `<div style="border-bottom:1px solid #333; padding-bottom:5px; margin-bottom:10px;"><strong>MATCH :</strong> ${currentAvg} AVG</div>`;
             topScores.forEach((s, i) => {
                 html += `<div style="display:flex; justify-content:space-between; margin-bottom:2px; font-size:0.7rem; ${i===0?'color:var(--d-color)':''}">

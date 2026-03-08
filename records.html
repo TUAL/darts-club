@@ -150,7 +150,7 @@ auth.onAuthStateChanged(async (user) => {
                 let myCarriereScores = [];
                 Object.entries(data).forEach(([user, content]) => {
                     let userBestAvg = 0;
-                    ['live_multi', 'local_multi', 'local_solo'].forEach(path => {
+                    ['live_501', 'local_501'].forEach(path => {
                         const top = content.games?.[path]?.top;
                         if (top) {
                             const arr = Array.isArray(top) ? top : Object.values(top);
