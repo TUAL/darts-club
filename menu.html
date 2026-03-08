@@ -183,23 +183,23 @@
     </div>
 
     <div class="menu-grid">
-        <a href="darts-live.html" class="menu-item live span-6">
+        <a href="darts-live-501.html" class="menu-item live span-6">
             <div class="badge-online">ONLINE</div>
             <div class="icon">📡</div>
             <div>
-                <div class="title">Darts LIVE</div>
+                <div class="title">Darts LIVE - 501</div>
                 <div class="desc">Compétition en temps réel via stands privés.</div>
             </div>
         </a>
 
-        <a href="darts-local.html" class="menu-item online span-3">
+        <a href="darts-local-501.html" class="menu-item online span-3">
             <div class="icon">🏠</div>
-            <div class="title">Local</div>
+            <div class="title">Local - 501</div>
             <div class="desc">En solo ou entre amis.</div>
         </a>
-        <a href="darts-ia.html" class="menu-item ia span-3">
+        <a href="darts-ia-501.html" class="menu-item ia span-3">
             <div class="icon">🤖</div>
-            <div class="title">IA</div>
+            <div class="title">IA - 501</div>
             <div class="desc">ADéfiez l'algorithme.</div>
         </a>
 
@@ -253,22 +253,40 @@
     </div>
 
     <script>
+        // SERVICE WORKER
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js');
+        }
+
+        // INSTALLATION
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('install-btn').style.display = 'flex';
+        });
+
+        async function installApp() {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                document.getElementById('install-btn').style.display = 'none';
+            }
+            deferredPrompt = null;
+        }
+
+        // USER LOGIC
         document.addEventListener('DOMContentLoaded', () => {
             const pseudo = localStorage.getItem('darts_pseudo');
             const isGuest = localStorage.getItem('is_guest') === 'true';
             const display = document.getElementById('player-display');
 
-            if (!pseudo) {
-                window.location.href = 'index.html';
-                return;
-            }
-
+            if (!pseudo) { window.location.href = 'index.html'; return; }
+            display.innerText = isGuest ? "SESSION LIBRE" : pseudo;
             if (isGuest) {
-                display.innerText = "SESSION LIBRE";
                 display.style.color = "#888";
                 document.querySelectorAll('.badge-online').forEach(b => b.style.display = 'none');
-            } else {
-                display.innerText = pseudo;
             }
         });
 

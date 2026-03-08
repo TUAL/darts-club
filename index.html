@@ -4,14 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Darts Club - Connexion</title>
-    <link rel="icon" type="image/png" href="icone.png">
-    <link rel="apple-touch-icon" href="icone.png">
+    <link rel="icon" type="image/png" href="icon.png">
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="manifest" href="manifest.json">
     
     <style>
         :root { 
             --bg: #0b0e14; --card: #161b22; --text: #f0f6fc;
             --accent: #58a6ff; --s-color: #238636; --t-color: #da3633;
-            --border: #30363d;
+            --border: #30363d; --install-color: #00ff88;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -23,33 +24,6 @@
             height: 100dvh; overflow: hidden;
         }
 
-        header {
-            text-align: center;
-            padding-top: calc(env(safe-area-inset-top) + 15px);
-            margin-bottom: 20px;
-        }
-
-        h1 {
-            font-size: 2.1rem;
-            letter-spacing: 5px;
-            margin: 0;
-            background: linear-gradient(to bottom, #fff 30%, #444 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 900;
-            text-transform: uppercase;
-        }
-
-        .subtitle {
-            color: var(--accent);
-            font-size: 0.65rem;
-            letter-spacing: 5px;
-            text-transform: uppercase;
-            font-weight: bold;
-            margin-top: 5px;
-            opacity: 0.8;
-        }
-
         #app-container {
             width: 100%; max-width: 430px; height: 100dvh;
             background: var(--bg); position: relative;
@@ -57,14 +31,14 @@
             padding: 40px 25px; box-shadow: 0 0 50px rgba(0,0,0,0.8);
         }
 
-        .brand-section { text-align: center; margin-bottom: 40px; }
-        
-        .app-icon { 
-            width: 100px; height: 100px; 
-            border-radius: 22px; margin-bottom: 15px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-            border: 1px solid var(--border);
+        header { text-align: center; margin-bottom: 30px; }
+        h1 {
+            font-size: 2.1rem; letter-spacing: 5px; margin: 0;
+            background: linear-gradient(to bottom, #fff 30%, #444 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            font-weight: 900; text-transform: uppercase;
         }
+        .subtitle { color: var(--install-color); font-size: 0.65rem; letter-spacing: 5px; text-transform: uppercase; font-weight: bold; margin-top: 5px; opacity: 0.8; }
 
         .auth-card {
             width: 100%; background: var(--card);
@@ -80,7 +54,6 @@
             width: 100%; background: #010409; border: 1px solid var(--border);
             padding: 16px; border-radius: 12px; color: white;
             font-size: 1rem; text-align: center; outline: none;
-            transition: border-color 0.2s;
         }
         input:focus { border-color: var(--accent); }
 
@@ -90,41 +63,28 @@
             transition: transform 0.1s, opacity 0.2s;
         }
         .btn:active { transform: scale(0.98); }
-
-        .btn-login { background: var(--accent); color: white; margin-top: 5px; }
+        .btn-login { background: var(--accent); color: white; }
         
         .btn-guest { 
-            background: transparent; color: #8b949e; 
-            border: 1px solid var(--border); margin-top: 10px;
+            background: rgba(255, 255, 255, 0.05); color: #8b949e; 
+            border: 1px solid var(--border); margin-top: 5px;
         }
 
-        #msg { 
-            text-align: center; font-size: 0.8rem; font-weight: 600;
-            min-height: 20px; margin-top: 10px; 
+        /* STYLE DU BOUTON INSTALLER */
+        #btn-install {
+            display: none; /* Masqué par défaut */
+            background: linear-gradient(145deg, #004422, #001a0d);
+            color: var(--install-color);
+            border: 1px solid var(--install-color);
+            margin-top: 20px;
+            font-size: 0.8rem;
+            animation: fadeIn 0.5s ease-in;
         }
 
-        .footer-info {
-            margin-top: auto; font-size: 0.65rem; color: #484f58;
-            letter-spacing: 1px; text-align: center;
-        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-		.btn-guest { 
-			background: rgba(255, 255, 255, 0.05); /* Fond très sombre mais visible */
-			color: #8b949e; 
-			border: 1px solid #30363d; 
-			margin-top: 15px;
-			font-size: 0.85rem; /* Un peu plus petit pour la hiérarchie */
-		}
-
-		.btn-guest span {
-			display: block;
-			font-size: 0.65rem;
-			font-weight: 400;
-			color: #484f58;
-			margin-top: 2px;
-			text-transform: uppercase;
-			letter-spacing: 1px;
-		}
+        #msg { text-align: center; font-size: 0.8rem; font-weight: 600; min-height: 20px; margin-top: 10px; }
+        .footer-info { margin-top: auto; font-size: 0.65rem; color: #484f58; letter-spacing: 1px; text-align: center; }
     </style>
 </head>
 <body>
@@ -135,36 +95,64 @@
         <div class="subtitle">Elite Scoring System</div>
     </header>
 
-	<div class="auth-card">
-		<div class="input-group">
-			<label>JOUEUR</label>
-			<input type="text" id="pseudo" placeholder="TON PSEUDO" maxlength="12" style="text-transform: uppercase;" autocomplete="off">
-		</div>
+    <div class="auth-card">
+        <div class="input-group">
+            <label>JOUEUR</label>
+            <input type="text" id="pseudo" placeholder="TON PSEUDO" maxlength="12" style="text-transform: uppercase;" autocomplete="off">
+        </div>
 
-		<div class="input-group">
-			<label>CLÉ DE SÉCURITÉ</label>
-			<input type="password" id="pin" placeholder="4 CHIFFRES" inputmode="numeric" maxlength="4">
-		</div>
-		
-		<button class="btn btn-login" onclick="handleAuth()">SE CONNECTER / CRÉER</button>
-		
-		<button class="btn btn-guest" onclick="continueGuest()">
-			SESSION LIBRE
-			<span>Sans Historique, ni Stats</span>
-		</button>
-		
-		<div id="msg"></div>
-	</div>
+        <div class="input-group">
+            <label>CLÉ DE SÉCURITÉ</label>
+            <input type="password" id="pin" placeholder="4 CHIFFRES" inputmode="numeric" maxlength="4">
+        </div>
+        
+        <button class="btn btn-login" onclick="handleAuth()">SE CONNECTER / CRÉER</button>
+        
+        <button class="btn btn-guest" onclick="continueGuest()">SESSION LIBRE</button>
+
+        <button id="btn-install" class="btn" onclick="installApp()">
+            ✨ INSTALLER L'APPLICATION
+        </button>
+        
+        <div id="msg"></div>
+    </div>
     
     <div class="footer-info">
-        MARS 2026 • VERSION 2.0
+        MARS 2026 • VERSION 2.1
     </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
 <script>
-    // Configuration Firebase avec tes vraies clés
+// 1. ENREGISTREMENT DU SERVICE WORKER (Indispensable pour l'installation)
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('Service Worker enregistré !'))
+                .catch(err => console.log('Erreur SW:', err));
+        });
+    }
+
+    // 2. LOGIQUE PWA (INSTALLATION)
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        document.getElementById('btn-install').style.display = 'block';
+    });
+
+    async function installApp() {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+            document.getElementById('btn-install').style.display = 'none';
+        }
+        deferredPrompt = null;
+    }
+
+    // 2. CONFIGURATION FIREBASE
     const firebaseConfig = {
         apiKey: "AIzaSyD8AIw0f3L65XMZM9OBX8wDWNbSvl4ACZM",
         authDomain: "dartsclub-1aab9.firebaseapp.com",
@@ -175,16 +163,12 @@
         appId: "1:769714266505:web:ea1758db2c96702979c158"
     };
 
-    // Initialisation du SDK Compat
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
+    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
 
+    // 3. AUTHENTIFICATION
     async function handleAuth() {
         const pseudoInput = document.getElementById('pseudo');
         const pinInput = document.getElementById('pin');
-        const msg = document.getElementById('msg');
-        
         const pseudo = pseudoInput.value.trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
         const pin = pinInput.value.trim();
 
@@ -194,62 +178,33 @@
         }
 
         const userRef = firebase.database().ref('users/' + pseudo);
-
         try {
             const snapshot = await userRef.once('value');
-
             if (snapshot.exists()) {
-                const userData = snapshot.val();
-                if (userData.pin === pin) {
+                if (snapshot.val().pin === pin) {
                     showSuccess("Bon retour " + pseudo + " !");
                     login(pseudo, false);
                 } else {
-                    showError("Ce pseudo est déjà réservé.");
+                    showError("Pseudo déjà réservé.");
                 }
             } else {
-                // Création du nouveau profil
-                await userRef.set({
-                    pin: pin,
-                    createdAt: Date.now(),
-                    games: {
-                        darts_live: { top: [] }, darts_local: { top: [] },
-                        darts_ia: { top: [] }, darts_bobs: { top: [] },
-                        darts_180: { top: [] }, darts_bull: { top: [] },
-                        darts_checkout: { top: [] }
-                    }
-                });
-                showSuccess("Bienvenue au club, " + pseudo + " !");
+                await userRef.set({ pin: pin, createdAt: Date.now() });
+                showSuccess("Bienvenue " + pseudo + " !");
                 login(pseudo, false);
             }
-        } catch (error) {
-            console.error(error);
-            showError("Erreur : Vérifiez vos règles Firebase.");
-        }
+        } catch (error) { showError("Erreur de connexion."); }
     }
 
-    function continueGuest() {
-        login("INVITÉ", true);
-    }
+    function continueGuest() { login("INVITÉ", true); }
 
     function login(pseudo, isGuest) {
         localStorage.setItem('darts_pseudo', pseudo);
         localStorage.setItem('is_guest', isGuest);
-        setTimeout(() => {
-            window.location.href = 'menu.html';
-        }, 1200);
+        setTimeout(() => { window.location.href = 'menu.html'; }, 1000);
     }
 
-    function showError(text) {
-        const msg = document.getElementById('msg');
-        msg.style.color = "var(--t-color)";
-        msg.innerText = text;
-    }
-
-    function showSuccess(text) {
-        const msg = document.getElementById('msg');
-        msg.style.color = "var(--s-color)";
-        msg.innerText = text;
-    }
+    function showError(t) { const m = document.getElementById('msg'); m.style.color = "var(--t-color)"; m.innerText = t; }
+    function showSuccess(t) { const m = document.getElementById('msg'); m.style.color = "var(--s-color)"; m.innerText = t; }
 </script>
 </body>
 </html>
