@@ -151,6 +151,9 @@
         </div>
     </div>
 
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
     <script>
         const firebaseConfig = {
 			apiKey: "AIzaSyCSeggBmTOXR_XyspjuAsbhMfncp9MYUBA",
@@ -161,7 +164,17 @@
             messagingSenderId: "769714266505",
             appId: "1:769714266505:web:ea1758db2c96702979c158"
         };
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth(); // Ajoute cette ligne
+const db = firebase.database(); // Ajoute cette ligne
+
+// AJOUTE CE BLOC : Force la connexion pour valider les permissions
+auth.onAuthStateChanged(async (user) => {
+    if (!user) {
+        await auth.signInAnonymously();
+    }
+});
 
         const pseudo = localStorage.getItem('darts_pseudo') || "INVITÉ";
         const isGuest = localStorage.getItem('is_guest') === 'true' || pseudo === "INVITÉ";

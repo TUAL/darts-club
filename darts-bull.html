@@ -6,6 +6,7 @@
     <title>Darts Club - Bull Challenge</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="protection.js"></script>  
     <style>
         :root { 
             --bg: #0b0e14; --card: #161b22; --text: #f0f6fc;
@@ -120,7 +121,10 @@
             <a href="menu.html" style="color: #555; text-decoration: none; font-size: 0.75rem; text-align: center; margin-top: 5px;">RETOUR AU MENU</a>
         </div>
     </div>
-
+	
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
     <script>
         const firebaseConfig = {
 			apiKey: "AIzaSyCSeggBmTOXR_XyspjuAsbhMfncp9MYUBA",
@@ -131,8 +135,8 @@
             messagingSenderId: "769714266505",
             appId: "1:769714266505:web:ea1758db2c96702979c158"
         };
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-		
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+
 const auth = firebase.auth(); // Ajoute cette ligne
 const db = firebase.database(); // Ajoute cette ligne
 
@@ -145,13 +149,6 @@ auth.onAuthStateChanged(async (user) => {
 
         const pseudo = localStorage.getItem('darts_pseudo') || "INVITÉ";
         const isGuest = localStorage.getItem('is_guest') === 'true' || pseudo === "INVITÉ";
-		
-		
-		
-		
-		
-		
-		
 
         let totalScore = 0, totalDartsInBank = 0, turnDarts = [];
 

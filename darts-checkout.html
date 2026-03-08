@@ -6,6 +6,7 @@
     <title>Darts Club - Check-out Challenge</title>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
     <style>
         :root { 
             --bg: #0b0e14; --card: #161b22; --text: #f0f6fc;
@@ -119,9 +120,7 @@
         </div>
     </div>
 
-    <footer>
-        <a href="menu.html" class="back-btn">⬅ Menu Principal</a>
-    </footer>
+    <footer><a href="menu.html" class="back-btn">⬅ Menu Principal</a></footer>
 
     <div id="end-screen" class="overlay">
         <div class="final-box">
@@ -129,12 +128,10 @@
             <div id="final-score-display" style="font-size: 3.5rem; font-weight: 900; margin: 5px 0;">--</div>
             <p id="end-msg" style="font-size: 0.85rem; color: #fff; font-weight: bold;"></p>
         </div>
-
         <div id="top-scores" style="margin: 10px 0; width: 100%; max-width: 260px; font-size: 0.75rem;">
             <div style="color: var(--d-color); font-weight: bold; text-align: center; margin-bottom: 5px;">🏆 TOP 3 MOYENNES (PPR)</div>
             <div id="top-list">...</div>
         </div>
-
         <div class="end-btn-container">
             <button id="btn-save-only" class="end-btn btn-save" style="display:none;" onclick="handleJustSave()">ENREGISTRER LE SCORE</button>
             <button class="end-btn btn-valid" onclick="location.reload()">RECOMMENCER</button>
@@ -144,7 +141,7 @@
 
     <script>
         const firebaseConfig = {
-			apiKey: "AIzaSyCSeggBmTOXR_XyspjuAsbhMfncp9MYUBA",
+            apiKey: "AIzaSyCSeggBmTOXR_XyspjuAsbhMfncp9MYUBA",
             authDomain: "dartsclub-1aab9.firebaseapp.com",
             databaseURL: "https://dartsclub-1aab9-default-rtdb.europe-west1.firebasedatabase.app",
             projectId: "dartsclub-1aab9",
@@ -152,8 +149,12 @@
             messagingSenderId: "769714266505",
             appId: "1:769714266505:web:ea1758db2c96702979c158"
         };
-
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+
+        auth.onAuthStateChanged(async (user) => { if (!user) await auth.signInAnonymously(); });
+
         const pseudo = localStorage.getItem('darts_pseudo') || "INVITÉ";
         const isGuest = localStorage.getItem('is_guest') === 'true' || pseudo === "INVITÉ";
 
@@ -169,9 +170,7 @@
         };
 
         function initGame() {
-            do {
-                score = Math.floor(Math.random() * (170 - 61 + 1)) + 61;
-            } while (exclusions.includes(score));
+            do { score = Math.floor(Math.random() * (170 - 61 + 1)) + 61; } while (exclusions.includes(score));
             initialScore = score;
             document.getElementById('scoreDisplay').innerText = score;
         }
@@ -184,50 +183,27 @@
             document.getElementById('gameGrid').className = "grid mode-" + ['s','d','t'][m-1];
         }
 
-        function updateCounter() {
-            document.getElementById('dartCountDisplay').innerText = `${totalDartsUsed + dartsInTurn.length}/6`;
-        }
-
         function addDart(val) {
             if (dartsInTurn.length >= 3 || (totalDartsUsed + dartsInTurn.length) >= 6 || isBust || score === 0) return;
-
             let m = (val === 50 || val === 25 || val === 0) ? 1 : multiplier;
             let pts = (val === 50) ? 50 : val * m;
-            let label = (val === 50) ? "BULL" : (val === 0) ? "0" : (m === 3 ? "T" : m === 2 ? "D" : "S") + val;
-            
             const slot = document.getElementById(`d${dartsInTurn.length}`);
-
             if (score - pts < 0 || score - pts === 1 || (score - pts === 0 && m !== 2 && val !== 50)) {
-                isBust = true;
-                slot.innerText = "BUST";
-                slot.style.color = "var(--t-color)";
-                dartsInTurn.push(0);
-                updateCounter();
-                return; 
+                isBust = true; slot.innerText = "BUST"; slot.style.color = "var(--t-color)";
+                dartsInTurn.push(0); updateCounter(); return; 
             }
-
             score -= pts;
             document.getElementById('scoreDisplay').innerText = score;
-            slot.innerText = label;
+            slot.innerText = (val === 50) ? "BULL" : (val === 0) ? "0" : (m === 3 ? "T" : m === 2 ? "D" : "S") + val;
             slot.style.color = (m === 3 ? "var(--t-color)" : m === 2 ? "var(--d-color)" : "var(--s-color)");
-            
-            dartsInTurn.push(pts);
-            updateCounter();
-            setMod(1);
+            dartsInTurn.push(pts); updateCounter(); setMod(1);
         }
 
         function finishTurn() {
             if (gameOver) return;
             totalDartsUsed += dartsInTurn.length;
-            
-            if (score === 0 || totalDartsUsed >= 6) {
-                showEnd();
-                return;
-            }
-            
-            dartsInTurn = [];
-            isBust = false;
-            updateCounter();
+            if (score === 0 || totalDartsUsed >= 6) { showEnd(); return; }
+            dartsInTurn = []; isBust = false; updateCounter();
             for(let i=0; i<3; i++) {
                 const slot = document.getElementById(`d${i}`);
                 slot.innerText = "-"; slot.style.color = "#484f58";
@@ -245,73 +221,61 @@
             slot.innerText = "-"; slot.style.color = "#484f58";
         }
 
+        function updateCounter() { document.getElementById('dartCountDisplay').innerText = `${totalDartsUsed + dartsInTurn.length}/6`; }
+
         function showEnd() {
             gameOver = true;
             document.getElementById('game-screen').style.display = 'none';
             document.getElementById('end-screen').style.display = 'flex';
             const win = score === 0;
             const fs = document.getElementById('final-score-display');
-            const msg = document.getElementById('end-msg');
-            const saveBtn = document.getElementById('btn-save-only');
-
-            if (win) {
-                document.getElementById('end-title-label').innerText = "RÉUSSI !";
-                fs.innerText = initialScore; fs.style.color = "var(--s-color)";
-                msg.innerText = `Fini en ${totalDartsUsed} fléchettes.`;
-                // N'affiche le bouton que si ce n'est PAS un invité
-                if(!isGuest) saveBtn.style.display = 'block';
-            } else {
-                document.getElementById('end-title-label').innerText = "ÉCHOUÉ";
-                fs.innerText = initialScore - score; fs.style.color = "var(--t-color)";
-                msg.innerText = `Il restait ${score} pts sur ${initialScore}.`;
-                saveBtn.style.display = 'none';
-            }
+            fs.innerText = win ? initialScore : initialScore - score;
+            fs.style.color = win ? "var(--s-color)" : "var(--t-color)";
+            document.getElementById('end-msg').innerText = win ? `Fini en ${totalDartsUsed} fléchettes.` : `Il restait ${score} pts sur ${initialScore}.`;
+            if(win && !isGuest) document.getElementById('btn-save-only').style.display = 'block';
             displayTop3();
         }
 
-        function handleJustSave() {
-            if(isGuest) return; // Sécurité supplémentaire
-
-            const finalDarts = totalDartsUsed;
-            const moyenneMatch = parseFloat(((initialScore / finalDarts) * 3).toFixed(2));
-            const topRef = firebase.database().ref(`users/${pseudo}/games/checkouts/top_moyennes`);
+        async function handleJustSave() {
+            if(isGuest) return;
+            const btn = document.getElementById('btn-save-only');
+            const pseudoUpper = pseudo.toUpperCase().trim();
+            const moyenneMatch = parseFloat(((initialScore / totalDartsUsed) * 3).toFixed(2));
             
-            topRef.once('value', (snapshot) => {
-                let scores = snapshot.val() || [];
-                scores.push({ 
-                    date: new Date().toLocaleDateString('fr-FR'), 
-                    moyenne: moyenneMatch, 
-                    score_ferme: initialScore, 
-                    darts: finalDarts 
+            try {
+                btn.disabled = true; btn.innerText = "ENREGISTREMENT...";
+                const ref = db.ref(`users/${pseudoUpper}/games/checkouts/top_moyennes`);
+                const snap = await ref.once('value');
+                let topScores = snap.exists() ? (Array.isArray(snap.val()) ? snap.val() : Object.values(snap.val())) : [];
+
+                topScores.push({
+                    date: new Date().toLocaleDateString('fr-FR'),
+                    moyenne: moyenneMatch,
+                    score_ferme: initialScore,
+                    darts: totalDartsUsed
                 });
-                scores.sort((a, b) => b.moyenne - a.moyenne);
-                topRef.set(scores.slice(0, 3)).then(() => {
-                    const sb = document.getElementById('btn-save-only');
-                    sb.style.opacity = "0.5";
-                    sb.innerText = "ENREGISTRÉ !";
-                    sb.disabled = true;
-                    displayTop3();
-                });
-            });
+
+                topScores.sort((a, b) => b.moyenne - a.moyenne);
+                await ref.set(topScores.slice(0, 3));
+                
+                btn.innerText = "✅ ARCHIVÉ";
+                displayTop3();
+            } catch (e) { btn.disabled = false; btn.innerText = "ERREUR"; }
         }
 
         function displayTop3() {
             const listDiv = document.getElementById('top-list');
-            if (isGuest) { 
-                listDiv.innerHTML = "<div style='text-align:center; color:#555;'>Mode Invité</div>"; 
-                return; 
-            }
-            firebase.database().ref(`users/${pseudo}/games/checkouts/top_moyennes`).once('value', (snapshot) => {
+            if (isGuest) { listDiv.innerHTML = "Mode Invité"; return; }
+            db.ref(`users/${pseudo.toUpperCase()}/games/checkouts/top_moyennes`).once('value', (snapshot) => {
                 const scores = snapshot.val() || [];
-                if (scores.length === 0) { listDiv.innerHTML = "<div style='text-align:center; color:#555;'>Aucun record.</div>"; return; }
                 let html = "";
                 scores.forEach((s, i) => {
                     html += `<div style="display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid #222;">
                         <span>${i+1}. <b>${s.moyenne}</b> avg</span>
-                        <span style="color:#8b949e;">${s.score_ferme} en ${s.darts} fl.</span>
+                        <span style="color:#8b949e;">${s.score_ferme} (${s.darts} fl.)</span>
                     </div>`;
                 });
-                listDiv.innerHTML = html;
+                listDiv.innerHTML = html || "Aucun record.";
             });
         }
     </script>

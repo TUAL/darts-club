@@ -142,6 +142,10 @@
     </div>
 
     <script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script>
         const firebaseConfig = {
 			apiKey: "AIzaSyCSeggBmTOXR_XyspjuAsbhMfncp9MYUBA",
             authDomain: "dartsclub-1aab9.firebaseapp.com",
@@ -151,8 +155,30 @@
             messagingSenderId: "769714266505",
             appId: "1:769714266505:web:ea1758db2c96702979c158"
         };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth(); // Ajoute cette ligne
+const db = firebase.database(); // Ajoute cette ligne
+
+// AJOUTE CE BLOC : Force la connexion pour valider les permissions
+auth.onAuthStateChanged(async (user) => {
+    if (!user) {
+        await auth.signInAnonymously();
+    }
+});
+
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
         let roomName, myName, myIndex = -1, dartsInTurn = [], visualDarts = [], multiplier = 1, isBust = false;
         let gameState = { players: [], currentPlayer: 0, status: "waiting" };

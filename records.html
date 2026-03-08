@@ -105,9 +105,12 @@
 
     <footer><a href="menu.html" class="back-btn">⬅ Menu Principal</a></footer>
 
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyD8AIw0f3L65XMZM9OBX8wDWNbSvl4ACZM",
+			apiKey: "AIzaSyCSeggBmTOXR_XyspjuAsbhMfncp9MYUBA",
             authDomain: "dartsclub-1aab9.firebaseapp.com",
             databaseURL: "https://dartsclub-1aab9-default-rtdb.europe-west1.firebasedatabase.app",
             projectId: "dartsclub-1aab9",
@@ -115,9 +118,20 @@
             messagingSenderId: "769714266505",
             appId: "1:769714266505:web:ea1758db2c96702979c158"
         };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        const pseudo = (localStorage.getItem('darts_pseudo') || "INVITÉ").toUpperCase();
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth(); // Ajoute cette ligne
+const db = firebase.database(); // Ajoute cette ligne
+
+// AJOUTE CE BLOC : Force la connexion pour valider les permissions
+auth.onAuthStateChanged(async (user) => {
+    if (!user) {
+        await auth.signInAnonymously();
+    }
+});
+
+        const pseudo = localStorage.getItem('darts_pseudo') || "INVITÉ";
+        const isGuest = localStorage.getItem('is_guest') === 'true' || pseudo === "INVITÉ";
 
         const modes = [
             { id: '180', path: 'darts_180', key: 'score', sort: 'asc', unit: 'fl.', subPath: 'top' },
