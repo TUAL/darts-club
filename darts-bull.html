@@ -133,9 +133,6 @@
         };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 		
-		
-if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-
 const auth = firebase.auth(); // Ajoute cette ligne
 const db = firebase.database(); // Ajoute cette ligne
 
@@ -146,11 +143,15 @@ auth.onAuthStateChanged(async (user) => {
     }
 });
 
-
-
-
         const pseudo = localStorage.getItem('darts_pseudo') || "INVITÉ";
         const isGuest = localStorage.getItem('is_guest') === 'true' || pseudo === "INVITÉ";
+		
+		
+		
+		
+		
+		
+		
 
         let totalScore = 0, totalDartsInBank = 0, turnDarts = [];
 
