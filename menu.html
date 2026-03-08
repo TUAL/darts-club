@@ -183,12 +183,12 @@
     </div>
 
     <div class="menu-grid">
-        <a href="darts-live-501.html" class="menu-item live span-6">
+        <a href="darts-live-501.html" class="menu-item live span-6" id="btn-live">
             <div class="badge-online">ONLINE</div>
             <div class="icon">📡</div>
             <div>
                 <div class="title">Darts LIVE - 501</div>
-                <div class="desc">Compétition en temps réel via stands privés.</div>
+                <div class="desc" id="live-desc">Compétition en temps réel via stands privés.</div>
             </div>
         </a>
 
@@ -235,10 +235,10 @@
             <div class="desc"></div>
         </a>
 
-        <a href="records.html" class="menu-item nav-btn span-2">
+        <a href="records.html" class="menu-item nav-btn span-2" id="btn-records">
             <div class="icon">🏆</div>
             <div class="title">Records</div>
-            <div class="desc">Top scores</div>
+            <div class="desc" id="records-desc">Top scores</div>
         </a>
         <a href="#" class="menu-item nav-btn span-2" style="opacity: 0.3;">
             <div class="icon"></div>
@@ -263,32 +263,49 @@
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            document.getElementById('install-btn').style.display = 'flex';
         });
-
-        async function installApp() {
-            if (!deferredPrompt) return;
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') {
-                document.getElementById('install-btn').style.display = 'none';
-            }
-            deferredPrompt = null;
-        }
 
         // USER LOGIC
         document.addEventListener('DOMContentLoaded', () => {
             const pseudo = localStorage.getItem('darts_pseudo');
             const isGuest = localStorage.getItem('is_guest') === 'true';
             const display = document.getElementById('player-display');
+            
+            // Elements à verrouiller
+            const btnLive = document.getElementById('btn-live');
+            const liveDesc = document.getElementById('live-desc');
+            const btnRecords = document.getElementById('btn-records');
+            const recordsDesc = document.getElementById('records-desc');
 
             if (!pseudo) { window.location.href = 'index.html'; return; }
+            
             display.innerText = isGuest ? "SESSION LIBRE" : pseudo;
+
             if (isGuest) {
                 display.style.color = "#888";
                 document.querySelectorAll('.badge-online').forEach(b => b.style.display = 'none');
+                
+                // --- VERROUILLAGE LIVE ---
+                lockMenu(btnLive, liveDesc, "Indisponible (Invité)");
+
+                // --- VERROUILLAGE RECORDS ---
+                lockMenu(btnRecords, recordsDesc, "Membres uniquement");
             }
         });
+
+        function lockMenu(element, descElement, message) {
+            element.href = "#";
+            element.style.opacity = "0.25";
+            element.style.filter = "grayscale(1)";
+            if(descElement) {
+                descElement.innerText = message;
+                descElement.style.color = "#ff4444";
+            }
+            element.onclick = (e) => {
+                e.preventDefault();
+                alert("Cette fonctionnalité nécessite un compte joueur connecté.");
+            };
+        }
 
         function logout() {
             localStorage.clear();

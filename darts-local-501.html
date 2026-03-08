@@ -61,7 +61,6 @@
         #modD.selected { background: var(--d-color); }
         #modT.selected { background: var(--t-color); }
 
-        /* BOUTONS AVEC BARRES DE COULEURS */
         .num-btn { background: #21262d; position: relative; overflow: hidden; font-size: 1.1rem; }
         .num-btn::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 4px; background: transparent; }
         .grid.mode-s .num-btn::after { background: var(--s-color); }
@@ -130,12 +129,11 @@
         </div>
 
         <div id="stats-summary" style="margin: 10px 0; width: 100%; max-width: 260px; font-size: 0.75rem;">
-            <div style="color: var(--accent); font-weight: bold; text-align: center; margin-bottom: 5px;"></div>
             <div id="local-stats-list" style="background: var(--card); border-radius: 8px; padding: 10px; border: 1px solid #30363d;"></div>
         </div>
 
         <div class="end-btn-container" style="display: flex; flex-direction: column; width: 100%; max-width: 260px; gap: 10px; margin-top: 15px;">
-            <button id="btn-save-only" class="btn-save" style="display:none;" onclick="saveGameData()">ENREGISTRER MOYENNE</button>
+            <button id="btn-save-only" class="btn-save" style="display:none;" onclick="saveGameData()">ENREGISTRER LA VICTOIRE</button>
             <button class="btn-valid" style="height:50px; border-radius:10px;" onclick="location.reload()">REJOUER</button>
             <a href="menu.html" style="color: #555; text-decoration: none; font-size: 0.75rem; text-align: center; margin-top:5px;">RETOUR AU MENU</a>
         </div>
@@ -154,6 +152,7 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 
         const currentPseudo = localStorage.getItem('darts_pseudo');
+        const isGuestSession = localStorage.getItem('is_guest') === 'true'; // Détection invité
         let players = [], currentPlayer = 0, turnHistory = [];
         let dartsInTurn = [], visualDarts = [], multiplier = 1, isBust = false;
 
@@ -231,7 +230,6 @@
             let ptsTurn = isBust ? 0 : dartsInTurn.reduce((a,b)=>a+b, 0);
             p.lastTurn = isBust ? "BUST" : visualDarts.join(' ');
             turnHistory.push({ playerIdx: currentPlayer, points: ptsTurn, wasBust: isBust });
-            
             p.totalDarts += isBust ? 3 : dartsInTurn.length;
             p.totalPoints += ptsTurn;
             currentPlayer = (currentPlayer + 1) % players.length; 
@@ -279,112 +277,89 @@
             setMod(1); document.getElementById('btn-validate').disabled = true;
         }
 
-function showVictory(name) {
-    document.getElementById('game-screen').style.display = 'none';
-    document.getElementById('end-screen').style.display = 'flex';
-    
-    const btnSave = document.getElementById('btn-save-only');
-    document.getElementById('winner-display').innerText = name + " GAGNE LA PARTIE !";
+        function showVictory(name) {
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('end-screen').style.display = 'flex';
+            
+            const btnSave = document.getElementById('btn-save-only');
+            document.getElementById('winner-display').innerText = name + " GAGNE LA PARTIE !";
 
-    // Affiche le bouton si c'est une partie Solo OU si c'est du Multi (pour que l'ami puisse cliquer)
-    if (players.length >= 1) {
-        btnSave.style.display = 'block';
-        btnSave.innerText = "ENREGISTRER LA VICTOIRE";
-        btnSave.disabled = false;
-        btnSave.style.opacity = "1";
-    }
-
-    // Affichage de la liste des scores finale
-    let html = "";
-    players.forEach(p => {
-        let avg = p.totalDarts > 0 ? ((p.totalPoints / p.totalDarts) * 3).toFixed(1) : "0.0";
-        html += `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #21262d; color:${p.name === name ? 'var(--s-color)' : '#fff'}">
-            <span>${p.name}</span><span><b>${avg}</b> <small>AVG</small> (${p.totalDarts} FL.)</span>
-        </div>`;
-    });
-    document.getElementById('local-stats-list').innerHTML = html;
-}
-
-async function saveGameData() {
-    const btn = document.getElementById('btn-save-only');
-    const date = new Date().toLocaleDateString('fr-FR');
-    
-    // Identification du vainqueur
-    const winner = players.find(p => p.score === 0) || players[currentPlayer];
-    const avg = parseFloat(((winner.totalPoints / winner.totalDarts) * 3).toFixed(2));
-    const darts = winner.totalDarts;
-    
-    // Ton pseudo stocké localement
-    const mainUser = localStorage.getItem('darts_pseudo') ? localStorage.getItem('darts_pseudo').toUpperCase() : null;
-
-    // --- CAS 1 : C'EST TOI (USER principal) ---
-    if (mainUser && winner.name === mainUser) {
-        await processSave(winner.name, avg, date, darts, "user");
-        finalizeButton(btn);
-        return;
-    }
-
-    // --- CAS 2 & 3 : UN AUTRE JOUEUR GAGNE ---
-    // On vérifie d'abord si le nom existe dans la branche "users"
-    const userSnap = await firebase.database().ref(`users/${winner.name}`).once('value');
-    
-    if (userSnap.exists()) {
-        // C'EST UN AMI AVEC COMPTE -> On demande son PIN
-        const passInput = prompt(`Félicitations ${winner.name} !\nEntre ton code PIN pour ton profil joueur :`);
-        
-        if (passInput) {
-            const firebasePin = userSnap.val().pin;
-            if (firebasePin && String(firebasePin).trim() === String(passInput).trim()) {
-                await processSave(winner.name, avg, date, darts, "user");
-                alert("✅ Match enregistré sur ton profil officiel !");
-                finalizeButton(btn);
+            // MASQUER LE BOUTON SI SESSION LIBRE / INVITÉ
+            if (players.length >= 1 && !isGuestSession) {
+                btnSave.style.display = 'block';
+                btnSave.disabled = false;
+                btnSave.style.opacity = "1";
             } else {
-                alert("❌ Code PIN incorrect. Enregistrement annulé.");
+                btnSave.style.display = 'none';
+            }
+
+            let html = "";
+            players.forEach(p => {
+                let avg = p.totalDarts > 0 ? ((p.totalPoints / p.totalDarts) * 3).toFixed(1) : "0.0";
+                html += `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #21262d; color:${p.name === name ? 'var(--s-color)' : '#fff'}">
+                    <span>${p.name}</span><span><b>${avg}</b> <small>AVG</small> (${p.totalDarts} FL.)</span>
+                </div>`;
+            });
+            document.getElementById('local-stats-list').innerHTML = html;
+        }
+
+        async function saveGameData() {
+            const btn = document.getElementById('btn-save-only');
+            const date = new Date().toLocaleDateString('fr-FR');
+            const winner = players.find(p => p.score === 0) || players[currentPlayer];
+            const avg = parseFloat(((winner.totalPoints / winner.totalDarts) * 3).toFixed(2));
+            const darts = winner.totalDarts;
+            const mainUser = localStorage.getItem('darts_pseudo') ? localStorage.getItem('darts_pseudo').toUpperCase() : null;
+
+            if (mainUser && winner.name === mainUser) {
+                await processSave(winner.name, avg, date, darts, "user");
+                finalizeButton(btn);
+                return;
+            }
+
+            const userSnap = await firebase.database().ref(`users/${winner.name}`).once('value');
+            if (userSnap.exists()) {
+                const passInput = prompt(`Félicitations ${winner.name} !\nEntre ton code PIN :`);
+                if (passInput && String(userSnap.val().pin).trim() === String(passInput).trim()) {
+                    await processSave(winner.name, avg, date, darts, "user");
+                    alert("✅ Match enregistré !");
+                    finalizeButton(btn);
+                } else if(passInput) alert("❌ Code PIN incorrect.");
+            } else {
+                await processSave(winner.name, avg, date, darts, "invite");
+                alert(`Victoire de ${winner.name} enregistrée (INVITÉ).`);
+                finalizeButton(btn);
             }
         }
-    } else {
-        // C'EST UN INVITÉ SANS COMPTE -> Direction la branche "invites"
-        // (Optionnel : tu peux demander confirmation ou enregistrer direct)
-        await processSave(winner.name, avg, date, darts, "invite");
-        alert(`Victoire de ${winner.name} enregistrée dans la base INVITES.`);
-        finalizeButton(btn);
-    }
-}
 
-// Fonction de traitement universelle
-async function processSave(name, avg, date, darts, type) {
-    try {
-        if (type === "user") {
-            const ref = firebase.database().ref(`users/${name}/games/local_multi`);
-            // Mise à jour Top 3
-            const snap = await ref.child('top').once('value');
-            let top = snap.val() || [];
-            top.push({ avg: avg, darts: darts, date: date });
-            top.sort((a, b) => b.avg - a.avg);
-            await ref.child('top').set(top.slice(0, 3));
-            // +1 Victoire
-            await ref.child('stats/wins').transaction(c => (c || 0) + 1);
-        } else {
-            // Utilise "invites" en minuscules pour correspondre à tes Rules
-            const refInv = firebase.database().ref(`invites/${name}/stats`);
-            const snapInv = await refInv.once('value');
-            let d = snapInv.val() || { wins: 0, avg_max: 0 };
-            await refInv.update({
-                wins: (d.wins || 0) + 1,
-                avg_max: Math.max((d.avg_max || 0), avg),
-                last_win: date
-            });
+        async function processSave(name, avg, date, darts, type) {
+            try {
+                if (type === "user") {
+                    const ref = firebase.database().ref(`users/${name}/games/local_multi`);
+                    const snap = await ref.child('top').once('value');
+                    let top = snap.val() || [];
+                    top.push({ avg: avg, darts: darts, date: date });
+                    top.sort((a, b) => b.avg - a.avg);
+                    await ref.child('top').set(top.slice(0, 3));
+                    await ref.child('stats/wins').transaction(c => (c || 0) + 1);
+                } else {
+                    const refInv = firebase.database().ref(`invites/${name}/stats`);
+                    const snapInv = await refInv.once('value');
+                    let d = snapInv.val() || { wins: 0, avg_max: 0 };
+                    await refInv.update({
+                        wins: (d.wins || 0) + 1,
+                        avg_max: Math.max((d.avg_max || 0), avg),
+                        last_win: date
+                    });
+                }
+            } catch (e) { console.error(e); }
         }
-    } catch (e) {
-        console.error("Erreur Firebase:", e);
-    }
-}
 
-function finalizeButton(btn) {
-    btn.innerText = "✅ RÉSULTATS ARCHIVÉS";
-    btn.style.background = "#238636";
-    btn.disabled = true;
-}
+        function finalizeButton(btn) {
+            btn.innerText = "✅ RÉSULTATS ARCHIVÉS";
+            btn.style.background = "#238636";
+            btn.disabled = true;
+        }
     </script>
 </body>
 </html>
