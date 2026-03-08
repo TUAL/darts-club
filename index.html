@@ -127,67 +127,79 @@
 <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
 
 <script>
-    // 1. FIREBASE CONFIG
-    const firebaseConfig = {
-        apiKey: "AIzaSyD8AIw0f3L65XMZM9OBX8wDWNbSvl4ACZM",
-        authDomain: "dartsclub-1aab9.firebaseapp.com",
-        databaseURL: "https://dartsclub-1aab9-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "dartsclub-1aab9",
-        storageBucket: "dartsclub-1aab9.firebasestorage.app",
-        messagingSenderId: "769714266505",
-        appId: "1:769714266505:web:ea1758db2c96702979c158"
-    };
+// 3. CONFIGURATION FIREBASE (Vérifiée avec vos images)
+const firebaseConfig = {
+    apiKey: "AIzaSyD8AIw0f3L65XMZM9OBX8wDWNbSvl4ACZM",
+    authDomain: "dartsclub-1aab9.firebaseapp.com",
+    databaseURL: "https://dartsclub-1aab9-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "dartsclub-1aab9",
+    storageBucket: "dartsclub-1aab9.firebasestorage.app",
+    messagingSenderId: "769714266505",
+    appId: "1:769714266505:web:ea1758db2c96702979c158"
+};
 
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.database();
+// Initialisation sécurisée
+if (!firebase.apps.length) { 
+    firebase.initializeApp(firebaseConfig); 
+}
+const auth = firebase.auth();
+const db = firebase.database();
 
-    // 2. AUTHENTIFICATION
-    async function handleAuth() {
-        const btn = document.getElementById('auth-submit');
-        const pseudo = document.getElementById('pseudo').value.trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
-        const pin = document.getElementById('pin').value.trim();
+// 4. AUTHENTIFICATION SÉCURISÉE
+async function handleAuth() {
+    const btn = document.getElementById('auth-submit');
+    const pseudo = document.getElementById('pseudo').value.trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
+    const pin = document.getElementById('pin').value.trim();
+    const msg = document.getElementById('msg');
 
-        if (pseudo.length < 2 || pin.length !== 4) {
-            showError("Pseudo (min 2) et Code (4 chiffres) requis.");
-            return;
-        }
-
-        btn.disabled = true;
-        showSuccess("Vérification...");
-
-        try {
-            // Force la connexion anonyme si non connecté pour passer les règles de sécurité
-            if (!auth.currentUser) await auth.signInAnonymously();
-            
-            const userRef = db.ref('users/' + pseudo);
-            const snapshot = await userRef.once('value');
-
-            if (snapshot.exists()) {
-                const userData = snapshot.val();
-                if (String(userData.pin) === String(pin)) {
-                    showSuccess("Heureux de vous revoir !");
-                    login(pseudo, false);
-                } else {
-                    showError("Code PIN incorrect pour ce pseudo.");
-                    btn.disabled = false;
-                }
-            } else {
-                // Création auto
-                await userRef.set({ 
-                    pin: pin, 
-                    createdAt: Date.now(),
-                    stats: { wins: 0, games_played: 0 }
-                });
-                showSuccess("Profil créé avec succès !");
-                login(pseudo, false);
-            }
-        } catch (error) { 
-            console.error(error);
-            showError("Erreur : Vérifiez vos règles Firebase Database."); 
-            btn.disabled = false;
-        }
+    if (pseudo.length < 2 || pin.length !== 4) {
+        showError("Pseudo (min 2) et Code (4 chiffres) requis.");
+        return;
     }
+
+    try {
+        // ÉTAPE CRUCIALE : On force la connexion AVANT de toucher à la base
+        // Cela valide le "auth != null" de vos règles Firebase
+        if (!auth.currentUser) {
+            await auth.signInAnonymously();
+        }
+        
+        const userRef = db.ref('users/' + pseudo);
+        const snapshot = await userRef.once('value');
+
+        if (snapshot.exists()) {
+            const userData = snapshot.val();
+            if (String(userData.pin) === String(pin)) {
+                showSuccess("Bon retour " + pseudo + " !");
+                login(pseudo, false);
+            } else {
+                showError("PIN incorrect pour ce pseudo.");
+            }
+        } else {
+            // Création si le pseudo est libre
+            await userRef.set({ 
+                pin: pin, 
+                createdAt: Date.now(),
+                stats: { wins: 0, games_played: 0 }
+            });
+            showSuccess("Profil créé ! Bienvenue " + pseudo);
+            login(pseudo, false);
+        }
+    } catch (error) { 
+        console.error("Erreur détaillée:", error);
+        // Si ça bloque encore ici, c'est que l'URL ou le domaine bloquent
+        showError("Erreur de connexion. Vérifiez la console (F12)."); 
+    }
+}
+
+
+
+
+
+
+
+
+
 
     function continueGuest() { login("INVITÉ", true); }
 
