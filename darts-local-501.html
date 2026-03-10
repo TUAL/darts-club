@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Darts Club - Local</title>
+    <title>Darts Club - Local Premium</title>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
     <style>
         :root { 
             --bg: #0b0e14; --card: #161b22; --text: #f0f6fc;
-            --s-color: #238636; --d-color: #d29922; --t-color: #da3633;
-            --accent: #58a6ff;
+            --accent: #58a6ff; --bg-dark: #121916;
+            --accent-orange: #f39c12; --accent-green: #2ecc71; --accent-red: #e74c3c;
+            --mode-color: var(--accent);
         }
         * { box-sizing: border-box; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
         
@@ -23,361 +24,437 @@
             position: fixed; width: 100%;
         }
 
-        /* SETUP SCREEN */
+        /* --- SETUP (Interface 1) --- */
         #setup-screen { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; }
         .setup-box { width: 100%; max-width: 320px; text-align: center; }
         .player-input-group { background: var(--card); padding: 8px; border-radius: 12px; border: 1px solid #30363d; display: flex; gap: 8px; margin-bottom: 15px; }
         input { flex: 1; background: transparent; border: none; color: white; padding: 10px; font-size: 1rem; outline: none; }
-        .btn-add { background: var(--s-color); color: #fff; border: none; width: 45px; border-radius: 8px; font-weight: 900; }
-        .suggest-p { background: #21262d; border: 1px dashed var(--accent); color: var(--accent); padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 0.8rem; cursor: pointer; display: none; }
+        .btn-add { background: #238636; color: #fff; border: none; width: 45px; border-radius: 8px; font-weight: 900; }
         .player-tag { background: var(--card); padding: 12px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; border-left: 4px solid var(--accent); font-weight: bold; }
         .btn-start { background: var(--accent); color: #fff; padding: 15px; border-radius: 12px; font-weight: bold; border: none; width: 100%; margin-top: 10px; }
+        .suggest-p { background: #21262d; border: 1px dashed var(--accent); color: var(--accent); padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 0.8rem; cursor: pointer; display: none; }
 
-        /* GAME SCREEN */
-        #game-screen { display: none; height: 100dvh; flex-direction: column; padding: 8px; padding-bottom: 60px; gap: 4px; }
-        .app-brand { height: 30px; display: flex; align-items: center; justify-content: center; gap: 8px; flex-shrink: 0; }
-        .app-title { font-size: 0.75rem; font-weight: 900; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; }
+        /* --- JEU (Interface 2) --- */
+        #game-screen { display: none; height: 100dvh; flex-direction: column; background: #000; }
+        .top-bar { height: 50px; background: #1a1a1a; display: flex; align-items: center; padding: 0 15px; flex-shrink: 0; border-bottom: 1px solid #333; }
+        .back-icon { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 1px solid #444; border-radius: 4px; cursor: pointer; }
+        .top-title { flex: 1; text-align: center; font-size: 0.75rem; font-weight: 900; letter-spacing: 1px; color: #ccc; }
 
-        .header { height: 95px; display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 6px; flex-shrink: 0; }
-        .p-card { background: var(--card); border-radius: 8px; border: 1px solid #30363d; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.3s; padding: 5px; opacity: 0.4; }
-        .p-card.active { border-color: var(--accent); border-width: 2px; opacity: 1; }
-        .p-name { font-size: 0.65rem; color: #8b949e; text-transform: uppercase; font-weight: 900; }
-        .score-val { font-size: 1.8rem; font-weight: 900; color: #fff; line-height: 1; margin: 2px 0; }
-        .avg-label { font-size: 0.55rem; color: var(--accent); font-weight: bold; }
-        .last-turn-label { font-size: 0.55rem; color: #6e7681; margin-top: 2px; height: 12px; }
-
-        .turn-tracking { display: flex; justify-content: center; gap: 6px; height: 35px; flex-shrink: 0; margin: 5px 0; }
-        .dart-slot { width: 30%; background: #010409; border: 1px solid #30363d; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; color: #484f58; }
-
-        .grid { flex: 1; display: flex; flex-direction: column; gap: 4px; }
-        .mod-row, .num-grid, .special-row, .action-row { display: grid; gap: 4px; }
-        .mod-row { grid-template-columns: repeat(3, 1fr); height: 50px; }
-        .num-grid { grid-template-columns: repeat(4, 1fr); flex: 1; }
-        .special-row { grid-template-columns: repeat(3, 1fr); height: 55px; }
-        .action-row { grid-template-columns: 1fr 2fr 1fr; height: 65px; }
-
-        button { border: none; border-radius: 8px; font-weight: 700; color: #fff; cursor: pointer; }
-        .btn-mod { background: #21262d; border: 1px solid #30363d; }
-        #modS.selected { background: var(--s-color); }
-        #modD.selected { background: var(--d-color); }
-        #modT.selected { background: var(--t-color); }
-
-        .num-btn { background: #21262d; position: relative; overflow: hidden; font-size: 1.1rem; }
-        .num-btn::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 4px; background: transparent; }
-        .grid.mode-s .num-btn::after { background: var(--s-color); }
-        .grid.mode-d .num-btn::after { background: var(--d-color); }
-        .grid.mode-t .num-btn::after { background: var(--t-color); }
+        .score-section { height: 45dvh; display: flex; flex-direction: column; background: var(--bg-dark); padding: 10px 0; }
+        .header-scores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0 10px; flex: 1; }
         
-        .btn-valid { background: #1a2a3a; color: #484f58; border: 1px solid #30363d; font-size: 0.7rem; text-transform: uppercase; }
-        .btn-valid.ready { background: var(--accent) !important; color: white; }
-        .btn-del { background: #21262d; color: #8b949e; font-size: 1.4rem; }
-        .btn-undo-all { background: #161b22; color: #8b949e; font-size: 0.55rem; border: 1px solid #30363d; line-height: 1.2; text-transform: uppercase; }
+        .p-column { 
+            background: #1a1a1a; border: 3px solid #333; border-radius: 15px; 
+            display: flex; flex-direction: column; align-items: center; justify-content: space-around;
+            padding: 10px 5px; opacity: 0.4; transition: 0.3s; color: #fff;
+        }
+        .p-column.active-0 { background: var(--accent-orange); border-color: #fff; opacity: 1; color: #000; }
+        .p-column.active-1 { background: var(--accent-green); border-color: #fff; opacity: 1; color: #000; }
+        .p-column.active-2 { background: var(--accent-red); border-color: #fff; opacity: 1; color: #000; }
+        
+        .p-name { font-size: 0.85rem; font-weight: 900; text-transform: uppercase; }
+        .p-score { font-size: 3.2rem; font-weight: 900; line-height: 1; margin: 5px 0; }
+        .p-last-v { font-size: 0.65rem; font-weight: bold; margin-bottom: 5px; opacity: 0.9; }
+        .p-stats { font-size: 0.6rem; font-weight: 900; width: 90%; }
 
-        footer { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--bg); padding: 8px 0; text-align: center; border-top: 1px solid #161b22; }
-        .back-btn { color: #888; text-decoration: none; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; padding: 4px 12px; border: 1px solid #333; border-radius: 20px; }
+        .turn-announcer { height: 35px; display: flex; align-items: center; justify-content: center; color: var(--accent-orange); font-weight: 900; font-size: 0.8rem; text-transform: uppercase; }
 
+        .input-info { height: 75px; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0 15px; background: #000; }
+        .dart-val { 
+            width: 70px; height: 55px; background: white; color: black; 
+            border-radius: 30px; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; font-weight: 900; font-size: 1.1rem;
+        }
+        .dart-val small { font-size: 0.55rem; font-weight: bold; color: #555; }
+        
+        .btn-valid-darts { flex: 1; height: 55px; background: #222; border: none; color: #444; border-radius: 30px; font-weight: 900; font-size: 0.85rem; }
+        .btn-valid-darts.ready { color: #fff; cursor: pointer; }
+
+        /* --- CLAVIER --- */
+        .keyboard { 
+            height: 55dvh; background: #1a1a1a; display: flex; flex-direction: column; padding: 2px;
+            border-top: 4px solid var(--mode-color); transition: border-color 0.2s;
+        }
+        .mod-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: #333; }
+        .btn-m { background: #1a1a1a; color: #888; padding: 15px; border: none; font-weight: 900; font-size: 0.9rem; }
+        
+        #m1.active { color: #fff; border-bottom: 4px solid var(--accent); }
+        #m2.active { color: #fff; border-bottom: 4px solid var(--accent-orange); }
+        #m3.active { color: #fff; border-bottom: 4px solid var(--accent-red); }
+
+        .num-grid { display: grid; grid-template-columns: repeat(5, 1fr); flex: 1; gap: 1px; background: #333; }
+        .key { background: #121916; border: none; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .key span { font-size: 1.4rem; font-weight: 900; }
+        .key small { font-size: 0.75rem; color: #555; font-weight: 900; display: block; min-height: 1.2em; } 
+
+        .special-row { display: grid; grid-template-columns: 1fr 1.2fr 1.2fr 1.2fr; height: 70px; gap: 1px; background: #333; }
+        .sp-key { background: #121916; color: white; border: none; font-weight: bold; font-size: 0.8rem; }
+
+        /* --- OVERLAY VICTOIRE (Interface 3) --- */
         .overlay { display:none; position:fixed; inset:0; background: rgba(13,17,23,0.98); z-index:999; flex-direction:column; justify-content:center; align-items:center; padding: 20px; }
         .final-box { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid #30363d; width: 100%; max-width: 300px; text-align: center; }
-        .btn-save { background: var(--accent) !important; font-size: 0.85rem; font-weight: 800; border-radius: 10px; height: 50px; width: 100%; margin: 10px 0; color: white; }
+        .btn-save { background: var(--accent) !important; font-size: 0.85rem; font-weight: 800; border-radius: 10px; height: 50px; width: 100%; margin: 10px 0; color: white; border:none; }
     </style>
 </head>
 <body>
 
     <div id="setup-screen">
         <div class="setup-box">
-            <h1 style="color:var(--accent); font-size:1.2rem; letter-spacing:2px; margin-bottom:20px;">🎯 MODE LOCAL</h1>
+            <h1 style="color:var(--accent); font-size:1.2rem; letter-spacing:2px; margin-bottom:20px;">🎯 DARTS CLUB</h1>
             <div id="suggest-box" class="suggest-p" onclick="addSuggestedPlayer()">AJOUTER : <b id="suggest-name"></b> ?</div>
             <div class="player-input-group">
                 <input type="text" id="pName" placeholder="NOM DU JOUEUR..." autocomplete="off">
                 <button class="btn-add" onclick="addPlayerToGame()">+</button>
             </div>
             <div id="pList"></div>
-            <button class="btn-start" id="startBtn" onclick="startGame()" style="display: none;">LANCER LA PARTIE</button>
+            <button class="btn-start" id="startBtn" onclick="startGame()" style="display: none;">COMMENCER LA PARTIE</button>
         </div>
     </div>
 
     <div id="game-screen">
-        <div class="app-brand"><span class="app-title">DARTS CLUB — LOCAL</span></div>
-        <div class="header" id="gamePlayers"></div>
-        <div class="turn-tracking"><div class="dart-slot" id="d0">-</div><div class="dart-slot" id="d1">-</div><div class="dart-slot" id="d2">-</div></div>
-        <div class="grid mode-s" id="gameGrid">
+        <div class="top-bar">
+            <div class="back-icon" onclick="if(confirm('Quitter ?')) location.reload()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            </div>
+            <div class="top-title">501 - MATCH LOCAL</div>
+        </div>
+
+        <div class="score-section">
+            <div class="header-scores" id="gamePlayers"></div>
+            <div class="turn-announcer" id="turn-txt">...</div>
+        </div>
+        
+        <div class="input-info">
+            <div class="dart-val" id="v0">--<small>-</small></div>
+            <div class="dart-val" id="v1">--<small>-</small></div>
+            <div class="dart-val" id="v2">--<small>-</small></div>
+            <button class="btn-valid-darts" id="btn-validate" onclick="finishTurn()" disabled>VALIDER</button>
+        </div>
+
+        <div class="keyboard" id="kb-frame">
             <div class="mod-row">
-                <button class="btn-mod selected" id="modS" onclick="setMod(1)">S</button>
-                <button class="btn-mod" id="modD" onclick="setMod(2)">D</button>
-                <button class="btn-mod" id="modT" onclick="setMod(3)">T</button>
+                <button class="btn-m active" id="m1" onclick="setMod(1)">SIMPLE</button>
+                <button class="btn-m" id="m2" onclick="setMod(2)">DOUBLE</button>
+                <button class="btn-m" id="m3" onclick="setMod(3)">TRIPLE</button>
             </div>
-            <div id="numPad" class="num-grid"></div>
+            <div id="pad" class="num-grid"></div>
             <div class="special-row">
-                <button class="num-btn" onclick="addDart(0)">0</button>
-                <button class="num-btn" onclick="addDart(25)">25</button>
-                <button class="num-btn" onclick="addDart(50)">BULL</button>
-            </div>
-            <div class="action-row">
-                <button class="btn-undo-all" onclick="undoLastTurn()">ANNULER<br>VOLÉE<br>PRÉCÉDENTE</button>
-                <button class="btn-valid" id="btn-validate" onclick="finishTurn()" disabled>VALIDER VOLÉE</button>
-                <button class="btn-del" onclick="undoLastDart()">⌫</button>
+                <button class="sp-key" onclick="undoLastDart()" style="font-size:1.5rem;">↩</button>
+                <button class="sp-key" onclick="addDart(0)">Out<br>0</button>
+                <button class="sp-key" onclick="addDart(25)">25</button>
+                <button class="sp-key" onclick="addDart(50)">BULL</button>
             </div>
         </div>
     </div>
-
-    <footer id="main-footer"><a href="menu.html" class="back-btn">⬅ Menu Principal</a></footer>
 
     <div id="end-screen" class="overlay">
         <div class="final-box">
             <h1 style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;">MATCH TERMINÉ</h1>
-            <div id="final-result" style="font-size: 2rem; font-weight: 900; margin: 5px 0; color:var(--s-color);">VICTOIRE</div>
+            <div id="final-result" style="font-size: 2rem; font-weight: 900; margin: 5px 0; color:var(--accent-green);">VICTOIRE</div>
             <p id="winner-display" style="font-size: 0.8rem; color: #fff; margin-bottom:15px; font-weight:bold;"></p>
-        </div>
-
-        <div id="stats-summary" style="margin: 10px 0; width: 100%; max-width: 260px; font-size: 0.75rem;">
-            <div id="local-stats-list" style="background: var(--card); border-radius: 8px; padding: 10px; border: 1px solid #30363d;"></div>
-        </div>
-
-        <div class="end-btn-container" style="display: flex; flex-direction: column; width: 100%; max-width: 260px; gap: 10px; margin-top: 15px;">
+            <div id="local-stats-list" style="background: #0b1410; border-radius: 8px; padding: 10px; border: 1px solid #30363d; text-align: left; font-size: 0.75rem;"></div>
             <button id="btn-save-only" class="btn-save" style="display:none;" onclick="saveGameData()">ENREGISTRER LA VICTOIRE</button>
-            <button class="btn-valid ready" style="height:50px; border-radius:10px;" onclick="location.reload()">REJOUER</button>
-            <a href="menu.html" style="color: #555; text-decoration: none; font-size: 0.75rem; text-align: center; margin-top:5px;">RETOUR AU MENU</a>
+            <button class="btn-save" style="background:#30363d !important;" onclick="location.reload()">REJOUER</button>
         </div>
     </div>
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyCSeggBmTOXR_XyspjuAsbhMfncp9MYUBA",
-            authDomain: "dartsclub-1aab9.firebaseapp.com",
-            databaseURL: "https://dartsclub-1aab9-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "dartsclub-1aab9",
-            storageBucket: "dartsclub-1aab9.firebasestorage.app",
-            messagingSenderId: "769714266505",
-            appId: "1:769714266505:web:ea1758db2c96702979c158"
-        };
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.database();
+<script>
+    // --- CONFIGURATION FIREBASE ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyCSeggBmTOXR_XyspjuAsbhMfncp9MYUBA",
+        authDomain: "dartsclub-1aab9.firebaseapp.com",
+        databaseURL: "https://dartsclub-1aab9-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "dartsclub-1aab9",
+        storageBucket: "dartsclub-1aab9.firebasestorage.app",
+        messagingSenderId: "769714266505",
+        appId: "1:769714266505:web:ea1758db2c96702979c158"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
 
-        auth.onAuthStateChanged(async (user) => {
-            if (!user) await auth.signInAnonymously();
-        });
+    auth.onAuthStateChanged(async (user) => { if (!user) await auth.signInAnonymously(); });
 
-        const currentPseudo = localStorage.getItem('darts_pseudo');
-        const isGuestSession = localStorage.getItem('is_guest') === 'true';
-        let players = [], currentPlayer = 0, turnHistory = [];
-        let dartsInTurn = [], visualDarts = [], multiplier = 1, isBust = false;
+    // --- VARIABLES GLOBALES ---
+    const currentPseudo = localStorage.getItem('darts_pseudo');
+    const isGuestSession = localStorage.getItem('is_guest') === 'true';
+    let players = [], currentPlayer = 0, dartsInTurn = [], visualDarts = [], multiplier = 1, isBust = false;
+    let scoreAtStartOfTurn = 501;
+    let retoursRestants = 0; // Compteur de retours arrière
 
-        window.onload = () => {
-            if(currentPseudo && currentPseudo !== "INVITÉ") {
-                document.getElementById('suggest-box').style.display = 'block';
-                document.getElementById('suggest-name').innerText = currentPseudo;
-            }
-            const pad = document.getElementById('numPad'); 
-            pad.innerHTML = "";
-            for(let i=1; i<=20; i++) pad.innerHTML += `<button class="num-btn" onclick="addDart(${i})">${i}</button>`;
-        };
+    // --- SETUP ---
+    window.onload = () => {
+        if(currentPseudo && currentPseudo !== "INVITÉ") {
+            document.getElementById('suggest-box').style.display = 'block';
+            document.getElementById('suggest-name').innerText = currentPseudo;
+        }
+        renderPad();
+    };
 
-        function addSuggestedPlayer() { addPlayerToGame(currentPseudo); document.getElementById('suggest-box').style.display = 'none'; }
+    function addSuggestedPlayer() { addPlayerToGame(currentPseudo); document.getElementById('suggest-box').style.display = 'none'; }
 
-        function addPlayerToGame(forcedName = null) {
-            const input = document.getElementById('pName');
-            const name = (forcedName || input.value).trim().toUpperCase();
-            if(name && players.length < 4) {
-                players.push({ name: name, score: 501, totalDarts: 0, totalPoints: 0, lastTurn: "" });
-                input.value = ""; renderSetup();
-            }
+    function addPlayerToGame(forcedName = null) {
+        const input = document.getElementById('pName');
+        const name = (forcedName || input.value).trim().toUpperCase();
+        if(name && players.length < 3) {
+            players.push({ 
+                name: name, score: 501, totalDarts: 0, lastV: "---",
+                scoreAvantTour: 501, derniersPoints: [], derniersVisuels: [] 
+            });
+            input.value = ""; renderSetup();
+        }
+    }
+
+    function renderSetup() {
+        document.getElementById('pList').innerHTML = players.map((p, i) => `<div class="player-tag"><span>${p.name}</span><span onclick="players.splice(${i},1);renderSetup()" style="color:var(--accent-red); cursor:pointer">✕</span></div>`).join('');
+        document.getElementById('startBtn').style.display = players.length > 0 ? 'block' : 'none';
+    }
+
+    // --- LOGIQUE DE JEU ---
+    function startGame() {
+        document.getElementById('setup-screen').style.display = 'none';
+        document.getElementById('game-screen').style.display = 'flex';
+        scoreAtStartOfTurn = 501;
+        retoursRestants = players.length; // Limite initiale = nombre de joueurs
+        renderPad();
+        syncUI();
+    }
+
+    function renderPad() {
+        const pad = document.getElementById('pad');
+        pad.innerHTML = "";
+        for(let i=1; i<=20; i++) {
+            let sub = (multiplier > 1) ? (i * multiplier) : ""; 
+            pad.innerHTML += `<button class="key" onclick="addDart(${i})"><span>${i}</span><small>${sub}</small></button>`;
+        }
+    }
+
+    function setMod(m) {
+        multiplier = m;
+        document.querySelectorAll('.btn-m').forEach(b => b.classList.remove('active'));
+        document.getElementById('m'+m).classList.add('active');
+        const colors = ["", "var(--accent)", "var(--accent-orange)", "var(--accent-red)"];
+        document.documentElement.style.setProperty('--mode-color', colors[m]);
+        renderPad();
+    }
+
+    function addDart(val) {
+        if (dartsInTurn.length >= 3 || isBust) return;
+        let m = (val === 50 || val === 25 || val === 0) ? 1 : multiplier;
+        let pts = val * m;
+        let p = players[currentPlayer];
+
+        if (p.score - pts < 0 || p.score - pts === 1 || (p.score - pts === 0 && m !== 2 && val !== 50)) {
+            isBust = true;
+            p.score = scoreAtStartOfTurn;
+            visualDarts.push("BUST");
+            dartsInTurn.push(0);
+        } else {
+            p.score -= pts;
+            let label = (val === 50) ? "BULL" : (val === 25) ? "B25" : (val === 0) ? "Out" : (m === 3 ? "T" : m === 2 ? "D" : "S") + val;
+            visualDarts.push(label);
+            dartsInTurn.push(pts);
+        }
+        setMod(1);
+        updateVisuals();
+        syncUI();
+    }
+
+    function updateVisuals() {
+        const btn = document.getElementById('btn-validate');
+        const colors = ["var(--accent-orange)", "var(--accent-green)", "var(--accent-red)"];
+        
+        for(let i=0; i<3; i++) {
+            const el = document.getElementById('v'+i);
+            el.innerHTML = visualDarts[i] ? `${dartsInTurn[i]}<small>${visualDarts[i]}</small>` : `--<small>-</small>`;
         }
 
-        function renderSetup() {
-            const list = document.getElementById('pList');
-            list.innerHTML = players.map((p, i) => `<div class="player-tag"><span>${p.name}</span><span onclick="players.splice(${i},1);renderSetup()" style="color:var(--t-color); cursor:pointer">✕</span></div>`).join('');
-            document.getElementById('startBtn').style.display = players.length > 0 ? 'block' : 'none';
+        if(dartsInTurn.length === 3 || isBust || players[currentPlayer].score === 0) {
+            btn.classList.add('ready');
+            btn.style.background = colors[currentPlayer];
+            btn.style.color = "#000";
+            btn.disabled = false;
+        } else {
+            btn.classList.remove('ready');
+            btn.style.background = "#222";
+            btn.style.color = "#444";
+            btn.disabled = true;
         }
+    }
 
-        function startGame() {
-            document.getElementById('setup-screen').style.display = 'none';
-            document.getElementById('game-screen').style.display = 'flex';
-            syncUI();
-        }
+    function finishTurn() {
+        let p = players[currentPlayer];
+        p.scoreAvantTour = scoreAtStartOfTurn;
+        p.derniersPoints = [...dartsInTurn];
+        p.derniersVisuels = [...visualDarts];
+        p.totalDarts += dartsInTurn.length;
+        p.lastV = isBust ? "BUST" : visualDarts.join(' | ');
 
-        function setMod(m) {
-            multiplier = m;
-            document.querySelectorAll('.btn-mod').forEach(b => b.classList.remove('selected'));
-            document.getElementById(['modS','modD','modT'][m-1]).classList.add('selected');
-            document.getElementById('gameGrid').className = "grid mode-" + ['s','d','t'][m-1];
-        }
+        if(p.score === 0) { showVictory(p); return; }
 
-        function addDart(val) {
-            if (dartsInTurn.length >= 3 || isBust) return;
-            let m = (val === 50 || val === 25 || val === 0) ? 1 : multiplier;
-            let pts = (val === 50) ? 50 : val * m;
+        currentPlayer = (currentPlayer + 1) % players.length;
+        scoreAtStartOfTurn = players[currentPlayer].score;
+        retoursRestants = players.length; // Réinitialisation du compteur à la validation
+        resetTurn();
+        syncUI();
+    }
+
+    function resetTurn() {
+        dartsInTurn = []; visualDarts = []; isBust = false;
+        updateVisuals();
+    }
+
+ function undoLastDart() {
+        // 1. Si on a des fléchettes dans le tour actuel, on les efface une par une
+        if (dartsInTurn.length > 0) {
             let p = players[currentPlayer];
-            const slot = document.getElementById(`d${dartsInTurn.length}`);
-
-            if (p.score - pts < 0 || p.score - pts === 1 || (p.score - pts === 0 && m !== 2 && val !== 50)) {
-                isBust = true; visualDarts.push("BUST");
-                slot.innerText = "BUST"; slot.style.color = "var(--t-color)";
+            let lastPts = dartsInTurn.pop();
+            visualDarts.pop();
+            
+            if (isBust) {
+                isBust = false;
+                let reset = scoreAtStartOfTurn;
+                // On recalcule le score en soustrayant les fléchettes restantes dans le tour
+                dartsInTurn.forEach(v => reset -= v);
+                p.score = reset;
+            } else { 
+                p.score += lastPts; 
+            }
+        } 
+        // 2. Si le tour est vide ET qu'il reste des jetons de retour
+        else if (retoursRestants > 0) {
+            retoursRestants--; // On consomme un jeton
+            
+            // On revient au joueur précédent
+            currentPlayer = (currentPlayer - 1 + players.length) % players.length;
+            let p = players[currentPlayer];
+            
+            // On restaure l'état EXACT du début de son tour précédent
+            scoreAtStartOfTurn = p.scoreAvantTour;
+            dartsInTurn = [...p.derniersPoints];
+            visualDarts = [...p.derniersVisuels];
+            
+            // On remet son score tel qu'il était (avant retrait des fléchettes)
+            p.score = p.scoreAvantTour;
+            // On retire le nombre de fléchettes de son total historique
+            p.totalDarts -= dartsInTurn.length;
+            
+            // On vérifie s'il était en BUST pour bloquer le clavier si besoin
+            isBust = visualDarts.includes("BUST");
+            
+            // Si ce n'était pas un BUST, on réapplique les points pour l'affichage visuel
+            // mais on laisse les fléchettes "actives" pour pouvoir les annuler aussi
+            if (!isBust) {
+                dartsInTurn.forEach(pts => p.score -= pts);
             } else {
-                p.score -= pts;
-                let label = (val === 50) ? "BULL" : (val === 0) ? "0" : (m === 3 ? "T" : m === 2 ? "D" : "S") + val;
-                visualDarts.push(label); slot.innerText = label;
-                slot.style.color = (m === 3 ? "var(--t-color)" : m === 2 ? "var(--d-color)" : "var(--s-color)");
+                // Si c'était un BUST, le score est déjà revenu à scoreAtStartOfTurn
             }
-            dartsInTurn.push(pts); setMod(1);
-            
-            const btn = document.getElementById('btn-validate');
-            if(dartsInTurn.length === 3 || isBust || p.score === 0) {
-                btn.disabled = false;
-                btn.classList.add('ready');
-            }
-            syncUI();
+        }
+        
+        updateVisuals();
+        syncUI();
+    }
+
+ function syncUI() {
+    const container = document.getElementById('gamePlayers');
+    container.innerHTML = players.map((p, i) => {
+        
+        // --- CALCUL DYNAMIQUE DE LA MOYENNE ---
+        let totalPointsMarques = 501 - p.score;
+        let nbFlechesTotal = p.totalDarts;
+
+        // Si c'est le joueur en train de jouer, on ajoute ses flèches en cours
+        if (i === currentPlayer) {
+            nbFlechesTotal += dartsInTurn.length;
         }
 
-        function finishTurn() {
-            let p = players[currentPlayer];
-            let ptsTurn = isBust ? 0 : dartsInTurn.reduce((a,b)=>a+b, 0);
-            
-            p.lastTurn = isBust ? "BUST" : visualDarts.join(' ');
-            turnHistory.push({ playerIdx: currentPlayer, points: ptsTurn, wasBust: isBust, dartsCount: dartsInTurn.length });
-            
-            p.totalDarts += dartsInTurn.length;
-            p.totalPoints += ptsTurn;
+        let avg = nbFlechesTotal > 0 ? ((totalPointsMarques / nbFlechesTotal) * 3).toFixed(1) : "0.0";
+        // ---------------------------------------
 
-            if(p.score === 0) {
-                showVictory(p.name);
-                return;
-            }
+        return `<div class="p-column ${i === currentPlayer ? 'active-'+i : ''}">
+            <div class="p-name">${p.name}</div>
+            <div class="p-score">${p.score}</div>
+            <div class="p-last-v">${p.lastV}</div>
+            <div class="p-stats">MOY : ${avg}<br>FLECH : ${nbFlechesTotal}</div>
+        </div>`;
+    }).join('');
+    
+    document.getElementById('turn-txt').innerText = `À TOI : ${players[currentPlayer].name} (${retoursRestants} ↩)`;
+}
 
-            currentPlayer = (currentPlayer + 1) % players.length; 
-            resetTurn(); 
-            syncUI(); 
-        }
-
-        function undoLastDart() {
-            if (dartsInTurn.length === 0) return;
-            let lastPts = dartsInTurn.pop(); visualDarts.pop();
-            if (!isBust) players[currentPlayer].score += lastPts;
-            isBust = false;
-            document.getElementById(`d${dartsInTurn.length}`).innerText = "-";
-            document.getElementById(`d${dartsInTurn.length}`).style.color = "#484f58";
-            
-            const btn = document.getElementById('btn-validate');
-            btn.disabled = true;
-            btn.classList.remove('ready');
-            syncUI();
-        }
-
-        function undoLastTurn() {
-            if(turnHistory.length === 0) return;
-            let last = turnHistory.pop();
-            currentPlayer = last.playerIdx;
-            if(!last.wasBust) players[currentPlayer].score += last.points;
-            players[currentPlayer].totalDarts -= last.dartsCount; 
-            players[currentPlayer].totalPoints -= last.points;
-            players[currentPlayer].lastTurn = "";
-            resetTurn(); syncUI();
-        }
-
-        function syncUI() {
-            const container = document.getElementById('gamePlayers');
-            container.innerHTML = players.map((p, i) => {
-                let avg = p.totalDarts > 0 ? ((501 - p.score) / p.totalDarts * 3).toFixed(1) : "0.0";
-                return `<div class="p-card ${i === currentPlayer ? 'active' : ''}">
-                    <div class="p-name">${p.name}</div>
-                    <div class="score-val">${p.score}</div>
-                    <div class="avg-label">AVG: ${avg} — FL: ${p.totalDarts}</div>
-                    <div class="last-turn-label">${p.lastTurn}</div>
-                </div>`;
-            }).join('');
-        }
-
-        function resetTurn() {
-            dartsInTurn = []; visualDarts = []; isBust = false; 
-            for(let i=0; i<3; i++) { document.getElementById(`d${i}`).innerText = "-"; document.getElementById(`d${i}`).style.color = "#484f58"; }
-            setMod(1); 
-            const btn = document.getElementById('btn-validate');
-            btn.disabled = true;
-            btn.classList.remove('ready');
-        }
-
-        function showVictory(name) {
+    // --- FIN DE PARTIE & FIREBASE ---
+async function showVictory(p) {
             document.getElementById('game-screen').style.display = 'none';
             document.getElementById('end-screen').style.display = 'flex';
+            document.getElementById('winner-display').innerText = p.name + " GAGNE !";
             
+            // Logique d'affichage conditionnelle du bouton
             const btnSave = document.getElementById('btn-save-only');
-            document.getElementById('winner-display').innerText = name + " GAGNE LA PARTIE !";
-
-            if (players.length >= 1 && !isGuestSession) {
-                btnSave.style.display = 'block';
-                btnSave.disabled = false;
-                btnSave.style.opacity = "1";
+            if (!isGuestSession) {
+                // On vérifie si le gagnant existe dans la table 'users'
+                const userSnap = await db.ref(`users/${p.name}`).once('value');
+                if (userSnap.exists()) {
+                    btnSave.style.display = 'block';
+                } else {
+                    btnSave.style.display = 'none';
+                }
+            } else {
+                btnSave.style.display = 'none';
             }
 
-            let html = "";
-            players.forEach(p => {
-                let avg = p.totalDarts > 0 ? (501 / p.totalDarts * 3).toFixed(1) : "0.0";
-                html += `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #21262d; color:${p.name === name ? 'var(--s-color)' : '#fff'}">
-                    <span>${p.name}</span><span><b>${avg}</b> <small>AVG</small> (${p.totalDarts} FL.)</span>
-                </div>`;
-            });
-            document.getElementById('local-stats-list').innerHTML = html;
+            document.getElementById('local-stats-list').innerHTML = players.map(player => `
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px; color:${player === p ? '#2ecc71':'#fff'}">
+                    <span>${player.name}</span><span><b>${player.totalDarts > 0 ? (501 / player.totalDarts * 3).toFixed(1) : "0"}</b> AVG (${player.totalDarts} fl.)</span>
+                </div>`).join('');
         }
 
-        async function saveGameData() {
+async function saveGameData() {
             const btn = document.getElementById('btn-save-only');
-            const date = new Date().toLocaleDateString('fr-FR');
             const winner = players.find(p => p.score === 0);
             if(!winner) return;
 
             const avg = parseFloat((501 / winner.totalDarts * 3).toFixed(2));
-            const darts = winner.totalDarts;
-            const mainUser = localStorage.getItem('darts_pseudo') ? localStorage.getItem('darts_pseudo').toUpperCase() : null;
+            const date = new Date().toLocaleDateString('fr-FR');
+            const mainUser = (localStorage.getItem('darts_pseudo') || "").toUpperCase();
 
-            if (mainUser && winner.name === mainUser) {
-                await processSave(winner.name, avg, date, darts, "user");
+            // Si c'est le profil principal (déjà connecté)
+            if (winner.name === mainUser) {
+                await processSave(winner.name, avg, date, winner.totalDarts, "user");
                 finalizeButton(btn);
-                return;
-            }
-
-            const userSnap = await db.ref(`users/${winner.name}`).once('value');
-            if (userSnap.exists()) {
-                const passInput = prompt(`Félicitations ${winner.name} !\nEntre ton code PIN :`);
-                if (passInput && String(userSnap.val().pin).trim() === String(passInput).trim()) {
-                    await processSave(winner.name, avg, date, darts, "user");
-                    alert("✅ Match enregistré !");
-                    finalizeButton(btn);
-                } else if(passInput) alert("❌ Code PIN incorrect.");
             } else {
-                await processSave(winner.name, avg, date, darts, "invite");
-                alert(`Victoire de ${winner.name} enregistrée (INVITÉ).`);
-                finalizeButton(btn);
+                // Si c'est un autre joueur présent dans Firebase
+                const userSnap = await db.ref(`users/${winner.name}`).once('value');
+                const pin = prompt(`Code PIN de ${winner.name} :`);
+                if (pin && String(userSnap.val().pin) === String(pin)) {
+                    await processSave(winner.name, avg, date, winner.totalDarts, "user");
+                    finalizeButton(btn);
+                } else {
+                    alert("PIN incorrect");
+                }
             }
         }
 
-        async function processSave(name, avg, date, darts, type) {
-            try {
-                if (type === "user") {
-                    const ref = db.ref(`users/${name}/games/local_501`);
-                    const snap = await ref.child('top').once('value');
-                    let top = snap.val() || [];
-                    top.push({ avg: avg, darts: darts, date: date });
-                    top.sort((a, b) => b.avg - a.avg);
-                    await ref.child('top').set(top.slice(0, 3));
-                    await ref.child('stats/wins').transaction(c => (c || 0) + 1);
-                } else {
-                    const refInv = db.ref(`invites/${name}/stats`);
-                    const snapInv = await refInv.once('value');
-                    let d = snapInv.val() || { wins: 0, avg_max: 0 };
-                    await refInv.update({
-                        wins: (d.wins || 0) + 1,
-                        avg_max: Math.max((d.avg_max || 0), avg),
-                        last_win: date
-                    });
-                }
-            } catch (e) { console.error(e); }
+    async function processSave(name, avg, date, darts, type) {
+        const path = type === "user" ? `users/${name}/games/local_501` : `invites/${name}/stats`;
+        const ref = db.ref(path);
+        if(type === "user") {
+            const snap = await ref.child('top').once('value');
+            let top = snap.val() || [];
+            top.push({ avg: avg, darts: darts, date: date });
+            top.sort((a, b) => b.avg - a.avg);
+            await ref.child('top').set(top.slice(0, 3));
+            await ref.child('stats/wins').transaction(c => (c || 0) + 1);
+        } else {
+            await ref.update({ last_win: date, avg_max: avg });
+            await ref.child('wins').transaction(c => (c || 0) + 1);
         }
+    }
 
-        function finalizeButton(btn) {
-            btn.innerText = "✅ RÉSULTATS ARCHIVÉS";
-            btn.style.background = "#238636";
-            btn.disabled = true;
-        }
-    </script>
+    function finalizeButton(btn) {
+        btn.innerText = "✅ ARCHIVÉ";
+        btn.style.background = "#238636";
+        btn.disabled = true;
+    }
+</script>
 </body>
 </html>
