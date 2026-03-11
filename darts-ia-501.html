@@ -361,13 +361,25 @@
         });
     }
 
-    // Bloquer le menu contextuel
-    document.addEventListener('contextmenu', e => e.preventDefault());
-    document.addEventListener('keydown', e => {
-        if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && [73, 74, 67].includes(e.keyCode)) || (e.ctrlKey && e.keyCode === 85)) {
-            e.preventDefault(); return false;
-        }
-    });
+
+	// Bloquer les raccourcis clavier (F12, Ctrl+Maj+I, etc.)
+	document.addEventListener('keydown', (e) => {
+		// F12
+		if (e.keyCode === 123) {
+			e.preventDefault();
+			return false;
+		}
+		// Ctrl+Maj+I ou Ctrl+Maj+J ou Ctrl+Maj+C
+		if (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) {
+			e.preventDefault();
+			return false;
+		}
+		// Ctrl+U (Afficher la source)
+		if (e.ctrlKey && e.keyCode === 85) {
+			e.preventDefault();
+			return false;
+		}
+	}, false);
 </script>
 </body>
 </html>
