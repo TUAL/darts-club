@@ -12,7 +12,7 @@
         :root { 
             --bg: #0b0e14; --card: #161b22; --text: #f0f6fc;
             --accent: #58a6ff; --s-color: #238636; --t-color: #da3633;
-            --border: #30363d; --install-color: #00ff88;
+            --border: #30363d; --install-color: #3F647F;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -192,15 +192,6 @@ async function handleAuth() {
     }
 }
 
-
-
-
-
-
-
-
-
-
     function continueGuest() { login("INVITÉ", true); }
 
     function login(pseudo, isGuest) {
@@ -225,6 +216,30 @@ async function handleAuth() {
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js').catch(() => {});
     }
+	
+	// Bloquer le menu contextuel (clic droit)
+	document.addEventListener('contextmenu', (e) => {
+		e.preventDefault();
+	}, false);
+
+	// Bloquer les raccourcis clavier (F12, Ctrl+Maj+I, etc.)
+	document.addEventListener('keydown', (e) => {
+		// F12
+		if (e.keyCode === 123) {
+			e.preventDefault();
+			return false;
+		}
+		// Ctrl+Maj+I ou Ctrl+Maj+J ou Ctrl+Maj+C
+		if (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) {
+			e.preventDefault();
+			return false;
+		}
+		// Ctrl+U (Afficher la source)
+		if (e.ctrlKey && e.keyCode === 85) {
+			e.preventDefault();
+			return false;
+		}
+	}, false);
 </script>
 </body>
 </html>
