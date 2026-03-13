@@ -181,7 +181,7 @@
         if(!myName) return alert("ENTRE TON PSEUDO");
         localStorage.setItem('darts_pseudo', myName);
         roomName = name;
-        document.getElementById('room-display').innerText = "LIVE : " + name;
+        document.getElementById('room-display').innerText = "5 - LIVE : " + name;
         
         if(count === 0) db.ref(`rooms/${name}`).set({ status: "playing", currentPlayer: 0 });
         
@@ -216,21 +216,32 @@
         });
     }
 
-    function addDart(val) {
-        // Ajout du blocage si le score est déjà à 0
+function addDart(val) {
+        // Bloque si ce n'est pas ton tour, si tu as déjà 3 fléchettes, si tu es BUST ou si tu as déjà atteint 0
         if (gameState.currentPlayer != myIndex || dartsInTurn.length >= 3 || isBust || localDisplayScore === 0) return;
+        
         let m = (val === 50 || val === 25 || val === 0) ? 1 : multiplier;
         let pts = val * m;
 
         if (localDisplayScore - pts < 0 || localDisplayScore - pts === 1 || (localDisplayScore - pts === 0 && m !== 2 && val !== 50)) {
-            isBust = true; localDisplayScore = scoreAtTurnStart;
-            visualDarts.push("BUST"); dartsInTurn.push(0);
+            isBust = true; 
+            localDisplayScore = scoreAtTurnStart;
+            visualDarts.push("BUST"); 
+            dartsInTurn.push(0);
         } else {
             localDisplayScore -= pts;
             let label = (val === 50) ? "BULL" : (val === 25) ? "B25" : (val === 0) ? "Out" : (m === 3 ? "T" : m === 2 ? "D" : "S") + val;
-            visualDarts.push(label); dartsInTurn.push(pts);
+            visualDarts.push(label); 
+            dartsInTurn.push(pts);
         }
-        setMod(1); syncUI();
+
+        // Si le score est à 0 après cette fléchette, on force l'arrêt de la saisie pour ce tour
+        if (localDisplayScore === 0) {
+            // La saisie est maintenant bloquée par la condition au début de la fonction
+        }
+
+        setMod(1); 
+        syncUI();
     }
 
     function undoLastDart() {
