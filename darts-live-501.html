@@ -206,7 +206,7 @@
         myName = document.getElementById('pName').value.trim().toUpperCase();
         if(!myName) return alert("ENTRE TON PSEUDO");
         roomName = name;
-        document.getElementById('room-display').innerText = "LIVE : " + name;
+        document.getElementById('room-display').innerText = "2-LIVE : " + name;
         
         if(count === 0) db.ref(`rooms/${name}`).set({ status: "playing", currentPlayer: 0 });
         
