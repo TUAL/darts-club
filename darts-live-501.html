@@ -97,7 +97,7 @@
                 <button class="sp-key" onclick="addDart(25)">25</button>
                 <button class="sp-key" onclick="addDart(50)">BULL</button>
             </div>
-            <button class="sp-key" onclick="undoLastTurn()" style="height:40px; background:#1a1a1a; color:#666; font-size:0.6rem;">ANNULER VOLÉE PRÉCÉDENTE</button>
+            <button class="sp-key" onclick="undoLastTurn()" style="height:40px; background:#1a1a1a; color:#666; font-size:0.6rem; width:100%; grid-column: span 4;">ANNULER VOLÉE PRÉCÉDENTE</button>
         </div>
     </div>
 
@@ -123,6 +123,7 @@
     };
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+    const auth = firebase.auth();
 
     let roomName, myName, myId, myIndex = -1, lastProcessedTurn = -1;
     let dartsInTurn = [], visualDarts = [], multiplier = 1, isBust = false;
@@ -134,6 +135,11 @@
         const saved = localStorage.getItem('darts_pseudo');
         if(saved) document.getElementById('pName').value = saved;
         renderPad();
+        // Lancer la connexion anonyme puis rafraîchir les stands
+        auth.signInAnonymously().then(() => {
+            console.log("Connecté à Firebase");
+            initStands();
+        }).catch(err => console.error("Erreur Firebase:", err));
     };
 
     function renderPad() {
@@ -154,7 +160,7 @@
         renderPad();
     }
 
-    function refreshStands() {
+    function initStands() {
         db.ref('rooms').on('value', snap => {
             const rooms = snap.val() || {};
             const grid = document.getElementById('standGrid');
@@ -171,13 +177,13 @@
             });
         });
     }
-    refreshStands();
 
     function joinStand(name, count) {
         myName = document.getElementById('pName').value.trim().toUpperCase();
         if(!myName) return alert("ENTRE TON PSEUDO");
+        localStorage.setItem('darts_pseudo', myName);
         roomName = name;
-        document.getElementById('room-display').innerText = "3 - LIVE : " + name;
+        document.getElementById('room-display').innerText = "LIVE : " + name;
         
         if(count === 0) db.ref(`rooms/${name}`).set({ status: "playing", currentPlayer: 0 });
         
@@ -191,8 +197,6 @@
             
             const pArray = Object.entries(data.players).map(([id, p]) => ({...p, id})).sort((a,b) => b.q - a.q);
             gameState = {...data, players: pArray};
-            
-            // Recalcul de l'index critique
             myIndex = gameState.players.findIndex(p => p.id === myId);
 
             if (data.status === "finished") {
@@ -200,7 +204,6 @@
                 return;
             }
 
-            // Reset local quand le tour change
             if (data.currentPlayer !== lastProcessedTurn) {
                 dartsInTurn = []; visualDarts = []; isBust = false;
                 lastProcessedTurn = data.currentPlayer;
@@ -209,7 +212,6 @@
                     localDisplayScore = scoreAtTurnStart;
                 }
             }
-
             document.getElementById('setup-screen').style.display = 'none';
             document.getElementById('game-screen').style.display = 'flex';
             syncUI();
@@ -222,18 +224,14 @@
         let pts = val * m;
 
         if (localDisplayScore - pts < 0 || localDisplayScore - pts === 1 || (localDisplayScore - pts === 0 && m !== 2 && val !== 50)) {
-            isBust = true;
-            localDisplayScore = scoreAtTurnStart;
-            visualDarts.push("BUST");
-            dartsInTurn.push(0);
+            isBust = true; localDisplayScore = scoreAtTurnStart;
+            visualDarts.push("BUST"); dartsInTurn.push(0);
         } else {
             localDisplayScore -= pts;
             let label = (val === 50) ? "BULL" : (val === 25) ? "B25" : (val === 0) ? "Out" : (m === 3 ? "T" : m === 2 ? "D" : "S") + val;
-            visualDarts.push(label);
-            dartsInTurn.push(pts);
+            visualDarts.push(label); dartsInTurn.push(pts);
         }
-        setMod(1);
-        syncUI();
+        setMod(1); syncUI();
     }
 
     function undoLastDart() {
@@ -305,6 +303,7 @@
 
     function syncUI() {
         const container = document.getElementById('gamePlayers');
+        if(!container) return;
         container.innerHTML = gameState.players.map((p, i) => {
             const isMe = (i === myIndex);
             const score = isMe ? localDisplayScore : p.score;
