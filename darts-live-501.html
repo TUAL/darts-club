@@ -181,7 +181,7 @@
         if(!myName) return alert("ENTRE TON PSEUDO");
         localStorage.setItem('darts_pseudo', myName);
         roomName = name;
-        document.getElementById('room-display').innerText = "LIVE : " + name;
+        document.getElementById('room-display').innerText = "3 - LIVE : " + name;
         
         if(count === 0) db.ref(`rooms/${name}`).set({ status: "playing", currentPlayer: 0 });
         
@@ -254,11 +254,9 @@ function addDart(val) {
             top.push({ avg: avg, darts: winner.totalDarts, date: new Date().toLocaleDateString('fr-FR') });
             top.sort((a, b) => b.avg - a.avg);
             await ref.child('top').set(top.slice(0, 3));
-            
-            // AJOUT STATS WINS
-            await db.ref(`users/${winner.name}/stats/wins`).transaction(c => (c || 0) + 1);
-            
-            btn.innerText = "✅ VICTOIRE ARCHIVÉE";
+			await ref.child('stats/wins').transaction(c => (c || 0) + 1);
+       
+            btn.innerText = "✅ ARCHIVÉ";
             btn.style.background = "#2ecc71";
             
             // Retour au menu après un court délai
