@@ -19,7 +19,8 @@
             font-family: -apple-system, system-ui, sans-serif; 
             background: var(--bg); color: var(--text); 
             margin: 0; padding: 0; height: 100dvh;
-            display: flex; flex-direction: column; overflow: hidden; position: fixed; width: 100%;
+            display: flex; flex-direction: column; overflow: hidden; 
+			position: fixed; width: 100%;
         }
 		
         #setup-screen { flex:1; display:flex; flex-direction:column; align-items:center; padding:20px; overflow-y:auto; }
@@ -30,7 +31,7 @@
         .stand-btn.active-room { border-left-color: var(--accent-green); }
         .stand-name { display: block; font-weight: 800; font-size: 0.75rem; color: #fff; text-transform: uppercase; }
         .stand-status { font-size: 0.6rem; color: #8b949e; }
-        #game-screen { display: none; height: 100dvh; flex-direction: column; background: #000; }
+        #game-screen { display: none; height: 90dvh; flex-direction: column; background: #000; }
 
 
         .top-bar { height: 50px; background: #1a1a1a; display: flex; align-items: center; padding: 0 15px; flex-shrink: 0; border-bottom: 1px solid #333; }
@@ -38,13 +39,18 @@
         .top-title { flex: 1; text-align: center; font-size: 0.75rem; font-weight: 900; letter-spacing: 1px; color: #ccc; }
 
         .score-section { height: 45dvh; display: flex; flex-direction: column; background: var(--bg-dark); padding: 10px 0; }
-        .header-scores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0 10px; flex: 1; }	
+        .header-scores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0 10px; flex: 1; }
+        .turn-announcer { height: 35px; display: flex; align-items: center; justify-content: center; color: var(--accent-orange); font-weight: 900; font-size: 0.8rem; text-transform: uppercase; }
+		
         .p-column { 
             background: #1a1a1a; border: 3px solid #333; border-radius: 15px; 
             display: flex; flex-direction: column; align-items: center; justify-content: space-around;
             padding: 10px 5px; opacity: 0.4; transition: 0.3s; color: #fff;
         }
         .p-column.active { border-color: var(--accent); opacity: 1; border-width: 3px; }
+        .p-column.active-0 { background: var(--accent-orange); border-color: #fff; opacity: 1; color: #000; }
+        .p-column.active-1 { background: var(--accent-green); border-color: #fff; opacity: 1; color: #000; }
+        .p-column.active-2 { background: var(--accent-red); border-color: #fff; opacity: 1; color: #000; }
         .p-name { font-size: 0.85rem; font-weight: 900; text-transform: uppercase; }
         .p-score { font-size: 3.2rem; font-weight: 900; line-height: 1; margin: 5px 0; }
         .p-last-v { font-size: 0.65rem; font-weight: bold; margin-bottom: 5px; opacity: 0.9; }
@@ -93,6 +99,7 @@
     <div id="game-screen">
         <div class="score-section">
 			<div class="header-scores" id="gamePlayers"></div>
+            <div class="turn-announcer" id="turn-txt">...</div>
 		</div>
         <div class="input-info">
             <div class="dart-val" id="v0">--<small>-</small></div>
@@ -169,7 +176,7 @@
         multiplier = m;
         document.querySelectorAll('.btn-m').forEach(b => b.classList.remove('active'));
         document.getElementById('m'+m).classList.add('active');
-        const colors = ["", "var(--accent-green)", "var(--accent-orange)", "var(--accent-red)"];
+        const colors = ["", "var(--accent)", "var(--accent-orange)", "var(--accent-red)"];
         document.documentElement.style.setProperty('--mode-color', colors[m]);
         renderPad();
     }
@@ -369,13 +376,17 @@ function addDart(val) {
             const tF = p.totalDarts + (isMe ? dartsInTurn.length : 0);
             const tP = p.totalPoints + (isMe ? (scoreAtTurnStart - localDisplayScore) : 0);
             const avg = tF > 0 ? ((tP / tF) * 3).toFixed(1) : "0.0";
-            return `<div class="p-column ${i == gameState.currentPlayer ? 'active' : ''}">
+            return `<div class="p-column ${i == gameState.currentPlayer ? 'active-'+i : ''}">
                 <div class="p-name">${p.name}</div>
                 <div class="p-score">${score}</div>
-                <div class="p-stats">AVG: ${avg}</div>
-                <div style="font-size:0.5rem; margin-top:5px; color:#555">${p.lastTurn || "---"}</div>
+                <div class="p-last-v">${p.lastTurn || "---"}</div>
+                <div class="p-stats">MOY : ${avg}<br>FLECH : ${tF}</div>
             </div>`;
         }).join('');
+		const activePlayer = gameState.players[gameState.currentPlayer];
+        if (activePlayer) {
+            document.getElementById('turn-txt').innerText = `À TOI ${activePlayer.name} !`;
+        }
         for(let i=0; i<3; i++) {
             const el = document.getElementById('v'+i);
             el.innerHTML = visualDarts[i] ? `${dartsInTurn[i]}<small>${visualDarts[i]}</small>` : `--<small>-</small>`;
