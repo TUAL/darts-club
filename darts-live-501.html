@@ -243,11 +243,17 @@
         });
     }
 
-    function addDart(val) {
-        if (gameState.currentPlayer !== myIndex || dartsInTurn.length >= 3 || isBust) return;
+function addDart(val) {
+        // Correction ici : On s'assure que le joueur peut cliquer s'il est bien le joueur actif
+        if (myIndex === -1 || gameState.currentPlayer !== myIndex || dartsInTurn.length >= 3 || isBust) {
+            console.log("Saisie bloquée : ", {myIndex, current: gameState.currentPlayer, len: dartsInTurn.length, isBust});
+            return;
+        }
+
         let m = (val === 50 || val === 25 || val === 0) ? 1 : multiplier;
         let pts = val * m;
 
+        // Règle du Double Out (ou Bull) pour finir
         if (localDisplayScore - pts < 0 || localDisplayScore - pts === 1 || (localDisplayScore - pts === 0 && m !== 2 && val !== 50)) {
             isBust = true;
             localDisplayScore = scoreAtTurnStart;
@@ -259,26 +265,18 @@
             visualDarts.push(label);
             dartsInTurn.push(pts);
         }
-        setMod(1);
-        syncUI();
-    }
-
-    function undoLastDart() {
-        if (dartsInTurn.length === 0) return;
-        dartsInTurn.pop();
-        visualDarts.pop();
-        isBust = false;
-        localDisplayScore = scoreAtTurnStart;
-        dartsInTurn.forEach(p => localDisplayScore -= p);
+        
+        setMod(1); // Revient en simple après chaque fléchette
         syncUI();
     }
 
     function finishTurn() {
+        if (myIndex === -1 || gameState.currentPlayer !== myIndex) return;
+
         const p = gameState.players[myIndex];
         const finalScore = isBust ? scoreAtTurnStart : localDisplayScore;
         const ptsTurn = isBust ? 0 : dartsInTurn.reduce((a, b) => a + b, 0);
 
-        // Mise à jour des données du joueur
         db.ref(`rooms/${roomName}/players/${myId}`).update({
             score: finalScore,
             beforeTurnScore: scoreAtTurnStart,
@@ -286,16 +284,23 @@
             totalPoints: p.totalPoints + ptsTurn,
             lastTurn: isBust ? "BUST" : visualDarts.join(" | ")
         }).then(() => {
-            // SI VICTOIRE (SCORE = 0)
             if (finalScore === 0) {
                 db.ref(`rooms/${roomName}`).update({ status: "finished" });
             } else {
+                let nextPlayer = (gameState.currentPlayer + 1) % gameState.players.length;
                 db.ref(`rooms/${roomName}`).update({ 
-                    currentPlayer: (gameState.currentPlayer + 1) % gameState.players.length,
+                    currentPlayer: nextPlayer,
                     lastPlayerId: myId
                 });
             }
         });
+    }
+
+    async function resetStand() {
+        if (confirm("Voulez-vous vider le stand et revenir au menu ?")) {
+            await db.ref(`rooms/${roomName}`).remove();
+            location.reload();
+        }
     }
 
     function showVictoryUI(winner) {
