@@ -222,7 +222,6 @@
             gameState = {...data, players: pArray};
             myIndex = gameState.players.findIndex(p => p.id === myId);
 
-            // Gestion de la fin de partie (Live)
             if (data.status === "finished") {
                 const winner = gameState.players.find(p => p.score === 0);
                 showVictoryUI(winner);
@@ -243,17 +242,14 @@
         });
     }
 
-function addDart(val) {
-        // Correction ici : On s'assure que le joueur peut cliquer s'il est bien le joueur actif
-        if (myIndex === -1 || gameState.currentPlayer !== myIndex || dartsInTurn.length >= 3 || isBust) {
-            console.log("Saisie bloquée : ", {myIndex, current: gameState.currentPlayer, len: dartsInTurn.length, isBust});
-            return;
-        }
+    function addDart(val) {
+        // Débloqué : On autorise la saisie si c'est notre tour
+        if (myIndex === -1 || gameState.currentPlayer !== myIndex || dartsInTurn.length >= 3 || isBust) return;
 
         let m = (val === 50 || val === 25 || val === 0) ? 1 : multiplier;
         let pts = val * m;
 
-        // Règle du Double Out (ou Bull) pour finir
+        // Règle de fin : Double ou Bull pour 0
         if (localDisplayScore - pts < 0 || localDisplayScore - pts === 1 || (localDisplayScore - pts === 0 && m !== 2 && val !== 50)) {
             isBust = true;
             localDisplayScore = scoreAtTurnStart;
@@ -265,8 +261,17 @@ function addDart(val) {
             visualDarts.push(label);
             dartsInTurn.push(pts);
         }
-        
-        setMod(1); // Revient en simple après chaque fléchette
+        setMod(1);
+        syncUI();
+    }
+
+    function undoLastDart() {
+        if (dartsInTurn.length === 0) return;
+        dartsInTurn.pop();
+        visualDarts.pop();
+        isBust = false;
+        localDisplayScore = scoreAtTurnStart;
+        dartsInTurn.forEach(p => localDisplayScore -= p);
         syncUI();
     }
 
@@ -287,20 +292,12 @@ function addDart(val) {
             if (finalScore === 0) {
                 db.ref(`rooms/${roomName}`).update({ status: "finished" });
             } else {
-                let nextPlayer = (gameState.currentPlayer + 1) % gameState.players.length;
                 db.ref(`rooms/${roomName}`).update({ 
-                    currentPlayer: nextPlayer,
+                    currentPlayer: (gameState.currentPlayer + 1) % gameState.players.length,
                     lastPlayerId: myId
                 });
             }
         });
-    }
-
-    async function resetStand() {
-        if (confirm("Voulez-vous vider le stand et revenir au menu ?")) {
-            await db.ref(`rooms/${roomName}`).remove();
-            location.reload();
-        }
     }
 
     function showVictoryUI(winner) {
@@ -308,7 +305,6 @@ function addDart(val) {
         document.getElementById('end-screen').style.display = 'flex';
         document.getElementById('winner-display').innerText = winner ? winner.name + " GAGNE !" : "MATCH TERMINÉ";
         
-        // Affichage des stats pour tout le monde
         document.getElementById('stats-list').innerHTML = gameState.players.map(p => {
             const avg = p.totalDarts > 0 ? ((p.totalPoints / p.totalDarts) * 3).toFixed(1) : "0";
             return `<div style="display:flex; justify-content:space-between; margin-bottom:5px; color:${p.score === 0 ? '#2ecc71':'#fff'}">
@@ -316,25 +312,14 @@ function addDart(val) {
             </div>`;
         }).join('');
 
-        // Seul le gagnant peut enregistrer sa propre victoire sur son profil
         if (winner && winner.id === myId) {
-            checkIfUserExistsLocally(winner.name);
-        }
-    }
-
-    async function checkIfUserExistsLocally(name) {
-        const userSnap = await db.ref(`users/${name}`).once('value');
-        if (userSnap.exists()) {
-            document.getElementById('btn-save-only').style.display = 'block';
+            db.ref(`users/${winner.name}`).once('value', s => { if(s.exists()) document.getElementById('btn-save-only').style.display = 'block'; });
         }
     }
 
     async function saveVictory() {
         const winner = gameState.players.find(p => p.id === myId);
         const avg = parseFloat(((winner.totalPoints / winner.totalDarts) * 3).toFixed(2));
-        const date = new Date().toLocaleDateString('fr-FR');
-        
-        // Sécurité PIN comme en local
         const userSnap = await db.ref(`users/${winner.name}`).once('value');
         const pin = prompt(`Code PIN de ${winner.name} :`);
         
@@ -342,17 +327,19 @@ function addDart(val) {
             const ref = db.ref(`users/${winner.name}/games/live_501`);
             const snap = await ref.child('top').once('value');
             let top = snap.val() || [];
-            top.push({ avg: avg, darts: winner.totalDarts, date: date });
+            top.push({ avg: avg, darts: winner.totalDarts, date: new Date().toLocaleDateString('fr-FR') });
             top.sort((a, b) => b.avg - a.avg);
             await ref.child('top').set(top.slice(0, 3));
             await db.ref(`users/${winner.name}/stats/wins`).transaction(c => (c || 0) + 1);
-            
-            const btn = document.getElementById('btn-save-only');
-            btn.innerText = "✅ ARCHIVÉ";
-            btn.style.background = "#238636";
-            btn.disabled = true;
-        } else {
-            alert("PIN incorrect");
+            location.reload();
+        } else { alert("PIN incorrect"); }
+    }
+
+    // Fonction pour vider le stand à la fin
+    async function resetStand() {
+        if(confirm("Vider le stand et quitter ?")) {
+            await db.ref(`rooms/${roomName}`).remove();
+            location.reload();
         }
     }
 
@@ -372,11 +359,9 @@ function addDart(val) {
         const container = document.getElementById('gamePlayers');
         container.innerHTML = gameState.players.map((p, i) => {
             const score = (i === myIndex) ? localDisplayScore : p.score;
-            const nbFlechesTotal = p.totalDarts + (i === myIndex ? dartsInTurn.length : 0);
-            // Calcul AVG dynamique
-            const currentPoints = (i === myIndex) ? (scoreAtTurnStart - localDisplayScore) : 0;
-            const pointsTotal = p.totalPoints + currentPoints;
-            const avg = nbFlechesTotal > 0 ? ((pointsTotal / nbFlechesTotal) * 3).toFixed(1) : "0.0";
+            const totalF = p.totalDarts + (i === myIndex ? dartsInTurn.length : 0);
+            const totalP = p.totalPoints + (i === myIndex ? (scoreAtTurnStart - localDisplayScore) : 0);
+            const avg = totalF > 0 ? ((totalP / totalF) * 3).toFixed(1) : "0.0";
 
             return `<div class="p-column ${i === gameState.currentPlayer ? 'active' : ''}">
                 <div class="p-name">${p.name}</div>
