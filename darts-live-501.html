@@ -79,6 +79,11 @@
 
         .special-row { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; height: 60px; gap: 1px; background: #333; }
         .sp-key { background: #121916; color: white; border: none; font-weight: bold; font-size: 0.75rem; }
+
+        /* --- OVERLAY VICTOIRE --- */
+        .overlay { display:none; position:fixed; inset:0; background:rgba(13,17,23,0.98); z-index:999; flex-direction:column; justify-content:center; align-items:center; padding:20px; }
+        .final-box { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid #30363d; width: 100%; max-width: 300px; text-align: center; }
+        .btn-save { background: var(--accent) !important; font-size: 0.85rem; font-weight: 800; border-radius: 10px; height: 50px; width: 100%; margin: 10px 0; color: white; border:none; }
     </style>
 </head>
 <body>
@@ -125,8 +130,17 @@
         </div>
     </div>
 
+    <div id="end-screen" class="overlay">
+        <div class="final-box">
+            <h1 style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;">MATCH TERMINÉ</h1>
+            <div id="winner-display" style="font-size: 1.8rem; font-weight: 900; margin: 10px 0; color:var(--accent-green);">VICTOIRE</div>
+            <div id="stats-list" style="background: #0b1410; border-radius: 8px; padding: 10px; border: 1px solid #30363d; text-align: left; font-size: 0.75rem; margin-bottom:15px;"></div>
+            <button id="btn-save-only" class="btn-save" style="display:none;" onclick="saveVictory()">ENREGISTRER LA VICTOIRE</button>
+            <button class="btn-save" style="background:#30363d !important;" onclick="location.reload()">MENU PRINCIPAL</button>
+        </div>
+    </div>
+
 <script>
-    // --- CONFIGURATION FIREBASE ---
     const firebaseConfig = {
         apiKey: "AIzaSyCSeggBmTOXR_XyspjuAsbhMfncp9MYUBA",
         authDomain: "dartsclub-1aab9.firebaseapp.com",
@@ -143,7 +157,7 @@
     let roomName, myName, myId, myIndex = -1;
     let dartsInTurn = [], visualDarts = [], multiplier = 1, isBust = false;
     let scoreAtTurnStart = 501, localDisplayScore = 501;
-    let gameState = { players: [], currentPlayer: 0 };
+    let gameState = { players: [], currentPlayer: 0, status: "open" };
     const STANDS = ["1 - LITTLER", "2 - HUMPHRIES", "3 - PRICE", "4 - VAN VEEN", "5 - VAN GERWEN", "6 - TRICOLE"];
 
     window.onload = () => {
@@ -205,13 +219,20 @@
             if(!data || !data.players) return;
             const pArray = Object.entries(data.players).map(([id, p]) => ({...p, id})).sort((a,b) => b.q - a.q);
             
+            gameState = {...data, players: pArray};
+            myIndex = gameState.players.findIndex(p => p.id === myId);
+
+            // Gestion de la fin de partie (Live)
+            if (data.status === "finished") {
+                const winner = gameState.players.find(p => p.score === 0);
+                showVictoryUI(winner);
+                return;
+            }
+
             if (data.currentPlayer !== gameState.currentPlayer) {
                 dartsInTurn = []; visualDarts = []; isBust = false;
             }
 
-            gameState = {...data, players: pArray};
-            myIndex = gameState.players.findIndex(p => p.id === myId);
-            
             if (gameState.currentPlayer === myIndex && dartsInTurn.length === 0) {
                 scoreAtTurnStart = gameState.players[myIndex].score;
                 localDisplayScore = scoreAtTurnStart;
@@ -257,6 +278,7 @@
         const finalScore = isBust ? scoreAtTurnStart : localDisplayScore;
         const ptsTurn = isBust ? 0 : dartsInTurn.reduce((a, b) => a + b, 0);
 
+        // Mise à jour des données du joueur
         db.ref(`rooms/${roomName}/players/${myId}`).update({
             score: finalScore,
             beforeTurnScore: scoreAtTurnStart,
@@ -264,11 +286,69 @@
             totalPoints: p.totalPoints + ptsTurn,
             lastTurn: isBust ? "BUST" : visualDarts.join(" | ")
         }).then(() => {
-            db.ref(`rooms/${roomName}`).update({ 
-                currentPlayer: (gameState.currentPlayer + 1) % gameState.players.length,
-                lastPlayerId: myId
-            });
+            // SI VICTOIRE (SCORE = 0)
+            if (finalScore === 0) {
+                db.ref(`rooms/${roomName}`).update({ status: "finished" });
+            } else {
+                db.ref(`rooms/${roomName}`).update({ 
+                    currentPlayer: (gameState.currentPlayer + 1) % gameState.players.length,
+                    lastPlayerId: myId
+                });
+            }
         });
+    }
+
+    function showVictoryUI(winner) {
+        document.getElementById('game-screen').style.display = 'none';
+        document.getElementById('end-screen').style.display = 'flex';
+        document.getElementById('winner-display').innerText = winner ? winner.name + " GAGNE !" : "MATCH TERMINÉ";
+        
+        // Affichage des stats pour tout le monde
+        document.getElementById('stats-list').innerHTML = gameState.players.map(p => {
+            const avg = p.totalDarts > 0 ? ((p.totalPoints / p.totalDarts) * 3).toFixed(1) : "0";
+            return `<div style="display:flex; justify-content:space-between; margin-bottom:5px; color:${p.score === 0 ? '#2ecc71':'#fff'}">
+                <span>${p.name}</span><span><b>${avg}</b> AVG (${p.totalDarts} fl.)</span>
+            </div>`;
+        }).join('');
+
+        // Seul le gagnant peut enregistrer sa propre victoire sur son profil
+        if (winner && winner.id === myId) {
+            checkIfUserExistsLocally(winner.name);
+        }
+    }
+
+    async function checkIfUserExistsLocally(name) {
+        const userSnap = await db.ref(`users/${name}`).once('value');
+        if (userSnap.exists()) {
+            document.getElementById('btn-save-only').style.display = 'block';
+        }
+    }
+
+    async function saveVictory() {
+        const winner = gameState.players.find(p => p.id === myId);
+        const avg = parseFloat(((winner.totalPoints / winner.totalDarts) * 3).toFixed(2));
+        const date = new Date().toLocaleDateString('fr-FR');
+        
+        // Sécurité PIN comme en local
+        const userSnap = await db.ref(`users/${winner.name}`).once('value');
+        const pin = prompt(`Code PIN de ${winner.name} :`);
+        
+        if (pin && String(userSnap.val().pin) === String(pin)) {
+            const ref = db.ref(`users/${winner.name}/games/live_501`);
+            const snap = await ref.child('top').once('value');
+            let top = snap.val() || [];
+            top.push({ avg: avg, darts: winner.totalDarts, date: date });
+            top.sort((a, b) => b.avg - a.avg);
+            await ref.child('top').set(top.slice(0, 3));
+            await db.ref(`users/${winner.name}/stats/wins`).transaction(c => (c || 0) + 1);
+            
+            const btn = document.getElementById('btn-save-only');
+            btn.innerText = "✅ ARCHIVÉ";
+            btn.style.background = "#238636";
+            btn.disabled = true;
+        } else {
+            alert("PIN incorrect");
+        }
     }
 
     function undoLastTurn() {
@@ -287,7 +367,12 @@
         const container = document.getElementById('gamePlayers');
         container.innerHTML = gameState.players.map((p, i) => {
             const score = (i === myIndex) ? localDisplayScore : p.score;
-            const avg = p.totalDarts > 0 ? ((p.totalPoints / p.totalDarts) * 3).toFixed(1) : "0.0";
+            const nbFlechesTotal = p.totalDarts + (i === myIndex ? dartsInTurn.length : 0);
+            // Calcul AVG dynamique
+            const currentPoints = (i === myIndex) ? (scoreAtTurnStart - localDisplayScore) : 0;
+            const pointsTotal = p.totalPoints + currentPoints;
+            const avg = nbFlechesTotal > 0 ? ((pointsTotal / nbFlechesTotal) * 3).toFixed(1) : "0.0";
+
             return `<div class="p-column ${i === gameState.currentPlayer ? 'active' : ''}">
                 <div class="p-name">${p.name}</div>
                 <div class="p-score">${score}</div>
