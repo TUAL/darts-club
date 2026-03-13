@@ -99,12 +99,12 @@
             <div class="p-column active-1">
                 <div class="p-name">JETS</div>
                 <div id="val-jets" class="p-score">0/6</div>
-                <div class="p-last-v">MAX : 6</div>
+                <div class="p-last-v">&nbsp;</div>
                 <div id="target-info" class="p-stats">CIBLE : --<br>MODE : D-OUT</div>
             </div>
             <div style="visibility: hidden;"></div>
         </div>
-        <div class="turn-announcer" id="msg-txt">À TOI : JOUEUR</div>
+        <div class="turn-announcer" id="msg-txt">À TOI DE JOUER !</div>
     </div>
     
     <div class="input-info">
@@ -130,10 +130,16 @@
     </div>
 
     <div id="end-screen" class="overlay">
+		<div class="top-bar" style="width: 100%; position: absolute; top: 0; left: 0;">
+			<div class="back-icon" onclick="window.location.href='menu.html'"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
+			<div class="top-title">🏁 CHECKOUT</div>
+		</div>	
+	
         <div class="final-box">
             <h1 id="end-title-label" style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase; margin: 0;">Résultat</h1>
             <div id="final-score-display" style="font-size: 3.5rem; font-weight: 900; margin: 5px 0; line-height: 1;">--</div>
-            <p id="end-msg" style="font-size: 0.85rem; color: #fff; font-weight: bold; margin: 10px 0 0 0;"></p>
+            <p id="end-msg" style="font-size: 0.85rem; color: #fff; font-weight: bold; margin: 10px 0 0 0; background: #1a1a1a; display: inline-block; padding: 4px 12px; border-radius: 4px;"></p>
+            <p id="end-avg-display" style="font-size: 0.85rem; color: #fff; font-weight: bold; margin: 8px 0 0 0; background: #004ab3; padding: 4px 12px; border-radius: 4px; display: none;"></p>
         </div>
         
         <div id="top-scores" style="margin: 15px 0; width: 100%; max-width: 260px; font-size: 0.75rem;">
@@ -143,7 +149,7 @@
 
         <div class="end-btn-container">
             <button id="btn-save-only" class="end-btn btn-save" style="display:none;" onclick="handleJustSave()">ENREGISTRER LE SCORE</button>
-            <button class="end-btn btn-valid" onclick="location.reload()">RECOMMENCER</button>
+            <button class="end-btn btn-valid" onclick="location.reload()">REJOUER</button>
         </div>
     </div>
 
@@ -171,7 +177,7 @@
     let scoreAtTurnStart, gameOver = false;
 
     window.onload = () => {
-        document.getElementById('title-label').innerText = "CHECKOUT - " + pseudo;
+        document.getElementById('title-label').innerText = "🏁 DARTS CHECKOUT";
         initGame();
         renderPad();
     };
@@ -223,7 +229,6 @@
         totalDarts++; 
         setMod(1); 
         updateUI();
-        // SUPPRESSION DE LA VALIDATION AUTO ICI
     }
 
     function updateUI() {
@@ -282,23 +287,36 @@
         const fs = document.getElementById('final-score-display');
         fs.innerText = win ? initialScore : initialScore - reste;
         fs.style.color = win ? "var(--accent-green)" : "var(--accent-red)";
+        
+        // Message principal
         document.getElementById('end-msg').innerText = win ? `Fini en ${totalDarts} fléchettes.` : `Il restait ${reste} pts sur ${initialScore}.`;
+        
+        // Affichage de la moyenne (PPR) si gagné
+        const avgEl = document.getElementById('end-avg-display');
+        if(win) {
+            const estimationDartsAvant = 16; 
+            const moyenne501 = parseFloat(((501 / (estimationDartsAvant + totalDarts)) * 3).toFixed(2));
+            avgEl.innerText = `${moyenne501} avg`;
+            avgEl.style.display = 'inline-block';
+        } else {
+            avgEl.style.display = 'none';
+        }
+
         if(win && !isGuest) document.getElementById('btn-save-only').style.display = 'block';
         displayTop3();
     }
-
+	
     async function handleJustSave() {
         if(isGuest) return;
         const btn = document.getElementById('btn-save-only');
-        const estimationDartsAvant = 18; 
+        const estimationDartsAvant = 16; 
         const moyenne501 = parseFloat(((501 / (estimationDartsAvant + totalDarts)) * 3).toFixed(2));
         try {
             btn.disabled = true; btn.innerText = "ENREGISTREMENT...";
             const pseudoUpper = pseudo.toUpperCase().trim();
-            const ref = db.ref(`users/${pseudoUpper}/games/checkouts/top_moyennes`);
+            const ref = db.ref(`users/${pseudoUpper}/games/checkouts/top`);
             const snap = await ref.once('value');
             
-            // Correction de l'erreur d'enregistrement : Toujours convertir en tableau
             let topScores = [];
             if(snap.exists()) {
                 const val = snap.val();
@@ -320,7 +338,7 @@
     function displayTop3() {
         const listDiv = document.getElementById('top-list');
         if (isGuest) { listDiv.innerHTML = "Mode Invité"; return; }
-        db.ref(`users/${pseudo.toUpperCase()}/games/checkouts/top_moyennes`).once('value', (snapshot) => {
+        db.ref(`users/${pseudo.toUpperCase()}/games/checkouts/top`).once('value', (snapshot) => {
             const scores = snapshot.val() || [];
             let html = "";
             const scoreArray = Array.isArray(scores) ? scores : Object.values(scores);

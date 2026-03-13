@@ -24,22 +24,19 @@
             position: fixed; width: 100%;
         }
 
-        /* --- NAVIGATION --- */
         .top-bar { height: 50px; background: #1a1a1a; display: flex; align-items: center; padding: 0 15px; flex-shrink: 0; border-bottom: 1px solid #333; }
         .back-icon { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 1px solid #444; border-radius: 4px; cursor: pointer; }
         .top-title { flex: 1; text-align: center; font-size: 0.75rem; font-weight: 900; letter-spacing: 1px; color: #ccc; }
 
-        /* --- SELECTION NIVEAU --- */
         #level-screen { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; }
         .lvl-box { width: 100%; max-width: 320px; }
         .lvl-btn { background: var(--card); border: 1px solid #30363d; border-radius: 12px; padding: 18px; color: white; width:100%; margin-bottom:10px; text-align:left; position: relative; overflow: hidden; }
         .lvl-btn b { display: block; font-size: 1.1rem; }
         .lvl-btn span { font-size: 0.7rem; color: #8b949e; }
 
-        /* --- INTERFACE DE JEU --- */
         #game-screen { display: none; height: 90dvh; flex-direction: column; background: #000; }
         .score-section { height: 45dvh; display: flex; flex-direction: column; background: var(--bg-dark); padding: 10px 0; }
-        .header-scores { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 0 10px; flex: 1; }
+        .header-scores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 0 10px; flex: 1; }
         
         .p-column { 
             background: #1a1a1a; border: 3px solid #333; border-radius: 15px; 
@@ -51,7 +48,7 @@
         
         .p-name { font-size: 0.85rem; font-weight: 900; text-transform: uppercase; }
         .p-score { font-size: 4rem; font-weight: 900; line-height: 1; margin: 5px 0; }
-        .p-stats { font-size: 0.65rem; font-weight: 900; width: 90%; text-align: center; }
+        .p-stats { font-size: 0.65rem; font-weight: 900; width: 90%; text-align: left; }
 
         .turn-announcer { height: 35px; display: flex; align-items: center; justify-content: center; color: var(--accent-orange); font-weight: 900; font-size: 0.8rem; text-transform: uppercase; }
 
@@ -66,7 +63,6 @@
         .btn-valid-darts { flex: 1; height: 55px; background: #222; border: none; color: #444; border-radius: 30px; font-weight: 900; font-size: 0.85rem; }
         .btn-valid-darts.ready { color: #fff; cursor: pointer; background: var(--accent-orange) !important; color: #000 !important; }
 
-        /* --- CLAVIER --- */
         .keyboard { 
             height: 55dvh; background: #1a1a1a; display: flex; flex-direction: column; padding: 2px;
             border-top: 4px solid var(--mode-color); transition: border-color 0.2s;
@@ -85,11 +81,12 @@
         .special-row { display: grid; grid-template-columns: 1fr 1.2fr 1.2fr 1.2fr; height: 70px; gap: 1px; background: #333; }
         .sp-key { background: #121916; color: white; border: none; font-weight: bold; font-size: 0.8rem; }
 
-        /* --- OVERLAY VICTOIRE --- */
         .overlay { display:none; position:fixed; inset:0; background: rgba(13,17,23,0.98); z-index:999; flex-direction:column; justify-content: center; align-items:center; padding: 20px; }
         .final-box { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid #30363d; width: 100%; max-width: 300px; text-align: center; }
         .btn-save { background: var(--accent) !important; font-size: 0.85rem; font-weight: 800; border-radius: 10px; height: 50px; width: 100%; margin: 10px 0; color: white; border:none; }
-    </style>
+        .end-btn-container { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 260px; margin-top: 15px; }
+   
+	</style>
 </head>
 <body>
     <div class="top-bar">
@@ -130,8 +127,9 @@
                     <div class="p-score" id="ia-score-val">501</div>
                     <div class="p-stats" id="ia-stats">MOY: 0.0<br>0 FLÉCHETTES</div>
                 </div>
+            <div style="visibility: hidden;"></div>
             </div>
-            <div class="turn-announcer" id="turn-txt">À TOI DE JOUER</div>
+            <div class="turn-announcer" id="turn-txt">À TOI DE JOUER !</div>
         </div>
         
         <div class="input-info">
@@ -157,22 +155,26 @@
         </div>
     </div>
 
-    <div id="end-screen" class="overlay">
+<div id="end-screen" class="overlay">
+        <div class="top-bar" style="width: 100%; position: absolute; top: 0; left: 0;">
+            <div class="back-icon" onclick="window.location.href='menu.html'"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
+            <div class="top-title">🤖 IA CHALLENGE - 501</div>
+        </div>
+        
         <div class="final-box">
             <h1 style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;">MATCH TERMINÉ</h1>
             <div id="final-result" style="font-size: 2rem; font-weight: 900; margin: 5px 0;">VICTOIRE</div>
-            <p id="end-msg" style="font-size: 0.8rem; color: #fff; margin-bottom:15px;"></p>
-            <div id="top-scores" style="background: #0b1410; border-radius: 8px; padding: 10px; border: 1px solid #30363d; text-align: left;">
-                <div style="color: var(--accent); font-weight: bold; font-size: 0.7rem; margin-bottom:5px; text-align:center;">🏆 TES MEILLEURS RECORDS</div>
-                <div id="top-list" style="font-size: 0.75rem;"></div>
-            </div>
-            <button id="btn-save-only" class="btn-save" style="display:none;" onclick="handleJustSave()">ARCHIVER LE RECORD</button>
+            <p id="winner-display" style="font-size: 0.8rem; color: #fff; margin-bottom:15px; font-weight:bold;"></p>
+            
+            <div id="local-stats-list" style="background: #0b1410; border-radius: 8px; padding: 10px; border: 1px solid #30363d; text-align: left; font-size: 0.75rem;">
+                </div>
+
+            <button id="btn-save-only" class="btn-save" style="display:none;" onclick="handleJustSave()">ENREGISTRER LA VICTOIRE</button>
             <button class="btn-save" style="background:#30363d !important;" onclick="location.reload()">REJOUER</button>
         </div>
     </div>
 
 <script>
-    // --- FIREBASE ---
     const firebaseConfig = {
         apiKey: "AIzaSyCSeggBmTOXR_XyspjuAsbhMfncp9MYUBA",
         authDomain: "dartsclub-1aab9.firebaseapp.com",
@@ -184,9 +186,14 @@
     };
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+    const auth = firebase.auth();
 
-    // --- VARIABLES ---
-    const pseudo = (localStorage.getItem('darts_pseudo') || "INVITÉ").toUpperCase();
+    auth.onAuthStateChanged(async (user) => {
+        if (!user) await auth.signInAnonymously();
+    });
+
+    const pseudoRaw = localStorage.getItem('darts_pseudo') || "INVITÉ";
+    const pseudo = pseudoRaw.toUpperCase().trim();
     const isGuest = localStorage.getItem('is_guest') === 'true' || pseudo === "INVITÉ";
     
     let pScore = 501, iaScore = 501, iaLevel = 1;
@@ -224,7 +231,7 @@
     function addDart(val) {
         if (turnDarts.length >= 3 || isBust || pScore === 0) return;
         let m = (val === 50 || val === 25 || val === 0) ? 1 : multiplier;
-        let pts = val * m;
+        let pts = (val === 50) ? 50 : val * m;
 
         if(pScore - pts < 0 || pScore - pts === 1 || (pScore - pts === 0 && m !== 2 && val !== 50)) {
             isBust = true;
@@ -251,7 +258,6 @@
         btn.disabled = !(turnDarts.length === 3 || isBust || pScore === 0);
         if(!btn.disabled) btn.classList.add('ready'); else btn.classList.remove('ready');
 
-        // Moyenne joueur
         const pAvg = pDarts + turnDarts.length > 0 ? (((501 - pScore) / (pDarts + turnDarts.length)) * 3).toFixed(1) : "0.0";
         document.getElementById('p-stats').innerHTML = `MOY: ${pAvg}<br>${pDarts + turnDarts.length} FLÉCHETTES`;
     }
@@ -273,8 +279,6 @@
             const targets = [0, 42, 58, 72, 88];
             let variation = Math.floor(Math.random() * 26) - 13;
             let iaVolley = Math.min(iaScore, Math.max(0, targets[iaLevel] + variation));
-            
-            // Fin de partie IA réaliste
             if(iaScore <= 40 && Math.random() > 0.5) iaVolley = iaScore;
 
             iaScore -= iaVolley; iaPoints += iaVolley; iaDarts += 3;
@@ -317,69 +321,72 @@
     function showEnd(win) {
         document.getElementById('game-screen').style.display = 'none';
         document.getElementById('end-screen').style.display = 'flex';
+        
         const res = document.getElementById('final-result');
-        const msg = document.getElementById('end-msg');
+        const winDisp = document.getElementById('winner-display');
+        const statsList = document.getElementById('local-stats-list');
+        
         const pAvg = ((pPoints / pDarts) * 3).toFixed(1);
+        const iaAvg = ((iaPoints / iaDarts) * 3).toFixed(1);
 
         if(win) {
-            res.innerText = "VICTOIRE !"; res.style.color = "var(--accent-green)";
-            msg.innerText = `Bravo ${pseudo} ! Tu gagnes avec ${pAvg} de moyenne.`;
-            if(!isGuest) document.getElementById('btn-save-only').style.display = 'block';
+            res.innerText = "VICTOIRE";
+            res.style.color = "var(--accent-green)";
+            winDisp.innerText = pseudo;
         } else {
-            res.innerText = "DÉFAITE"; res.style.color = "var(--accent-red)";
-            msg.innerText = `L'IA a terminé en ${iaDarts} fléchettes.`;
+            res.innerText = "DÉFAITE";
+            res.style.color = "var(--accent-red)";
+            winDisp.innerText = "IA NIVEAU " + iaLevel;
         }
-        displayTop3();
+
+        statsList.innerHTML = `
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #222; padding-bottom:4px;">
+                <span style="color:#8b949e">Joueur</span>
+                <span>${pseudo}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                <span style="color:#8b949e">Moyenne (AVG)</span>
+                <span style="color:var(--accent-orange); font-weight:bold;">${pAvg}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                <span style="color:#8b949e">Fléchettes</span>
+                <span>${pDarts}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-top:10px; padding-top:10px; border-top:1px dashed #333;">
+                <span style="color:#8b949e">Moyenne IA</span>
+                <span>${iaAvg}</span>
+            </div>
+        `;
+
+        if(win && !isGuest) {
+            document.getElementById('btn-save-only').style.display = 'block';
+        }
     }
 
-    function handleJustSave() {
+    async function handleJustSave() {
+        if(isGuest) return;
+        const btn = document.getElementById('btn-save-only');
         const finalAvg = parseFloat(((pPoints / pDarts) * 3).toFixed(2));
-        const topRef = db.ref(`users/${pseudo}/games/ia_501/top`);
-        topRef.once('value', (snapshot) => {
-            let scores = snapshot.val() || [];
+        const topRef = db.ref('users/' + pseudo + '/games/ia_501/top');
+        
+        try {
+            btn.disabled = true; btn.innerText = "ENREGISTREMENT...";
+            const snapshot = await topRef.once('value');
+            let scores = [];
+            if(snapshot.exists()){
+                const val = snapshot.val();
+                scores = Array.isArray(val) ? val : Object.values(val);
+            }
             scores.push({ date: new Date().toLocaleDateString('fr-FR'), avg: finalAvg, darts: pDarts, lvl: iaLevel });
             scores.sort((a, b) => b.avg - a.avg);
-            topRef.set(scores.slice(0, 3)).then(() => {
-                const sb = document.getElementById('btn-save-only');
-                sb.innerText = "✅ RECORD ARCHIVÉ"; sb.disabled = true; sb.style.opacity = "0.5";
-                displayTop3();
-            });
-        });
+            await topRef.set(scores.slice(0, 3));
+            btn.innerText = "✅ VICTOIRE ENREGISTRÉE";
+            btn.style.background = "#2ecc71";
+        } catch(e) {
+            console.error(e);
+            btn.disabled = false; btn.innerText = "ERREUR";
+        }
     }
-
-    function displayTop3() {
-        const listDiv = document.getElementById('top-list');
-        if (isGuest) { listDiv.innerHTML = "<center>Connecte-toi pour voir tes records</center>"; return; }
-        db.ref(`users/${pseudo}/games/ia_501/top`).once('value', (snapshot) => {
-            const scores = snapshot.val() || [];
-            if (scores.length === 0) { listDiv.innerHTML = "<center>Aucun record</center>"; return; }
-            listDiv.innerHTML = scores.map((s, i) => `
-                <div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #222;">
-                    <span>${i+1}. <b>${s.avg}</b> AVG</span>
-                    <span style="color:#8b949e;">Niveau ${s.lvl}</span>
-                </div>`).join('');
-        });
-    }
-
-
-	// Bloquer les raccourcis clavier (F12, Ctrl+Maj+I, etc.)
-	document.addEventListener('keydown', (e) => {
-		// F12
-		if (e.keyCode === 123) {
-			e.preventDefault();
-			return false;
-		}
-		// Ctrl+Maj+I ou Ctrl+Maj+J ou Ctrl+Maj+C
-		if (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) {
-			e.preventDefault();
-			return false;
-		}
-		// Ctrl+U (Afficher la source)
-		if (e.ctrlKey && e.keyCode === 85) {
-			e.preventDefault();
-			return false;
-		}
-	}, false);
 </script>
 </body>
 </html>

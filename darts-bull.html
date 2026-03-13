@@ -4,260 +4,269 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Darts Club - Bull Challenge</title>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <script src="protection.js"></script>  
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
     <style>
         :root { 
             --bg: #0b0e14; --card: #161b22; --text: #f0f6fc;
-            --s-color: #238636; --d-color: #da3633; 
-            --accent: #58a6ff;
+            --accent: #58a6ff; --bg-dark: #121916;
+            --accent-orange: #f39c12; --accent-green: #2ecc71; --accent-red: #e74c3c;
         }
         * { box-sizing: border-box; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+        
         body { 
             font-family: -apple-system, system-ui, sans-serif; 
             background: var(--bg); color: var(--text); 
-            margin: 0; padding: 0; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; 
+            margin: 0; padding: 0; height: 100dvh;
+            display: flex; flex-direction: column; overflow: hidden; 
+            position: fixed; width: 100%;
         }
-        .app-brand { height: 35px; display: flex; align-items: center; justify-content: center; gap: 8px; flex-shrink: 0; }
-        .app-title { font-size: 0.75rem; font-weight: 900; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; }
+
+        .top-bar { height: 50px; background: #1a1a1a; display: flex; align-items: center; padding: 0 15px; flex-shrink: 0; border-bottom: 1px solid #333; }
+        .back-icon { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 1px solid #444; border-radius: 4px; cursor: pointer; }
+        .top-title { flex: 1; text-align: center; font-size: 0.75rem; font-weight: 900; letter-spacing: 1px; color: #ccc; }
+
+        .score-section { height: 36.5dvh; display: flex; flex-direction: column; background: var(--bg-dark); padding: 10px 0; }
+        .header-scores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0 10px; flex: 1; }
+
+        .turn-announcer { height: 35px; display: flex; align-items: center; justify-content: center; color: var(--accent-orange); font-weight: 900; font-size: 0.8rem; text-transform: uppercase; }
         
-        footer {
-            position: fixed; bottom: 0; left: 0; width: 100%;
-            background: var(--bg); padding: 10px 0;
-            padding-bottom: calc(env(safe-area-inset-bottom) + 10px);
-            text-align: center; z-index: 100; border-top: 1px solid #161b22;
+        .p-column { 
+            background: #1a1a1a; border: 3px solid #333; border-radius: 15px; 
+            display: flex; flex-direction: column; align-items: center; justify-content: space-around;
+            padding: 10px 5px; opacity: 1; color: #fff;
         }
-        .back-btn { color: #888; text-decoration: none; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; padding: 5px 15px; border: 1px solid #333; border-radius: 20px; }
+        .p-column.active { background: var(--accent-orange); border-color: #fff; color: #000; }
+        .p-column.blue { background: var(--accent); border-color: #fff; color: #000; }
         
-        #game-screen { flex: 1; display: flex; flex-direction: column; padding: 10px; padding-bottom: 105px; gap: 8px; }
-        
-        .train-header { 
-            height: 12dvh; display: flex; justify-content: space-around; align-items: center;
-            background: var(--card); border-radius: 12px; border: 1px solid #30363d; flex-shrink: 0;
+        .p-name { font-size: 0.85rem; font-weight: 900; text-transform: uppercase; }
+        .p-score { font-size: 3.2rem; font-weight: 900; line-height: 1; margin: 5px 0; }
+        .target-sub { font-size: 0.65rem; font-weight: 900; margin-top: 10px; text-transform: uppercase; opacity: 0.8; }
+        .p-stats { font-size: 0.6rem; font-weight: 900; width: 90%; }
+
+        .input-info { height: 75px; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0 15px; background: #000; border-bottom: 4px solid var(--accent); }
+        .dart-val { 
+            width: 70px; height: 55px; background: white; color: black; 
+            border-radius: 30px; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; font-weight: 900; font-size: 1.1rem;
         }
-        .stat-box { text-align: center; flex: 1; }
-        .stat-label { font-size: 0.6rem; color: #8b949e; text-transform: uppercase; font-weight: bold; }
-        .stat-val { font-size: 2.2rem; font-weight: 900; color: var(--accent); line-height: 1; }
+        .dart-val small { font-size: 0.55rem; font-weight: bold; color: #555; text-transform: uppercase; }
         
-        .target-box { background: rgba(88, 166, 255, 0.1); border-radius: 10px; padding: 5px; border: 2px solid var(--accent); margin: 0 10px; }
-        .target-val { font-size: 1.8rem; font-weight: 900; color: #fff; line-height: 1; }
+        .btn-valid-darts { flex: 1; height: 55px; background: #222; border: none; color: #444; border-radius: 30px; font-weight: 900; font-size: 0.85rem; text-transform: uppercase; }
+        .btn-valid-darts.ready { background: var(--accent-orange) !important; color: #000 !important; }
 
-        .turn-tracking { display: flex; justify-content: center; gap: 8px; height: 45px; flex-shrink: 0; margin-top: 10px;}
-        .dart-slot { 
-            flex: 1; background: #010409; border: 1px solid #30363d; border-radius: 8px; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            font-weight: 900; font-size: 0.8rem; color: #484f58;
-        }
-        .dart-slot.green { color: var(--s-color); border-color: var(--s-color); background: rgba(35, 134, 54, 0.1); }
-        .dart-slot.red { color: var(--d-color); border-color: var(--d-color); background: rgba(218, 54, 51, 0.1); }
-        .slot-pts { font-size: 0.6rem; opacity: 0.8; }
+		.keyboard { flex: 0 0 30dvh; background: #1a1a1a; display: flex; flex-direction: column; padding: 20px; }
+        .num-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; flex: 1; gap: 1px; background: #333; }
+        .key { background: #121916; border: none; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .key span { font-size: 1.2rem; font-weight: 900; }
+        .key small { font-size: 0.6rem; color: #666; font-weight: 900; text-transform: uppercase; margin-top: 5px; }
+        .key.red { border-bottom: 5px solid var(--accent-red); }
+        .key.green { border-bottom: 5px solid var(--accent-green); }
 
-        .action-area { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 12px; min-height: 0; }
-        .hit-grid { display: grid; grid-template-columns: 1fr; gap: 8px; width: 100%; max-width: 320px; margin: 0 auto; }
-        
-        .btn-bull { border: none; border-radius: 12px; height: 55px; font-size: 1rem; font-weight: 900; color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: #21262d; }
-        .btn-green { border-left: 8px solid var(--s-color); }
-        .btn-red { border-left: 8px solid var(--d-color); }
-        .btn-miss { border-left: 8px solid #484f58; }
+        .special-row { display: grid; grid-template-columns: 1fr; height: 60px; background: #333; }
+        .sp-key { background: #121916; color: #888; border: none; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; }
 
-        .main-actions { display: grid; grid-template-columns: 1fr 2fr; gap: 12px; width: 100%; max-width: 320px; margin: 0 auto; margin-top: 5px; }
-        .btn-valid { background: var(--accent) !important; color: #fff; border-radius: 12px; height: 50px; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; border: none; }
-        .btn-undo { background: #161b22; color: #8b949e; border-radius: 12px; font-size: 1.2rem; border: 1px solid #30363d; }
-
-        /* PHASE FINALE STYLE CHECKOUT */
-        .overlay { display:none; position:fixed; inset:0; background: rgba(13,17,23,0.98); z-index: 999; flex-direction:column; justify-content:center; align-items:center; padding: 20px; }
+        .overlay { display:none; position:fixed; inset:0; background: rgba(13,17,23,0.98); z-index:999; flex-direction:column; justify-content:center; align-items:center; padding: 20px; }
         .final-box { background: var(--card); padding: 15px; border-radius: 15px; border: 1px solid #30363d; width: 100%; max-width: 260px; text-align: center; }
         .end-btn-container { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 260px; margin-top: 15px; }
-        .end-btn { height: 50px; border-radius: 10px; font-size: 0.85rem; text-transform: uppercase; font-weight: 800; border:none; color:#fff; }
-        .btn-save-action { background: var(--s-color) !important; }
-        .btn-restart-action { background: var(--accent) !important; }
-        #top-list { font-size: 0.75rem; width: 100%; margin-top: 5px; }
+        .end-btn { height: 50px; border-radius: 10px; font-size: 0.85rem; text-transform: uppercase; font-weight: 800; border: none; color: white; }
+        .btn-save { background: var(--accent-green) !important; }
+        .btn-valid { background: var(--accent) !important; }
     </style>
 </head>
 <body>
-
-    <div id="game-screen">
-        <div class="app-brand"><span class="app-logo">🎯</span><span class="app-title">Bull Challenge</span></div>
-        <div class="train-header">
-            <div class="stat-box"><div class="stat-label">Points</div><div id="scoreDisplay" class="stat-val">0/10</div></div>
-            <div class="stat-box target-box"><div class="stat-label">Fléchettes</div><div id="dartsDisplay" class="target-val">0/18</div></div>
-        </div>
-        <div class="turn-tracking">
-            <div class="dart-slot" id="d0"><span>-</span></div>
-            <div class="dart-slot" id="d1"><span>-</span></div>
-            <div class="dart-slot" id="d2"><span>-</span></div>
-        </div>
-        <div class="action-area">
-            <div class="hit-grid">
-                <button class="btn-bull btn-red" onclick="addDart(2, 'red')">BULLSEYE <span>2pts</span></button>
-                <button class="btn-bull btn-green" onclick="addDart(1, 'green')">BULL <span>1pt</span></button>
-                <button class="btn-bull btn-miss" onclick="addDart(0, 'miss')">ZÉRO <span>0pt</span></button>
-            </div>
-            <div class="main-actions">
-                <button class="btn-undo" onclick="undoInTurn()">⌫</button>
-                <button class="btn-valid" id="btnValid" onclick="validateTurn()" style="opacity: 0.3;">Valider Volée</button>
-            </div>
-        </div>
+    <div class="top-bar">
+        <div class="back-icon" onclick="window.location.href='menu.html'"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
+        <div class="top-title">🎯 BULL</div>
     </div>
 
-    <footer><a href="menu.html" class="back-btn">⬅ Menu Principal</a></footer>
+    <div class="score-section">
+        <div class="header-scores">
+            <div class="p-column active">
+                <div class="p-name">POINTS</div>
+                <div id="val-score" class="p-score">0</div>
+                <div class="target-sub">&nbsp;</div>
+                <div class="p-stats">&nbsp;<br>OBJ : 10</div>	
+            </div>
+            <div class="p-column blue">
+                <div class="p-name">JETS</div>
+                <div id="val-darts" class="p-score">0</div>
+                <div class="target-sub">&nbsp;</div>
+                <div class="p-stats">&nbsp;<br>&nbsp;</div>	
+            </div>
+            <div style="visibility: hidden;"></div>
+        </div>
+        <div class="turn-announcer" id="msg-txt">À TOI DE JOUER !</div>
+    </div>
+    
+    <div class="input-info">
+        <div class="dart-val" id="v0">--<small>-</small></div>
+        <div class="dart-val" id="v1">--<small>-</small></div>
+        <div class="dart-val" id="v2">--<small>-</small></div>
+        <button class="btn-valid-darts" id="btn-validate" onclick="validateTurn()" disabled>VALIDER</button>
+    </div>
+
+    <div class="keyboard">
+        <div class="special-row">
+            <button class="sp-key" onclick="undo()">RETOUR ⌫</button>
+        </div>  
+        <div class="num-grid">
+            <button class="key red" onclick="addDart(2, 'red')"><span>BULLSEYE</span><small>2 PTS</small></button>
+            <button class="key green" onclick="addDart(1, 'green')"><span>BULL</span><small>1 PT</small></button>
+            <button class="key" onclick="addDart(0, 'miss')"><span>ZÉRO</span><small>0 PT</small></button>
+        </div>
+    </div>
 
     <div id="end-screen" class="overlay">
+		<div class="top-bar" style="width: 100%; position: absolute; top: 0; left: 0;">
+			<div class="back-icon" onclick="window.location.href='menu.html'"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
+			<div class="top-title">🎯 BULL</div>
+		</div>
         <div class="final-box">
-            <h1 id="end-title-label" style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase; margin:0;">Résultat</h1>
-            <div id="final-score" style="font-size: 3.5rem; font-weight: 900; margin: 5px 0;">0</div>
-            <p id="end-msg" style="font-size: 0.85rem; color: #fff; font-weight: bold; margin: 0;"></p>
+            <h1 id="end-status" style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase; margin: 0;">Résultat Final</h1>
+            <div id="final-score-display" style="font-size: 3.5rem; font-weight: 900; margin: 5px 0; line-height: 1;">--</div>
+            <p id="end-msg" style="font-size: 0.85rem; color: #fff; font-weight: bold; margin: 10px 0 0 0; background: #1a1a1a; display: inline-block; padding: 4px 12px; border-radius: 4px;"></p>
         </div>
-
-        <div id="top-scores-container" style="margin: 15px 0; width: 100%; max-width: 260px;">
-            <div style="color: var(--d-color); font-weight: bold; text-align: center; font-size: 0.75rem; margin-bottom: 5px;">🏆 TOP 3 RECORDS</div>
-            <div id="top-list">...</div>
+        <div id="top-scores" style="margin: 15px 0; width: 100%; max-width: 260px; font-size: 0.75rem;">
+            <div style="color: var(--accent-orange); font-weight: bold; text-align: center; margin-bottom: 8px; text-transform: uppercase;">🏆 Top 3 Records</div>
+            <div id="top-list" style="background: var(--card); border-radius: 10px; padding: 5px 10px; border: 1px solid #333;">...</div>
         </div>
-
         <div class="end-btn-container">
-            <button id="btn-save-bull" class="end-btn btn-save-action" onclick="saveBullRecord()">Enregistrer le Score</button>
-            <button class="end-btn btn-restart-action" onclick="location.reload()">Recommencer</button>
-            <a href="menu.html" style="color: #555; text-decoration: none; font-size: 0.75rem; text-align: center; margin-top: 5px;">RETOUR AU MENU</a>
+            <button id="btn-save-only" class="end-btn btn-save" style="display:none;" onclick="saveRecord()">ENREGISTRER</button>
+            <button class="end-btn btn-valid" onclick="location.reload()">REJOUER</button>
         </div>
     </div>
-	
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
-    <script>
-        const firebaseConfig = {
-			apiKey: "AIzaSyCSeggBmTOXR_XyspjuAsbhMfncp9MYUBA",
-            authDomain: "dartsclub-1aab9.firebaseapp.com",
-            databaseURL: "https://dartsclub-1aab9-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "dartsclub-1aab9",
-            storageBucket: "dartsclub-1aab9.firebasestorage.app",
-            messagingSenderId: "769714266505",
-            appId: "1:769714266505:web:ea1758db2c96702979c158"
-        };
-if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 
-const auth = firebase.auth(); // Ajoute cette ligne
-const db = firebase.database(); // Ajoute cette ligne
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyCSeggBmTOXR_XyspjuAsbhMfncp9MYUBA",
+        authDomain: "dartsclub-1aab9.firebaseapp.com",
+        databaseURL: "https://dartsclub-1aab9-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "dartsclub-1aab9",
+        storageBucket: "dartsclub-1aab9.firebasestorage.app",
+        messagingSenderId: "769714266505",
+        appId: "1:769714266505:web:ea1758db2c96702979c158"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const auth = firebase.auth();
 
-// AJOUTE CE BLOC : Force la connexion pour valider les permissions
-auth.onAuthStateChanged(async (user) => {
-    if (!user) {
-        await auth.signInAnonymously();
+    auth.onAuthStateChanged(async (user) => { if (!user) await auth.signInAnonymously(); });
+
+    const pseudo = localStorage.getItem('darts_pseudo') || "INVITÉ";
+    const isGuest = pseudo === "INVITÉ";
+
+    let totalScore = 0;
+    let totalDarts = 0;
+    let turnDarts = [];
+    let gameOver = false;
+
+    function addDart(pts, type) {
+        if(gameOver || turnDarts.length >= 3) return;
+        turnDarts.push({pts, type});
+        updateUI();
     }
-});
 
-        const pseudo = localStorage.getItem('darts_pseudo') || "INVITÉ";
-        const isGuest = localStorage.getItem('is_guest') === 'true' || pseudo === "INVITÉ";
+    function undo() {
+        if(gameOver) return;
+        turnDarts.pop();
+        updateUI();
+    }
 
-        let totalScore = 0, totalDartsInBank = 0, turnDarts = [];
+    function updateUI() {
+        const currentTurnSum = turnDarts.reduce((acc, d) => acc + d.pts, 0);
+        document.getElementById('val-score').innerText = totalScore + currentTurnSum;
+        document.getElementById('val-darts').innerText = totalDarts + turnDarts.length + "/18";
 
-        function addDart(pts, type) {
-            if (turnDarts.length >= 3) return;
-            turnDarts.push({pts, type});
-            updateSlots();
-            updateHeader();
-            if (turnDarts.length === 3 || (totalScore + currentTurnSum() >= 10)) {
-                document.getElementById('btnValid').style.opacity = "1";
-            }
-        }
-
-        function currentTurnSum() { return turnDarts.reduce((acc, d) => acc + d.pts, 0); }
-
-        function updateHeader() {
-            document.getElementById('scoreDisplay').innerText = totalScore + currentTurnSum();
-            document.getElementById('dartsDisplay').innerText = `${totalDartsInBank + turnDarts.length}/18`;
-        }
-
-        function updateSlots() {
-            for(let i=0; i<3; i++) {
-                const slot = document.getElementById(`d${i}`);
-                if (turnDarts[i]) {
-                    slot.className = `dart-slot ${turnDarts[i].type}`;
-                    slot.innerHTML = `<span>${turnDarts[i].pts > 0 ? 'HIT' : 'MISS'}</span><span class="slot-pts">${turnDarts[i].pts}pt</span>`;
-                } else {
-                    slot.className = "dart-slot"; slot.innerHTML = "<span>-</span>";
-                }
-            }
-        }
-
-        function undoInTurn() {
-            if (turnDarts.length > 0) {
-                turnDarts.pop(); updateSlots(); updateHeader();
-                document.getElementById('btnValid').style.opacity = "0.3";
-            }
-        }
-
-        function validateTurn() {
-            if (turnDarts.length === 0) return;
-            totalScore += currentTurnSum();
-            totalDartsInBank += turnDarts.length;
-            if (totalScore >= 10 || totalDartsInBank >= 18) { showEnd(); } 
-            else { turnDarts = []; updateSlots(); updateHeader(); document.getElementById('btnValid').style.opacity = "0.3"; }
-        }
-
-        function showEnd() {
-            document.getElementById('game-screen').style.display = 'none';
-            document.getElementById('end-screen').style.display = 'flex';
-            
-            const fs = document.getElementById('final-score');
-            const msg = document.getElementById('end-msg');
-            const saveBtn = document.getElementById('btn-save-bull');
-
-            fs.innerText = totalScore;
-            if (totalScore >= 10) {
-                document.getElementById('end-title-label').innerText = "RÉUSSI !";
-                fs.style.color = "var(--s-color)";
-                msg.innerText = `10 pts en ${totalDartsInBank} fléchettes.`;
-                saveBtn.style.display = isGuest ? 'none' : 'block';
+        for(let i=0; i<3; i++) {
+            const slot = document.getElementById('v'+i);
+            if(turnDarts[i]) {
+                slot.innerHTML = turnDarts[i].type === 'miss' ? `MISS<small>0 PT</small>` : `HIT<small>${turnDarts[i].pts} PT</small>`;
             } else {
-                document.getElementById('end-title-label').innerText = "ÉCHOUÉ";
-                fs.style.color = "var(--d-color)";
-                msg.innerText = `Score : ${totalScore}/10 points.`;
-                saveBtn.style.display = 'none';
+                slot.innerHTML = `--<small>-</small>`;
             }
-            displayTop3();
         }
+        
+        const btn = document.getElementById('btn-validate');
+        // LE BOUTON S'ALLUME SI : 3 fléchettes OU si les 10 points sont atteints
+        const canValidate = turnDarts.length === 3 || (totalScore + currentTurnSum >= 10);
+        btn.disabled = !canValidate;
+        if(!btn.disabled) btn.classList.add('ready');
+        else btn.classList.remove('ready');
+    }
 
-        async function saveBullRecord() {
-            if(isGuest) return;
-            const btn = document.getElementById('btn-save-bull');
-            const pseudoUpper = pseudo.toUpperCase().trim();
-            try {
-                btn.disabled = true; btn.innerText = "ENREGISTREMENT...";
-                const ref = firebase.database().ref(`users/${pseudoUpper}/games/bull_challenge/top`);
-                const snap = await ref.once('value');
-                let topScores = snap.exists() ? (Array.isArray(snap.val()) ? snap.val() : Object.values(snap.val())) : [];
+    function validateTurn() {
+        if(gameOver) return;
+        totalScore += turnDarts.reduce((acc, d) => acc + d.pts, 0);
+        totalDarts += turnDarts.length;
 
-                topScores.push({ pts: totalScore, darts: totalDartsInBank, date: new Date().toLocaleDateString('fr-FR') });
-                topScores.sort((a, b) => {
-                    if (a.pts === 10 && b.pts === 10) return a.darts - b.darts;
-                    return b.pts - a.pts;
-                });
-
-                await ref.set(topScores.slice(0, 3));
-                btn.innerText = "✅ ARCHIVÉ";
-                displayTop3();
-            } catch (e) { btn.disabled = false; btn.innerText = "ERREUR"; }
+        // ARRÊT DU JEU UNIQUEMENT LORS DE LA VALIDATION
+        if(totalScore >= 10 || totalDarts >= 18) {
+            if(totalScore > 10) totalScore = 10;
+            showEnd();
+        } else {
+            turnDarts = [];
+            updateUI();
         }
+    }
 
-        function displayTop3() {
-            const listDiv = document.getElementById('top-list');
-            if (isGuest) { listDiv.innerHTML = "<div style='text-align:center; color:#555;'>Mode Invité</div>"; return; }
+    function showEnd() {
+        gameOver = true;
+        document.getElementById('game-screen-content')?.style.setProperty('display', 'none');
+        document.getElementById('end-screen').style.display = 'flex';
+        const fs = document.getElementById('final-score-display');
+        fs.innerText = totalScore;
+        
+        const success = totalScore >= 10;
+        document.getElementById('end-status').innerText = success ? "RÉUSSI !" : "ÉCHOUÉ";
+        fs.style.color = success ? "var(--accent-green)" : "var(--accent-red)";
+        document.getElementById('end-msg').innerText = `${totalScore} pts / ${totalDarts} fl.`;
+        
+        if(!isGuest) document.getElementById('btn-save-only').style.display = 'block';
+        displayTop3();
+    }
+
+    async function saveRecord() {
+        const btn = document.getElementById('btn-save-only');
+        try {
+            btn.disabled = true; btn.innerText = "Mise à jour...";
+            const ref = db.ref(`users/${pseudo.toUpperCase()}/games/bull_challenge/top`);
+            const snap = await ref.once('value');
+            let topScores = snap.exists() ? (Array.isArray(snap.val()) ? snap.val() : Object.values(snap.val())) : [];
+
+            topScores.push({ pts: totalScore, darts: totalDarts, date: new Date().toLocaleDateString('fr-FR') });
             
-            firebase.database().ref(`users/${pseudo.toUpperCase()}/games/bull_challenge/top`).once('value', (snapshot) => {
-                const scores = snapshot.val() || [];
-                if (scores.length === 0) { listDiv.innerHTML = "<div style='text-align:center; color:#555;'>Aucun record.</div>"; return; }
-                let html = "";
-                scores.forEach((s, i) => {
-                    html += `<div style="display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid #222;">
-                        <span>${i+1}. <b>${s.pts} pts</b></span>
-                        <span style="color:#8b949e;">${s.darts} fl. (${s.date})</span>
-                    </div>`;
-                });
-                listDiv.innerHTML = html;
+            // RÈGLE DU PODIUM : POINTS PUIS FLÉCHETTES
+            topScores.sort((a, b) => {
+                if (b.pts !== a.pts) return b.pts - a.pts;
+                return a.darts - b.darts;
             });
-        }
-    </script>
+
+            await ref.set(topScores.slice(0, 3));
+            btn.innerText = "✅ ENREGISTRÉ";
+            displayTop3();
+        } catch (e) { btn.innerText = "ERREUR"; }
+    }
+
+    function displayTop3() {
+        const listDiv = document.getElementById('top-list');
+        if (isGuest) { listDiv.innerHTML = "Mode Invité"; return; }
+        db.ref(`users/${pseudo.toUpperCase()}/games/bull_challenge/top`).once('value', (snapshot) => {
+            const data = snapshot.val() || [];
+            let html = "";
+            const scoreArray = Array.isArray(data) ? data : Object.values(data);
+            scoreArray.forEach((s, i) => {
+                html += `<div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:${i===scoreArray.length-1?'none':'1px solid #222'};">
+                    <span>${i+1}. <b>${s.pts} pts</b> <small style="color:#8b949e; margin-left:5px;">${s.darts} fl.</small></span>
+                    <span style="color:#444; font-size:0.6rem;">${s.date}</span>
+                </div>`;
+            });
+            listDiv.innerHTML = html || "Aucun record.";
+        });
+    }
+
+    updateUI();
+</script>
 </body>
 </html>
