@@ -181,7 +181,7 @@
         if(!myName) return alert("ENTRE TON PSEUDO");
         localStorage.setItem('darts_pseudo', myName);
         roomName = name;
-        document.getElementById('room-display').innerText = "5 - LIVE : " + name;
+        document.getElementById('room-display').innerText = "LIVE : " + name;
         
         if(count === 0) db.ref(`rooms/${name}`).set({ status: "playing", currentPlayer: 0 });
         
@@ -217,7 +217,7 @@
     }
 
 function addDart(val) {
-        // Bloque si ce n'est pas ton tour, si tu as déjà 3 fléchettes, si tu es BUST ou si tu as déjà atteint 0
+        // Bloque si : pas ton tour, 3 fléchettes déjà saisies, BUST, ou score déjà à 0
         if (gameState.currentPlayer != myIndex || dartsInTurn.length >= 3 || isBust || localDisplayScore === 0) return;
         
         let m = (val === 50 || val === 25 || val === 0) ? 1 : multiplier;
@@ -234,14 +234,40 @@ function addDart(val) {
             visualDarts.push(label); 
             dartsInTurn.push(pts);
         }
-
-        // Si le score est à 0 après cette fléchette, on force l'arrêt de la saisie pour ce tour
-        if (localDisplayScore === 0) {
-            // La saisie est maintenant bloquée par la condition au début de la fonction
-        }
-
         setMod(1); 
         syncUI();
+    }
+
+    async function saveVictory() {
+        const winner = gameState.players.find(p => p.id === myId);
+        const avg = parseFloat(((winner.totalPoints / winner.totalDarts) * 3).toFixed(2));
+        const btn = document.getElementById('btn-save-only');
+        
+        try {
+            btn.disabled = true; 
+            btn.innerText = "ENREGISTREMENT...";
+            const ref = db.ref(`users/${winner.name}/games/live_501`);
+            
+            // Mise à jour du Top 3
+            const snap = await ref.child('top').once('value');
+            let top = snap.val() || [];
+            top.push({ avg: avg, darts: winner.totalDarts, date: new Date().toLocaleDateString('fr-FR') });
+            top.sort((a, b) => b.avg - a.avg);
+            await ref.child('top').set(top.slice(0, 3));
+            
+            // AJOUT STATS WINS
+            await db.ref(`users/${winner.name}/stats/wins`).transaction(c => (c || 0) + 1);
+            
+            btn.innerText = "✅ VICTOIRE ARCHIVÉE";
+            btn.style.background = "#2ecc71";
+            
+            // Retour au menu après un court délai
+            setTimeout(() => resetStand(), 1500);
+        } catch(e) { 
+            console.error(e);
+            btn.disabled = false; 
+            btn.innerText = "ERREUR";
+        }
     }
 
     function undoLastDart() {
@@ -337,32 +363,7 @@ function addDart(val) {
         if(!btn.disabled) btn.classList.add('ready'); else btn.classList.remove('ready');
     }
 
-    async function saveVictory() {
-        const winner = gameState.players.find(p => p.id === myId);
-        const avg = parseFloat(((winner.totalPoints / winner.totalDarts) * 3).toFixed(2));
-        const btn = document.getElementById('btn-save-only');
-        
-        try {
-            btn.disabled = true; btn.innerText = "ENREGISTREMENT...";
-            const ref = db.ref(`users/${winner.name}/games/live_501`);
-            
-            // Top Scores
-            const snap = await ref.child('top').once('value');
-            let top = snap.val() || [];
-            top.push({ avg: avg, darts: winner.totalDarts, date: new Date().toLocaleDateString('fr-FR') });
-            top.sort((a, b) => b.avg - a.avg);
-            await ref.child('top').set(top.slice(0, 3));
-            
-            // Incrémentation Stats Win
-            await db.ref(`users/${winner.name}/stats/wins`).transaction(c => (c || 0) + 1);
-            
-            btn.innerText = "✅ ARCHIVÉ";
-            setTimeout(() => resetStand(), 1000);
-        } catch(e) { 
-            alert("Erreur"); 
-            btn.disabled = false; btn.innerText = "ERREUR";
-        }
-    }
+
 </script>
 </body>
 </html>
