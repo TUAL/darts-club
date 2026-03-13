@@ -195,7 +195,7 @@
 
     function addSuggestedPlayer() { addPlayerToGame(currentPseudo); document.getElementById('suggest-box').style.display = 'none'; }
 
-    async function addPlayerToGame(forcedName = null) {
+	async function addPlayerToGame(forcedName = null) {
         const input = document.getElementById('pName');
         const btnAdd = document.getElementById('btnAdd');
         const name = (forcedName || input.value).trim().toUpperCase();
@@ -211,12 +211,18 @@
             let canAdd = true;
 
             if (userSnap.exists()) {
-                const pin = prompt(`Profil "${name}" détecté.\nEntrez le code PIN :`);
-                if (pin === String(userSnap.val().pin)) {
+                // SI C'EST LE JOUEUR CONNECTÉ : On valide sans demander le PIN
+                if (name === currentPseudo) {
                     isVerified = true;
                 } else {
-                    alert("PIN incorrect.");
-                    canAdd = false;
+                    // SINON : On demande le PIN normalement
+                    const pin = prompt(`Profil "${name}" détecté.\nEntrez le code PIN :`);
+                    if (pin === String(userSnap.val().pin)) {
+                        isVerified = true;
+                    } else {
+                        alert("PIN incorrect.");
+                        canAdd = false;
+                    }
                 }
             }
 
@@ -230,7 +236,6 @@
                 renderSetup();
             }
         } catch(e) {
-            // Ajout hors-ligne en cas d'erreur
             players.push({ name, score: 501, totalDarts: 0, lastV: "---", isVerified: false });
             renderSetup();
         } finally {

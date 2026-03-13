@@ -169,7 +169,7 @@
             <div id="local-stats-list" style="background: #0b1410; border-radius: 8px; padding: 10px; border: 1px solid #30363d; text-align: left; font-size: 0.75rem;">
                 </div>
 
-            <button id="btn-save-only" class="btn-save" style="display:none;" onclick="handleJustSave()">ENREGISTRER LA VICTOIRE</button>
+            <button id="btn-save-only" class="btn-save" style="display:none;" onclick="handleJustSave()">ENREGISTRER</button>
             <button class="btn-save" style="background:#30363d !important;" onclick="location.reload()">REJOUER</button>
         </div>
     </div>
@@ -340,10 +340,7 @@
         }
 
         statsList.innerHTML = `
-            <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #222; padding-bottom:4px;">
-                <span style="color:#8b949e">Joueur</span>
-                <span>${pseudo}</span>
-            </div>
+
             <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
                 <span style="color:#8b949e">Moyenne (AVG)</span>
                 <span style="color:var(--accent-orange); font-weight:bold;">${pAvg}</span>
@@ -352,10 +349,6 @@
                 <span style="color:#8b949e">Fléchettes</span>
                 <span>${pDarts}</span>
             </div>
-            <div style="display:flex; justify-content:space-between; margin-top:10px; padding-top:10px; border-top:1px dashed #333;">
-                <span style="color:#8b949e">Moyenne IA</span>
-                <span>${iaAvg}</span>
-            </div>
         `;
 
         if(win && !isGuest) {
@@ -363,15 +356,17 @@
         }
     }
 
-    async function handleJustSave() {
+async function handleJustSave() {
         if(isGuest) return;
         const btn = document.getElementById('btn-save-only');
         const finalAvg = parseFloat(((pPoints / pDarts) * 3).toFixed(2));
-        const topRef = db.ref('users/' + pseudo + '/games/ia_501/top');
+        const gameRef = db.ref('users/' + pseudo + '/games/ia_501');
         
         try {
             btn.disabled = true; btn.innerText = "ENREGISTREMENT...";
-            const snapshot = await topRef.once('value');
+            
+            // 1. Enregistrement du Top Score
+            const snapshot = await gameRef.child('top').once('value');
             let scores = [];
             if(snapshot.exists()){
                 const val = snapshot.val();
@@ -379,8 +374,14 @@
             }
             scores.push({ date: new Date().toLocaleDateString('fr-FR'), avg: finalAvg, darts: pDarts, lvl: iaLevel });
             scores.sort((a, b) => b.avg - a.avg);
-            await topRef.set(scores.slice(0, 3));
-            btn.innerText = "✅ VICTOIRE ENREGISTRÉE";
+            await gameRef.child('top').set(scores.slice(0, 3));
+
+            // 2. Incrémentation du compteur de victoires (WINS)
+            await gameRef.child('stats/wins').transaction(currentWins => {
+                return (currentWins || 0) + 1;
+            });
+
+            btn.innerText = "✅ ARCHIVÉ";
             btn.style.background = "#2ecc71";
         } catch(e) {
             console.error(e);

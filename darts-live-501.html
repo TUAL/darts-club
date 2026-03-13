@@ -135,9 +135,7 @@
         const saved = localStorage.getItem('darts_pseudo');
         if(saved) document.getElementById('pName').value = saved;
         renderPad();
-        // Lancer la connexion anonyme puis rafraîchir les stands
         auth.signInAnonymously().then(() => {
-            console.log("Connecté à Firebase");
             initStands();
         }).catch(err => console.error("Erreur Firebase:", err));
     };
@@ -219,7 +217,8 @@
     }
 
     function addDart(val) {
-        if (gameState.currentPlayer != myIndex || dartsInTurn.length >= 3 || isBust) return;
+        // Ajout du blocage si le score est déjà à 0
+        if (gameState.currentPlayer != myIndex || dartsInTurn.length >= 3 || isBust || localDisplayScore === 0) return;
         let m = (val === 50 || val === 25 || val === 0) ? 1 : multiplier;
         let pts = val * m;
 
@@ -277,7 +276,7 @@
             </div>`;
         }).join('');
         if (winner && winner.id === myId) {
-            db.ref(`users/${winner.name}`).once('value', s => { if(s.exists()) document.getElementById('btn-save-only').style.display = 'block'; });
+             document.getElementById('btn-save-only').style.display = 'block';
         }
     }
 
@@ -330,18 +329,28 @@
     async function saveVictory() {
         const winner = gameState.players.find(p => p.id === myId);
         const avg = parseFloat(((winner.totalPoints / winner.totalDarts) * 3).toFixed(2));
-        const userSnap = await db.ref(`users/${winner.name}`).once('value');
-        const pin = prompt(`Code PIN :`);
-        if (pin && String(userSnap.val().pin) === String(pin)) {
+        const btn = document.getElementById('btn-save-only');
+        
+        try {
+            btn.disabled = true; btn.innerText = "ENREGISTREMENT...";
             const ref = db.ref(`users/${winner.name}/games/live_501`);
+            
+            // Top Scores
             const snap = await ref.child('top').once('value');
             let top = snap.val() || [];
             top.push({ avg: avg, darts: winner.totalDarts, date: new Date().toLocaleDateString('fr-FR') });
             top.sort((a, b) => b.avg - a.avg);
             await ref.child('top').set(top.slice(0, 3));
+            
+            // Incrémentation Stats Win
             await db.ref(`users/${winner.name}/stats/wins`).transaction(c => (c || 0) + 1);
-            resetStand();
-        } else { alert("PIN incorrect"); }
+            
+            btn.innerText = "✅ ARCHIVÉ";
+            setTimeout(() => resetStand(), 1000);
+        } catch(e) { 
+            alert("Erreur"); 
+            btn.disabled = false; btn.innerText = "ERREUR";
+        }
     }
 </script>
 </body>
