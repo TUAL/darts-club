@@ -29,22 +29,36 @@
         .top-title { flex: 1; text-align: center; font-size: 0.75rem; font-weight: 900; letter-spacing: 1px; color: #ccc; }
 
         .score-section { height: 45dvh; display: flex; flex-direction: column; background: var(--bg-dark); padding: 10px 0; }
-        .header-scores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0 10px; flex: 1; }
         
 
 		
+/* Remplace .p-column par ceci */
 .p-column { 
-            background: #1a1a1a; 
-            border: 3px solid #333; 
-            border-radius: 15px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; /* Plus stable que space-around */
-            padding: 5px; 
-            color: #fff;
-            height: 100%; /* Force la hauteur dans la grille */
-        }
+    background: #1a1a1a; 
+    border: 3px solid #333; 
+    border-radius: 15px; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center; /* Plus stable que space-around */
+    padding: 5px; 
+    color: #fff;
+    /* FIX: On bloque la croissance de la carte */
+    height: 100%; 
+    max-height: 100%;
+    overflow: hidden;
+    -webkit-text-size-adjust: none; /* Empêche iOS de zoomer le texte */
+}
+
+/* On s'assure que la grille ne bouge pas d'un pixel */
+.header-scores { 
+    display: grid; 
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 8px; 
+    padding: 0 10px; 
+    flex: 1; 
+    min-height: 0; /* Important pour les conteneurs flex */
+}
 		
 		
         
@@ -74,20 +88,21 @@
             border-top: 4px solid var(--mode-color); transition: border-color 0.2s;
         }
         .mod-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: #333; }
-.btn-m { 
-            background: #1a1a1a; 
-            color: #888; 
-            padding: 15px; 
-            border: none; 
-            font-weight: 900; 
-            font-size: 0.9rem;
-            /* On pré-installe la bordure en transparent pour que la taille soit fixe */
-            border-bottom: 4px solid transparent; 
-        }
 
-        #m1.active { color: #fff; border-bottom-color: var(--accent); }
-        #m2.active { color: #fff; border-bottom-color: var(--accent-orange); }
-        #m3.active { color: #fff; border-bottom-color: var(--accent-red); }
+.btn-m { 
+    background: #1a1a1a; 
+    color: #888; 
+    padding: 15px; 
+    border: none; 
+    font-weight: 900; 
+    font-size: 0.9rem;
+    /* FIX: On force une bordure constante pour éviter le recalcul de hauteur */
+    border-bottom: 4px solid transparent; 
+}
+
+#m1.active { color: #fff; border-bottom-color: var(--accent); }
+#m2.active { color: #fff; border-bottom-color: var(--accent-orange); }
+#m3.active { color: #fff; border-bottom-color: var(--accent-red); }
 		
 
         .num-grid { display: grid; grid-template-columns: repeat(5, 1fr); flex: 1; gap: 1px; background: #333; }
@@ -200,7 +215,7 @@
     let reste = 180, totalDarts = 0, dartsInTurn = [], visualDarts = [], multiplier = 1, gameOver = false;
 
     window.onload = () => {
-        document.getElementById('title-label').innerText = "🔥 180 !2";
+        document.getElementById('title-label').innerText = "🔥 180 !8";
         document.getElementById('msg-txt').innerText = "À TOI DE JOUER !";
         renderPad();
         updateUI();
