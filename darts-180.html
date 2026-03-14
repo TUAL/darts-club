@@ -80,8 +80,6 @@
         .end-btn { height: 50px; border-radius: 10px; font-size: 0.85rem; text-transform: uppercase; font-weight: 800; border: none; color: white; cursor: pointer; }
         .btn-save { background: var(--accent-green) !important; }
         .btn-valid { background: var(--accent) !important; }
-		
-		.game-screen { display: none; height: 100dvh;  background: #000; }
     </style>
 </head>
 <body>
@@ -90,47 +88,46 @@
         <div class="top-title" id="title-label">🔥 180 !</div>
     </div>
 
-    <div class="game-screen">
-		<div class="score-section">
-			<div class="header-scores">
-				<div class="p-column active-reste">
-					<div class="p-name">RESTE</div>
-					<div id="val-reste" class="p-score">180</div>
-					<div id="last-label" class="p-last-v">---</div>
-					<div class="p-stats">OBJ : 180</div>
-				</div>
-				<div class="p-column active-jets">
-					<div class="p-name">JETS</div>
-					<div id="val-jets" class="p-score">0/9</div>
-					<div class="p-last-v"></div>
-					<div id="target-info" class="p-stats">CIBLE : 180<br>MODE : LIBRE</div>
-				</div>
-				<div style="visibility: hidden;"></div>
-			</div>
-			<div class="turn-announcer" id="msg-txt">À TOI DE JOUER !</div>
-		</div>
+    <div class="score-section">
+        <div class="header-scores">
+            <div class="p-column active-reste">
+                <div class="p-name">RESTE</div>
+                <div id="val-reste" class="p-score">180</div>
+                <div id="last-label" class="p-last-v">---</div>
+                <div class="p-stats">OBJ : 180</div>
+            </div>
+            <div class="p-column active-jets">
+                <div class="p-name">JETS</div>
+                <div id="val-jets" class="p-score">0/9</div>
+                <div class="p-last-v"></div>
+                <div id="target-info" class="p-stats">CIBLE : 180<br>MODE : LIBRE</div>
+            </div>
+            <div style="visibility: hidden;"></div>
+        </div>
+        <div class="turn-announcer" id="msg-txt">À TOI DE JOUER !</div>
     </div>
-		<div class="input-info">
-			<div class="dart-val" id="v0">--<small>-</small></div>
-			<div class="dart-val" id="v1">--<small>-</small></div>
-			<div class="dart-val" id="v2">--<small>-</small></div>
-			<button class="btn-valid-darts" id="btn-validate" onclick="finishTurn()" disabled>VALIDER</button>
-		</div>
+    
+    <div class="input-info">
+        <div class="dart-val" id="v0">--<small>-</small></div>
+        <div class="dart-val" id="v1">--<small>-</small></div>
+        <div class="dart-val" id="v2">--<small>-</small></div>
+        <button class="btn-valid-darts" id="btn-validate" onclick="finishTurn()" disabled>VALIDER</button>
+    </div>
 
-		<div class="keyboard" id="kb-frame">
-			<div class="mod-row">
-				<button class="btn-m active" id="m1" onclick="setMod(1)">SIMPLE</button>
-				<button class="btn-m" id="m2" onclick="setMod(2)">DOUBLE</button>
-				<button class="btn-m" id="m3" onclick="setMod(3)">TRIPLE</button>
-			</div>
-			<div id="pad" class="num-grid"></div>
-			<div class="special-row">
-				<button class="sp-key" onclick="undo()" style="font-size:1.5rem;">↩</button>
-				<button class="sp-key" onclick="addDart(0)">Out<br>0</button>
-				<button class="sp-key" onclick="addDart(25)">25</button>
-				<button class="sp-key" onclick="addDart(50)">BULL</button>
-			</div>
-		</div>
+    <div class="keyboard" id="kb-frame">
+        <div class="mod-row">
+            <button class="btn-m active" id="m1" onclick="setMod(1)">SIMPLE</button>
+            <button class="btn-m" id="m2" onclick="setMod(2)">DOUBLE</button>
+            <button class="btn-m" id="m3" onclick="setMod(3)">TRIPLE</button>
+        </div>
+        <div id="pad" class="num-grid"></div>
+        <div class="special-row">
+            <button class="sp-key" onclick="undo()" style="font-size:1.5rem;">↩</button>
+            <button class="sp-key" onclick="addDart(0)">Out<br>0</button>
+            <button class="sp-key" onclick="addDart(25)">25</button>
+            <button class="sp-key" onclick="addDart(50)">BULL</button>
+        </div>
+    </div>
 
     <div id="end-screen" class="overlay">
 		<div class="top-bar" style="width: 100%; position: absolute; top: 0; left: 0;">
@@ -189,7 +186,7 @@
         const pad = document.getElementById('pad');
         pad.innerHTML = "";
         for(let i=1; i<=20; i++) {
-            let sub = (multiplier > 1) ? (i * multiplier) : "&nbsp;"; 
+            let sub = (multiplier > 1) ? (i * multiplier) : "1"; 
             pad.innerHTML += `<button class="key" onclick="addDart(${i})"><span>${i}</span><small>${sub}</small></button>`;
         }
     }
