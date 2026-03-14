@@ -65,7 +65,19 @@
         .turn-announcer { height: 35px; display: flex; align-items: center; justify-content: center; color: var(--accent-orange); font-weight: 900; font-size: 0.8rem; text-transform: uppercase; }
 
 
-        .input-info { height: 75px; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0 15px; background: #000; }
+.input-info { 
+    height: 60px !important; 
+    min-height: 60px !important;
+    max-height: 60px !important;
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 10px; 
+    padding: 0 15px; 
+    background: #000;
+    flex-shrink: 0; /* Empêche la section de se faire écraser */
+}
+
         .dart-val { 
             width: 70px; height: 55px; background: white; color: black; 
             border-radius: 30px; display: flex; flex-direction: column; 
@@ -209,7 +221,7 @@
     let reste = 180, totalDarts = 0, dartsInTurn = [], visualDarts = [], multiplier = 1, gameOver = false;
 
     window.onload = () => {
-        document.getElementById('title-label').innerText = "🔥 180 !zz";
+        document.getElementById('title-label').innerText = "🔥 180 !";
         document.getElementById('msg-txt').innerText = "À TOI DE JOUER !";
         renderPad();
         updateUI();
