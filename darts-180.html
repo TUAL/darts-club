@@ -186,7 +186,7 @@
         const pad = document.getElementById('pad');
         pad.innerHTML = "";
         for(let i=1; i<=20; i++) {
-            let sub = (multiplier > 1) ? (i * multiplier) : "1"; 
+let sub = i * multiplier;
             pad.innerHTML += `<button class="key" onclick="addDart(${i})"><span>${i}</span><small>${sub}</small></button>`;
         }
     }
