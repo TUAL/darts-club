@@ -63,8 +63,23 @@
             border-top: 4px solid var(--mode-color); transition: border-color 0.2s;
         }
         .mod-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: #333; }
-        .btn-m { background: #1a1a1a; color: #888; padding: 15px; border: none; font-weight: 900; font-size: 0.9rem; }
-        .btn-m.active { color: #fff; border-bottom: 4px solid var(--accent); }
+.btn-m { 
+    background: #1a1a1a; 
+    color: #888; 
+    padding: 15px; 
+    border: none; 
+    font-weight: 900; 
+    font-size: 0.9rem;
+    /* On ajoute une bordure invisible de base pour éviter le décalage */
+    border-bottom: 4px solid transparent; 
+    transition: all 0.2s;
+}
+
+.btn-m.active { 
+    color: #fff; 
+    /* La couleur de la bordure s'adapte maintenant à la variable du mode */
+    border-bottom: 4px solid var(--mode-color); 
+}
 
         .num-grid { display: grid; grid-template-columns: repeat(5, 1fr); flex: 1; gap: 1px; background: #333; }
 .key { 
@@ -214,14 +229,21 @@ let sub = i * multiplier;
         }
     }
 
-    function setMod(m) {
-        if(gameOver) return;
-        multiplier = m;
-        document.querySelectorAll('.btn-m').forEach(b => b.classList.remove('active'));
-        document.getElementById('m'+m).classList.add('active');
-        document.documentElement.style.setProperty('--mode-color', m===1 ? 'var(--accent)' : m===2 ? 'var(--accent-orange)' : 'var(--accent-red)');
-        renderPad();
-    }
+function setMod(m) {
+    if(gameOver) return;
+    multiplier = m;
+    
+    // 1. Gestion des classes active
+    document.querySelectorAll('.btn-m').forEach(b => b.classList.remove('active'));
+    document.getElementById('m'+m).classList.add('active');
+    
+    // 2. Mise à jour de la couleur thématique
+    const color = m === 1 ? 'var(--accent)' : m === 2 ? 'var(--accent-orange)' : 'var(--accent-red)';
+    document.documentElement.style.setProperty('--mode-color', color);
+    
+    // 3. Rafraîchissement du pad
+    renderPad();
+}
 
     function addDart(val) {
         if (dartsInTurn.length >= 3 || (totalDarts + dartsInTurn.length) >= 9 || reste <= 0 || gameOver) return;
