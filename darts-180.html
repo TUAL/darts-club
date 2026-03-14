@@ -63,51 +63,13 @@
             border-top: 4px solid var(--mode-color); transition: border-color 0.2s;
         }
         .mod-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: #333; }
-.btn-m { 
-    background: #1a1a1a; 
-    color: #888; 
-    padding: 15px; 
-    border: none; 
-    font-weight: 900; 
-    font-size: 0.9rem;
-    /* On ajoute une bordure invisible de base pour éviter le décalage */
-    border-bottom: 4px solid transparent; 
-    transition: all 0.2s;
-}
-
-.btn-m.active { 
-    color: #fff; 
-    /* La couleur de la bordure s'adapte maintenant à la variable du mode */
-    border-bottom: 4px solid var(--mode-color); 
-}
+        .btn-m { background: #1a1a1a; color: #888; padding: 15px; border: none; border-bottom: 4px solid var(--accent); font-weight: 900; font-size: 0.9rem; }
+        .btn-m.active { color: #fff; border-bottom: 4px solid var(--accent); }
 
         .num-grid { display: grid; grid-template-columns: repeat(5, 1fr); flex: 1; gap: 1px; background: #333; }
-.key { 
-    background: #121916; 
-    border: none; 
-    color: white; 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    justify-content: center;
-    height: 65px; /* Force la hauteur de la touche */
-    padding: 5px 0;
-}
-
-.key span { 
-    font-size: 1.4rem; 
-    font-weight: 900; 
-    line-height: 1.2; 
-}
-
-.key small { 
-    font-size: 0.75rem; 
-    color: #555; 
-    font-weight: 900; 
-    display: block; 
-    height: 1.2em; /* Force la hauteur de la zone de texte, même vide */
-    line-height: 1.2;
-}
+        .key { background: #121916; border: none; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .key span { font-size: 1.4rem; font-weight: 900; }
+        .key small { font-size: 0.75rem; color: #555; font-weight: 900; display: block; height: 15px; line-height: 15px } 
 
         .special-row { display: grid; grid-template-columns: 1fr 1.2fr 1.2fr 1.2fr; height: 70px; gap: 1px; background: #333; }
         .sp-key { background: #121916; color: white; border: none; font-weight: bold; font-size: 0.8rem; }
@@ -154,7 +116,7 @@
 
     <div class="keyboard" id="kb-frame">
         <div class="mod-row">
-            <button class="btn-m" id="m1" onclick="setMod(1)">SIMPLE</button>
+            <button class="btn-m active" id="m1" onclick="setMod(1)">SIMPLE</button>
             <button class="btn-m" id="m2" onclick="setMod(2)">DOUBLE</button>
             <button class="btn-m" id="m3" onclick="setMod(3)">TRIPLE</button>
         </div>
@@ -214,7 +176,7 @@
     let reste = 180, totalDarts = 0, dartsInTurn = [], visualDarts = [], multiplier = 1, gameOver = false;
 
     window.onload = () => {
-        document.getElementById('title-label').innerText = "🔥 180 !11";
+        document.getElementById('title-label').innerText = "🔥 180 !";
         document.getElementById('msg-txt').innerText = "À TOI DE JOUER !";
         renderPad();
         updateUI();
@@ -224,26 +186,19 @@
         const pad = document.getElementById('pad');
         pad.innerHTML = "";
         for(let i=1; i<=20; i++) {
-let sub = i * multiplier;
+            let sub = (multiplier > 1) ? (i * multiplier) : "."; 
             pad.innerHTML += `<button class="key" onclick="addDart(${i})"><span>${i}</span><small>${sub}</small></button>`;
         }
     }
 
-function setMod(m) {
-    if(gameOver) return;
-    multiplier = m;
-    
-    // 1. Gestion des classes active
-    document.querySelectorAll('.btn-m').forEach(b => b.classList.remove('active'));
-    document.getElementById('m'+m).classList.add('active');
-    
-    // 2. Mise à jour de la couleur thématique
-    const color = m === 1 ? 'var(--accent)' : m === 2 ? 'var(--accent-orange)' : 'var(--accent-red)';
-    document.documentElement.style.setProperty('--mode-color', color);
-    
-    // 3. Rafraîchissement du pad
-    renderPad();
-}
+    function setMod(m) {
+        if(gameOver) return;
+        multiplier = m;
+        document.querySelectorAll('.btn-m').forEach(b => b.classList.remove('active'));
+        document.getElementById('m'+m).classList.add('active');
+        document.documentElement.style.setProperty('--mode-color', m===1 ? 'var(--accent)' : m===2 ? 'var(--accent-orange)' : 'var(--accent-red)');
+        renderPad();
+    }
 
     function addDart(val) {
         if (dartsInTurn.length >= 3 || (totalDarts + dartsInTurn.length) >= 9 || reste <= 0 || gameOver) return;
