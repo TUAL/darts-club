@@ -19,34 +19,37 @@
         body { 
             font-family: -apple-system, system-ui, sans-serif; 
             background: var(--bg); color: var(--text); 
-            margin: 0; padding: 0; height: 96.8dvh;min-height: 96.8dvh;
+            margin: 0; padding: 0; height: 100dvh;
             display: flex; flex-direction: column; overflow: hidden; 
             position: fixed; width: 100%;
         }
 
+        /* --- TOP BAR --- */
         .top-bar { height: 50px; background: #1a1a1a; display: flex; align-items: center; padding: 0 15px; flex-shrink: 0; border-bottom: 1px solid #333; }
         .back-icon { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 1px solid #444; border-radius: 4px; cursor: pointer; }
         .top-title { flex: 1; text-align: center; font-size: 0.75rem; font-weight: 900; letter-spacing: 1px; color: #ccc; }
 
+        /* --- SCORE SECTION (STRUCTURE 501 LOCAL) --- */
         .score-section { height: 45dvh; display: flex; flex-direction: column; background: var(--bg-dark); padding: 10px 0; }
         .header-scores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0 10px; flex: 1; }
-      
+        
         .p-column { 
             background: #1a1a1a; border: 3px solid #333; border-radius: 15px; 
             display: flex; flex-direction: column; align-items: center; justify-content: space-around;
-            padding: 10px 5px; color: #fff;
+            padding: 10px 5px; color: #fff; transition: 0.3s;
         }
-        
-        .p-column.active-reste { background: var(--accent-orange); border-color: #fff; color: #000; }
-        .p-column.active-jets { background: var(--accent-green); border-color: #fff; color: #000; }
+        /* On utilise les mêmes classes active-0 et active-1 pour la stabilité */
+        .active-0 { background: var(--accent-orange); border-color: #fff; color: #000; } 
+        .active-1 { background: var(--accent-green); border-color: #fff; color: #000; } 
         
         .p-name { font-size: 0.85rem; font-weight: 900; text-transform: uppercase; }
         .p-score { font-size: 3.2rem; font-weight: 900; line-height: 1; margin: 5px 0; }
         .p-last-v { font-size: 0.65rem; font-weight: bold; margin-bottom: 5px; opacity: 0.9; }
-        .p-stats { font-size: 0.6rem; font-weight: 900; width: 90%; text-align: left; }
+        .p-stats { font-size: 0.6rem; font-weight: 900; width: 90%; text-align: center; }
 
         .turn-announcer { height: 35px; display: flex; align-items: center; justify-content: center; color: var(--accent-orange); font-weight: 900; font-size: 0.8rem; text-transform: uppercase; }
 
+        /* --- INPUT INFO --- */
         .input-info { height: 75px; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0 15px; background: #000; }
         .dart-val { 
             width: 70px; height: 55px; background: white; color: black; 
@@ -58,13 +61,17 @@
         .btn-valid-darts { flex: 1; height: 55px; background: #222; border: none; color: #444; border-radius: 30px; font-weight: 900; font-size: 0.85rem; }
         .btn-valid-darts.ready { color: #fff; cursor: pointer; }
 
+        /* --- CLAVIER (STRUCTURE EXACTE DU 501 LOCAL) --- */
         .keyboard { 
             height: 55dvh; background: #1a1a1a; display: flex; flex-direction: column; padding: 2px;
             border-top: 4px solid var(--mode-color); transition: border-color 0.2s;
         }
         .mod-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: #333; }
         .btn-m { background: #1a1a1a; color: #888; padding: 15px; border: none; font-weight: 900; font-size: 0.9rem; }
-        .btn-m.active { color: #fff; border-bottom: 4px solid var(--accent); }
+        
+        #m1.active { color: #fff; border-bottom: 4px solid var(--accent); }
+        #m2.active { color: #fff; border-bottom: 4px solid var(--accent-orange); }
+        #m3.active { color: #fff; border-bottom: 4px solid var(--accent-red); }
 
         .num-grid { display: grid; grid-template-columns: repeat(5, 1fr); flex: 1; gap: 1px; background: #333; }
         .key { background: #121916; border: none; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; }
@@ -74,33 +81,31 @@
         .special-row { display: grid; grid-template-columns: 1fr 1.2fr 1.2fr 1.2fr; height: 70px; gap: 1px; background: #333; }
         .sp-key { background: #121916; color: white; border: none; font-weight: bold; font-size: 0.8rem; }
 
+        /* --- OVERLAY --- */
         .overlay { display:none; position:fixed; inset:0; background: rgba(13,17,23,0.98); z-index:999; flex-direction:column; justify-content:center; align-items:center; padding: 20px; }
-        .final-box { background: var(--card); padding: 15px; border-radius: 15px; border: 1px solid #30363d; width: 100%; max-width: 260px; text-align: center; }
-        .end-btn-container { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 260px; margin-top: 15px; }
-        .end-btn { height: 50px; border-radius: 10px; font-size: 0.85rem; text-transform: uppercase; font-weight: 800; border: none; color: white; cursor: pointer; }
-        .btn-save { background: var(--accent-green) !important; }
-        .btn-valid { background: var(--accent) !important; }
+        .final-box { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid #30363d; width: 100%; max-width: 300px; text-align: center; }
+        .btn-save { background: var(--accent) !important; font-size: 0.85rem; font-weight: 800; border-radius: 10px; height: 50px; width: 100%; margin: 10px 0; color: white; border:none; }
     </style>
 </head>
 <body>
     <div class="top-bar">
-        <div class="back-icon" onclick="window.location.href='menu.html'"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
-        <div class="top-title" id="title-label">🔥 180 !</div>
+        <div class="back-icon" onclick="if(confirm('Quitter ?')) window.location.href='menu.html'"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
+        <div class="top-title">🔥 180 CHALLENGE</div>
     </div>
 
     <div class="score-section">
         <div class="header-scores">
-            <div class="p-column active-reste">
+            <div class="p-column active-0">
                 <div class="p-name">RESTE</div>
                 <div id="val-reste" class="p-score">180</div>
                 <div id="last-label" class="p-last-v">---</div>
                 <div class="p-stats">OBJ : 180</div>
             </div>
-            <div class="p-column active-jets">
+            <div class="p-column active-1">
                 <div class="p-name">JETS</div>
                 <div id="val-jets" class="p-score">0/9</div>
-                <div class="p-last-v"></div>
-                <div id="target-info" class="p-stats">CIBLE : 180<br>MODE : LIBRE</div>
+                <div class="p-last-v">---</div>
+                <div class="p-stats">CIBLE : 180</div>
             </div>
             <div style="visibility: hidden;"></div>
         </div>
@@ -130,25 +135,12 @@
     </div>
 
     <div id="end-screen" class="overlay">
-		<div class="top-bar" style="width: 100%; position: absolute; top: 0; left: 0;">
-			<div class="back-icon" onclick="window.location.href='menu.html'"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
-			<div class="top-title">🔥 180 !</div>
-		</div>	
-	
         <div class="final-box">
-            <h1 style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase; margin: 0;">Résultat</h1>
-            <div id="final-score-display" style="font-size: 3.5rem; font-weight: 900; margin: 5px 0; line-height: 1;">--</div>
-            <p id="end-msg" style="font-size: 0.85rem; color: #fff; font-weight: bold; margin: 10px 0 0 0;"></p>
-        </div>
-        
-        <div id="top-scores" style="margin: 15px 0; width: 100%; max-width: 260px; font-size: 0.75rem;">
-            <div style="color: var(--accent-orange); font-weight: bold; text-align: center; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;">🏆 Top 3 - Fléchettes</div>
-            <div id="top-list" style="background: var(--card); border-radius: 10px; padding: 5px 10px; border: 1px solid #333;">...</div>
-        </div>
-
-        <div class="end-btn-container">
-            <button id="btn-save-only" class="end-btn btn-save" style="display:none;" onclick="handleJustSave()">ENREGISTRER LE SCORE</button>
-            <button class="end-btn btn-valid" onclick="location.reload()">RECOMMENCER</button>
+            <h1 style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;">MATCH TERMINÉ</h1>
+            <div id="final-score-display" style="font-size: 3.5rem; font-weight: 900; margin: 10px 0; line-height: 1;">--</div>
+            <p id="end-msg" style="font-size: 0.85rem; color: #fff; font-weight: bold; margin: 10px 0;"></p>
+            <button id="btn-save-only" class="btn-save" style="display:none;" onclick="handleJustSave()">ENREGISTRER</button>
+            <button class="btn-save" style="background:#30363d !important;" onclick="location.reload()">REJOUER</button>
         </div>
     </div>
 
@@ -166,21 +158,12 @@
     const db = firebase.database();
     const auth = firebase.auth();
 
-    auth.onAuthStateChanged(async (user) => {
-        if (!user) await auth.signInAnonymously();
-    });
-
-    const pseudo = (localStorage.getItem('darts_pseudo') || "INVITÉ").toUpperCase().trim();
+    const pseudo = (localStorage.getItem('darts_pseudo') || "INVITÉ").toUpperCase();
     const isGuest = localStorage.getItem('is_guest') === 'true' || pseudo === "INVITÉ";
 
     let reste = 180, totalDarts = 0, dartsInTurn = [], visualDarts = [], multiplier = 1, gameOver = false;
 
-    window.onload = () => {
-        document.getElementById('title-label').innerText = "🔥 180 !2";
-        document.getElementById('msg-txt').innerText = "À TOI DE JOUER !";
-        renderPad();
-        updateUI();
-    };
+    window.onload = () => { renderPad(); updateUI(); };
 
     function renderPad() {
         const pad = document.getElementById('pad');
@@ -192,58 +175,37 @@
     }
 
     function setMod(m) {
-        if(gameOver) return;
         multiplier = m;
         document.querySelectorAll('.btn-m').forEach(b => b.classList.remove('active'));
         document.getElementById('m'+m).classList.add('active');
-        document.documentElement.style.setProperty('--mode-color', m===1 ? 'var(--accent)' : m===2 ? 'var(--accent-orange)' : 'var(--accent-red)');
+        const colors = ["", "var(--accent)", "var(--accent-orange)", "var(--accent-red)"];
+        document.documentElement.style.setProperty('--mode-color', colors[m]);
         renderPad();
     }
 
     function addDart(val) {
         if (dartsInTurn.length >= 3 || (totalDarts + dartsInTurn.length) >= 9 || reste <= 0 || gameOver) return;
-        
         let m = (val === 50 || val === 25 || val === 0) ? 1 : multiplier;
         let pts = (val === 50) ? 50 : val * m;
-
-        if (reste - pts < 0) {
-            pts = reste; 
-            reste = 0;
-        } else {
-            reste -= pts;
-        }
-
-        let label = (val === 50) ? "BULL" : (val === 25) ? "B25" : (val === 0) ? "Out" : (m === 3 ? "T" : m === 2 ? "D" : "S") + val;
-        visualDarts.push(label); 
+        if (reste - pts < 0) { pts = reste; reste = 0; } else { reste -= pts; }
+        visualDarts.push((val === 50) ? "BULL" : (val === 25) ? "B25" : (val === 0) ? "Out" : (m === 3 ? "T" : m === 2 ? "D" : "S") + val); 
         dartsInTurn.push(pts);
-
-        setMod(1); 
-        updateUI();
+        setMod(1); updateUI();
     }
 
     function updateUI() {
         document.getElementById('val-reste').innerText = reste;
         document.getElementById('val-jets').innerText = (totalDarts + dartsInTurn.length) + "/9";
-        
         for(let i=0; i<3; i++) {
             document.getElementById('v'+i).innerHTML = visualDarts[i] ? `${dartsInTurn[i]}<small>${visualDarts[i]}</small>` : `--<small>-</small>`;
         }
-        
         const btn = document.getElementById('btn-validate');
-        const isEndCondition = (reste === 0 || (totalDarts + dartsInTurn.length === 9));
-        const canValidate = (dartsInTurn.length === 3 || isEndCondition);
-        
-        btn.disabled = !canValidate;
-        if(!btn.disabled) { 
-            btn.classList.add('ready'); 
-            btn.style.background = "var(--accent-orange)"; 
-            btn.style.color = "#000";
-            btn.innerText = isEndCondition ? "VALIDER" : "VALIDER";
-        } else { 
-            btn.classList.remove('ready'); 
-            btn.style.background = "#222"; 
-            btn.style.color = "#444";
-            btn.innerText = "VALIDER";
+        const isEnd = (reste === 0 || (totalDarts + dartsInTurn.length === 9));
+        btn.disabled = !(dartsInTurn.length === 3 || isEnd);
+        if(!btn.disabled) {
+            btn.classList.add('ready'); btn.style.background = "var(--accent-orange)"; btn.style.color = "#000";
+        } else {
+            btn.classList.remove('ready'); btn.style.background = "#222"; btn.style.color = "#444";
         }
     }
 
@@ -251,20 +213,12 @@
         if (gameOver) return;
         totalDarts += dartsInTurn.length;
         document.getElementById('last-label').innerText = visualDarts.join(' | ');
-
-        if (reste === 0 || totalDarts >= 9) { 
-            showEnd(); 
-        } else {
-            dartsInTurn = []; visualDarts = [];
-            updateUI();
-        }
+        if (reste === 0 || totalDarts >= 9) { showEnd(); } else { dartsInTurn = []; visualDarts = []; updateUI(); }
     }
 
     function undo() {
         if (dartsInTurn.length === 0 || gameOver) return;
-        reste += dartsInTurn.pop();
-        visualDarts.pop();
-        updateUI();
+        reste += dartsInTurn.pop(); visualDarts.pop(); updateUI();
     }
 
     function showEnd() {
@@ -272,54 +226,24 @@
         document.getElementById('end-screen').style.display = 'flex';
         const win = (reste === 0);
         const fs = document.getElementById('final-score-display');
-        
         fs.innerText = win ? totalDarts : (180 - reste);
         fs.style.color = win ? "var(--accent-green)" : "var(--accent-red)";
-        document.getElementById('end-msg').innerText = win ? `RÉUSSI EN ${totalDarts} FLÉCHETTES !` : `ÉCHEC : ${180 - reste} pts marqués.`;
-        
-        if(win && !isGuest) {
-            document.getElementById('btn-save-only').style.display = 'block';
-        }
-        displayTop3();
+        document.getElementById('end-msg').innerText = win ? "RÉUSSI !" : "ÉCHEC";
+        if(win && !isGuest) document.getElementById('btn-save-only').style.display = 'block';
     }
 
     async function handleJustSave() {
-        if(isGuest) return;
         const btn = document.getElementById('btn-save-only');
+        btn.disabled = true; btn.innerText = "...";
         try {
-            btn.disabled = true; btn.innerText = "ARCHIVAGE...";
             const ref = db.ref(`users/${pseudo}/games/darts_180/top`);
             const snap = await ref.once('value');
-            let scores = snap.exists() ? (Array.isArray(snap.val()) ? snap.val() : Object.values(snap.val())) : [];
+            let scores = snap.val() || [];
             scores.push({ date: new Date().toLocaleDateString('fr-FR'), score: totalDarts });
             scores.sort((a, b) => a.score - b.score);
             await ref.set(scores.slice(0, 3));
-            btn.innerText = "✅ RECORD ARCHIVÉ";
-            displayTop3();
-        } catch (e) { 
-            btn.disabled = false; btn.innerText = "ERREUR"; 
-        }
-    }
-
-    function displayTop3() {
-        const listDiv = document.getElementById('top-list');
-        if (isGuest) { listDiv.innerHTML = "Mode Invité"; return; }
-        db.ref(`users/${pseudo}/games/darts_180/top`).once('value', (snapshot) => {
-            const scores = snapshot.val() || [];
-            let html = "";
-            const scoreArray = Array.isArray(scores) ? scores : Object.values(scores);
-            if(scoreArray.length === 0) {
-                html = "Aucun record.";
-            } else {
-                scoreArray.sort((a,b) => a.score - b.score).forEach((s, i) => {
-                    html += `<div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:${i === scoreArray.length - 1 ? 'none' : '1px solid #222'};">
-                        <span>${i+1}. <b style="color:var(--accent-green)">${s.score}</b> <small>fl.</small></span>
-                        <span style="color:#8b949e;">${s.date}</span>
-                    </div>`;
-                });
-            }
-            listDiv.innerHTML = html;
-        });
+            btn.innerText = "✅ ARCHIVÉ";
+        } catch (e) { btn.innerText = "ERREUR"; }
     }
 </script>
 </body>
