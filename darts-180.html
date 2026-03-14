@@ -19,7 +19,7 @@
         body { 
             font-family: -apple-system, system-ui, sans-serif; 
             background: var(--bg); color: var(--text); 
-            margin: 0; padding: 0; height: 96.8dvh;
+            margin: 0; padding: 0; height: 97.2dvh;
             display: flex; flex-direction: column; overflow: hidden; 
             position: fixed; width: 100%;
         }
@@ -31,11 +31,24 @@
         .score-section { height: 45dvh; display: flex; flex-direction: column; background: var(--bg-dark); padding: 10px 0; }
         .header-scores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0 10px; flex: 1; }
         
-        .p-column { 
-            background: #1a1a1a; border: 3px solid #333; border-radius: 15px; 
-            display: flex; flex-direction: column; align-items: center; justify-content: space-around;
-            padding: 10px 5px; color: #fff;
-        }
+
+		
+.p-column { 
+            background: #1a1a1a; 
+            border: 3px solid #333; 
+            border-radius: 15px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; /* Changé de space-around à center */
+            padding: 5px; 
+            color: #fff;
+            height: 100%; /* Force la colonne à remplir la grille */
+            overflow: hidden; /* Empêche tout débordement de texte */
+        }		
+		
+		
+		
         
         .p-column.active-reste { background: var(--accent-orange); border-color: #fff; color: #000; }
         .p-column.active-jets { background: var(--accent-green); border-color: #fff; color: #000; }
@@ -63,11 +76,21 @@
             border-top: 4px solid var(--mode-color); transition: border-color 0.2s;
         }
         .mod-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: #333; }
-        .btn-m { background: #1a1a1a; color: #888; padding: 15px; border: none; font-weight: 900; font-size: 0.9rem; }
+.btn-m { 
+            background: #1a1a1a; 
+            color: #888; 
+            padding: 15px; 
+            border: none; 
+            font-weight: 900; 
+            font-size: 0.9rem; 
+            /* Ajout d'une bordure transparente pour stabiliser la hauteur */
+            border-bottom: 4px solid transparent; 
+            transition: border-color 0.1s;
+        }
 
-        #m1.active { color: #fff; border-bottom: 4px solid var(--accent); }
-        #m2.active { color: #fff; border-bottom: 4px solid var(--accent-orange); }
-        #m3.active { color: #fff; border-bottom: 4px solid var(--accent-red); }		
+        #m1.active { color: #fff; border-bottom-color: var(--accent); }
+        #m2.active { color: #fff; border-bottom-color: var(--accent-orange); }
+        #m3.active { color: #fff; border-bottom-color: var(--accent-red); }	
 		
 
         .num-grid { display: grid; grid-template-columns: repeat(5, 1fr); flex: 1; gap: 1px; background: #333; }
@@ -180,7 +203,7 @@
     let reste = 180, totalDarts = 0, dartsInTurn = [], visualDarts = [], multiplier = 1, gameOver = false;
 
     window.onload = () => {
-        document.getElementById('title-label').innerText = "🔥 180 !8";
+        document.getElementById('title-label').innerText = "🔥 180 !1";
         document.getElementById('msg-txt').innerText = "À TOI DE JOUER !";
         renderPad();
         updateUI();
