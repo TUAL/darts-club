@@ -20,9 +20,15 @@
         body { 
             font-family: -apple-system, system-ui, sans-serif; 
             background: var(--bg); color: var(--text); 
-            margin: 0; padding: 0; height: 100dvh;
-            display: flex; flex-direction: column; overflow: hidden; 
+            margin: 0; padding: 0; 
+    height: 90%; 
+    min-height: 90%; 
+    max-height: 90%;
+    flex-shrink: 0;   /* Empêche le flexbox parent de réduire ce bloc */		
+            display: flex; flex-direction: column; 
+			overflow: hidden; 
             position: fixed; width: 100%;
+		
         }
 
         .top-bar { height: 50px; background: #1a1a1a; display: flex; align-items: center; padding: 0 15px; flex-shrink: 0; border-bottom: 1px solid #333; }
@@ -30,16 +36,18 @@
         .top-title { flex: 1; text-align: center; font-size: 0.75rem; font-weight: 900; letter-spacing: 1px; color: #ccc; }
 
 .score-section { 
-    height: 40dvh; 
-    min-height: 40dvh; 
-    max-height: 40dvh;
+    height: 40%; 
+    min-height: 40%; 
+    max-height: 40%;
     display: flex; 
     flex-direction: column; 
     background: var(--bg-dark); 
     padding: 10px 0;
     overflow: hidden; /* Empêche le contenu interne de pousser les bords */
     flex-shrink: 0;   /* Empêche le flexbox parent de réduire ce bloc */
-}        .header-scores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0 10px; flex: 1; }
+}       
+
+		.header-scores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0 10px; flex: 1; }
         
         .p-column { 
             background: #1a1a1a; border: 3px solid #333; border-radius: 15px; 
@@ -70,8 +78,18 @@
 
         /* --- CLAVIER --- */
         .keyboard { 
-            height: 55dvh; background: #1a1a1a; display: flex; flex-direction: column; padding: 2px;
-            border-top: 4px solid var(--mode-color); transition: border-color 0.2s;
+            height: 55dvh; 
+			background: #1a1a1a; 
+			display: flex; 
+			flex-direction: column; 
+			padding: 2px;
+            border-top: 4px solid var(--mode-color); 
+			transition: border-color 0.2s;
+    height: 50%; 
+    min-height: 50%; 
+    max-height: 50%;
+    overflow: hidden; /* Empêche le contenu interne de pousser les bords */
+    flex-shrink: 0;   /* Empêche le flexbox parent de réduire ce bloc */						
         }
         .mod-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: #333; }
         .btn-m { background: #1a1a1a; color: #888; padding: 15px; border: none; font-weight: 900; font-size: 0.9rem; }
@@ -191,7 +209,7 @@
     let reste = 180, totalDarts = 0, dartsInTurn = [], visualDarts = [], multiplier = 1, gameOver = false;
 
     window.onload = () => {
-        document.getElementById('title-label').innerText = "🔥 180 !22";
+        document.getElementById('title-label').innerText = "🔥 180 !zz";
         document.getElementById('msg-txt').innerText = "À TOI DE JOUER !";
         renderPad();
         updateUI();
