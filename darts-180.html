@@ -24,12 +24,11 @@
             position: fixed; width: 100%;
         }
 
-        /* --- TOP BAR --- */
+        /* --- STRUCTURE COPIÉE DU LOCAL --- */
         .top-bar { height: 50px; background: #1a1a1a; display: flex; align-items: center; padding: 0 15px; flex-shrink: 0; border-bottom: 1px solid #333; }
         .back-icon { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 1px solid #444; border-radius: 4px; cursor: pointer; }
         .top-title { flex: 1; text-align: center; font-size: 0.75rem; font-weight: 900; letter-spacing: 1px; color: #ccc; }
 
-        /* --- SCORE SECTION (Inspiré du Local) --- */
         .score-section { height: 45dvh; display: flex; flex-direction: column; background: var(--bg-dark); padding: 10px 0; }
         .header-scores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0 10px; flex: 1; }
         
@@ -38,18 +37,17 @@
             display: flex; flex-direction: column; align-items: center; justify-content: space-around;
             padding: 10px 5px; color: #fff; transition: 0.3s;
         }
-        /* Couleurs fixes pour le 180 */
-        .reste-col { background: var(--accent-orange); border-color: #fff; color: #000; }
-        .jets-col { background: var(--accent-green); border-color: #fff; color: #000; }
+        /* Attribution des couleurs du Local au 180 */
+        .active-0 { background: var(--accent-orange); border-color: #fff; color: #000; opacity: 1; } /* RESTE */
+        .active-1 { background: var(--accent-green); border-color: #fff; color: #000; opacity: 1; }  /* JETS */
         
         .p-name { font-size: 0.85rem; font-weight: 900; text-transform: uppercase; }
         .p-score { font-size: 3.2rem; font-weight: 900; line-height: 1; margin: 5px 0; }
         .p-last-v { font-size: 0.65rem; font-weight: bold; margin-bottom: 5px; opacity: 0.9; }
-        .p-stats { font-size: 0.6rem; font-weight: 900; width: 90%; text-align: center; }
+        .p-stats { font-size: 0.6rem; font-weight: 900; width: 90%; text-align: left; }
 
         .turn-announcer { height: 35px; display: flex; align-items: center; justify-content: center; color: var(--accent-orange); font-weight: 900; font-size: 0.8rem; text-transform: uppercase; }
 
-        /* --- INPUT INFO --- */
         .input-info { height: 75px; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0 15px; background: #000; }
         .dart-val { 
             width: 70px; height: 55px; background: white; color: black; 
@@ -59,9 +57,9 @@
         .dart-val small { font-size: 0.55rem; font-weight: bold; color: #555; }
         
         .btn-valid-darts { flex: 1; height: 55px; background: #222; border: none; color: #444; border-radius: 30px; font-weight: 900; font-size: 0.85rem; }
-        .btn-valid-darts.ready { color: #fff; cursor: pointer; background: var(--accent-orange) !important; color: #000 !important; }
+        .btn-valid-darts.ready { color: #fff; cursor: pointer; }
 
-        /* --- KEYBOARD --- */
+        /* --- CLAVIER (Avec fix bordure transparente pour WebApp) --- */
         .keyboard { 
             height: 55dvh; background: #1a1a1a; display: flex; flex-direction: column; padding: 2px;
             border-top: 4px solid var(--mode-color); transition: border-color 0.2s;
@@ -69,9 +67,9 @@
         .mod-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: #333; }
         .btn-m { background: #1a1a1a; color: #888; padding: 15px; border: none; font-weight: 900; font-size: 0.9rem; border-bottom: 4px solid transparent; }
         
-        #m1.active { color: #fff; border-bottom-color: var(--accent); }
-        #m2.active { color: #fff; border-bottom-color: var(--accent-orange); }
-        #m3.active { color: #fff; border-bottom-color: var(--accent-red); }
+        #m1.active { color: #fff; border-bottom: 4px solid var(--accent); }
+        #m2.active { color: #fff; border-bottom: 4px solid var(--accent-orange); }
+        #m3.active { color: #fff; border-bottom: 4px solid var(--accent-red); }
 
         .num-grid { display: grid; grid-template-columns: repeat(5, 1fr); flex: 1; gap: 1px; background: #333; }
         .key { background: #121916; border: none; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; }
@@ -81,31 +79,33 @@
         .special-row { display: grid; grid-template-columns: 1fr 1.2fr 1.2fr 1.2fr; height: 70px; gap: 1px; background: #333; }
         .sp-key { background: #121916; color: white; border: none; font-weight: bold; font-size: 0.8rem; }
 
-        /* --- OVERLAY --- */
         .overlay { display:none; position:fixed; inset:0; background: rgba(13,17,23,0.98); z-index:999; flex-direction:column; justify-content:center; align-items:center; padding: 20px; }
         .final-box { background: var(--card); padding: 15px; border-radius: 15px; border: 1px solid #30363d; width: 100%; max-width: 260px; text-align: center; }
-        .btn-save { background: var(--accent-green) !important; color: white; border: none; height: 50px; border-radius: 10px; font-weight: 800; width: 100%; margin-top: 10px; }
+        .end-btn-container { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 260px; margin-top: 15px; }
+        .end-btn { height: 50px; border-radius: 10px; font-size: 0.85rem; text-transform: uppercase; font-weight: 800; border: none; color: white; cursor: pointer; }
+        .btn-save { background: var(--accent-green) !important; }
+        .btn-valid { background: var(--accent) !important; }
     </style>
 </head>
 <body>
     <div class="top-bar">
         <div class="back-icon" onclick="window.location.href='menu.html'"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
-        <div class="top-title">🔥 180 CHALLENGE</div>
+        <div class="top-title" id="title-label">🔥 180 !7</div>
     </div>
 
     <div class="score-section">
         <div class="header-scores">
-            <div class="p-column reste-col">
+            <div class="p-column active-0">
                 <div class="p-name">RESTE</div>
                 <div id="val-reste" class="p-score">180</div>
                 <div id="last-label" class="p-last-v">---</div>
                 <div class="p-stats">OBJ : 180</div>
             </div>
-            <div class="p-column jets-col">
+            <div class="p-column active-1">
                 <div class="p-name">JETS</div>
                 <div id="val-jets" class="p-score">0/9</div>
-                <div class="p-last-v">---</div>
-                <div class="p-stats" id="target-info">MODE : LIBRE</div>
+                <div class="p-last-v"></div>
+                <div id="target-info" class="p-stats">CIBLE : 180<br>MODE : LIBRE</div>
             </div>
             <div style="visibility: hidden;"></div>
         </div>
@@ -138,15 +138,21 @@
         <div class="final-box">
             <h1 style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase; margin: 0;">Résultat</h1>
             <div id="final-score-display" style="font-size: 3.5rem; font-weight: 900; margin: 5px 0; line-height: 1;">--</div>
-            <p id="end-msg" style="font-size: 0.85rem; color: #fff; font-weight: bold; margin: 10px 0;"></p>
-            <div id="top-list" style="background: #000; padding: 10px; border-radius: 8px; font-size: 0.75rem; text-align: left; border: 1px solid #333;"></div>
-            <button id="btn-save-only" class="btn-save" style="display:none;" onclick="handleJustSave()">ENREGISTRER</button>
-            <button class="btn-save" style="background:#30363d !important;" onclick="location.reload()">REJOUER</button>
+            <p id="end-msg" style="font-size: 0.85rem; color: #fff; font-weight: bold; margin: 10px 0 0 0;"></p>
+        </div>
+        
+        <div id="top-scores" style="margin: 15px 0; width: 100%; max-width: 260px; font-size: 0.75rem;">
+            <div style="color: var(--accent-orange); font-weight: bold; text-align: center; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;">🏆 Top 3 - Fléchettes</div>
+            <div id="top-list" style="background: var(--card); border-radius: 10px; padding: 5px 10px; border: 1px solid #333;">...</div>
+        </div>
+
+        <div class="end-btn-container">
+            <button id="btn-save-only" class="end-btn btn-save" style="display:none;" onclick="handleJustSave()">ENREGISTRER LE SCORE</button>
+            <button class="end-btn btn-valid" onclick="location.reload()">REJOUER</button>
         </div>
     </div>
 
 <script>
-    // Configuration Firebase identique
     const firebaseConfig = {
         apiKey: "AIzaSyCSeggBmTOXR_XyspjuAsbhMfncp9MYUBA",
         authDomain: "dartsclub-1aab9.firebaseapp.com",
@@ -159,6 +165,8 @@
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const auth = firebase.auth();
+
+    auth.onAuthStateChanged(async (user) => { if (!user) await auth.signInAnonymously(); });
 
     const pseudo = (localStorage.getItem('darts_pseudo') || "INVITÉ").toUpperCase();
     const isGuest = localStorage.getItem('is_guest') === 'true' || pseudo === "INVITÉ";
@@ -186,41 +194,35 @@
 
     function addDart(val) {
         if (dartsInTurn.length >= 3 || (totalDarts + dartsInTurn.length) >= 9 || reste <= 0 || gameOver) return;
-        
         let m = (val === 50 || val === 25 || val === 0) ? 1 : multiplier;
         let pts = (val === 50) ? 50 : val * m;
-
         if (reste - pts < 0) { pts = reste; reste = 0; } else { reste -= pts; }
-
-        let label = (val === 50) ? "BULL" : (val === 25) ? "B25" : (val === 0) ? "Out" : (m === 3 ? "T" : m === 2 ? "D" : "S") + val;
-        visualDarts.push(label); 
+        visualDarts.push((val === 50) ? "BULL" : (val === 25) ? "B25" : (val === 0) ? "Out" : (m === 3 ? "T" : m === 2 ? "D" : "S") + val); 
         dartsInTurn.push(pts);
-
-        setMod(1); 
-        updateUI();
+        setMod(1); updateUI();
     }
 
     function updateUI() {
         document.getElementById('val-reste').innerText = reste;
         document.getElementById('val-jets').innerText = (totalDarts + dartsInTurn.length) + "/9";
-        
         for(let i=0; i<3; i++) {
             document.getElementById('v'+i).innerHTML = visualDarts[i] ? `${dartsInTurn[i]}<small>${visualDarts[i]}</small>` : `--<small>-</small>`;
         }
-        
         const btn = document.getElementById('btn-validate');
-        const isEnd = (reste === 0 || (totalDarts + dartsInTurn.length === 9));
-        btn.disabled = !(dartsInTurn.length === 3 || isEnd);
-        if(!btn.disabled) btn.classList.add('ready'); else btn.classList.remove('ready');
+        const canVal = (dartsInTurn.length === 3 || reste === 0 || (totalDarts + dartsInTurn.length === 9));
+        btn.disabled = !canVal;
+        if(!btn.disabled) { 
+            btn.classList.add('ready'); btn.style.background = "var(--accent-orange)"; btn.style.color = "#000";
+        } else { 
+            btn.classList.remove('ready'); btn.style.background = "#222"; btn.style.color = "#444";
+        }
     }
 
     function finishTurn() {
         if (gameOver) return;
         totalDarts += dartsInTurn.length;
         document.getElementById('last-label').innerText = visualDarts.join(' | ');
-
-        if (reste === 0 || totalDarts >= 9) { showEnd(); } 
-        else { dartsInTurn = []; visualDarts = []; updateUI(); }
+        if (reste === 0 || totalDarts >= 9) { showEnd(); } else { dartsInTurn = []; visualDarts = []; updateUI(); }
     }
 
     function undo() {
@@ -235,30 +237,36 @@
         const fs = document.getElementById('final-score-display');
         fs.innerText = win ? totalDarts : (180 - reste);
         fs.style.color = win ? "var(--accent-green)" : "var(--accent-red)";
-        document.getElementById('end-msg').innerText = win ? "RÉUSSI !" : "ÉCHEC";
+        document.getElementById('end-msg').innerText = win ? `RÉUSSI EN ${totalDarts} FLÉCHETTES !` : `ÉCHEC : ${180 - reste} pts marqués.`;
         if(win && !isGuest) document.getElementById('btn-save-only').style.display = 'block';
         displayTop3();
     }
 
     async function handleJustSave() {
         const btn = document.getElementById('btn-save-only');
-        btn.disabled = true; btn.innerText = "...";
         try {
+            btn.disabled = true; btn.innerText = "ARCHIVAGE...";
             const ref = db.ref(`users/${pseudo}/games/darts_180/top`);
             const snap = await ref.once('value');
-            let scores = snap.val() || [];
+            let scores = snap.exists() ? (Array.isArray(snap.val()) ? snap.val() : Object.values(snap.val())) : [];
             scores.push({ date: new Date().toLocaleDateString('fr-FR'), score: totalDarts });
             scores.sort((a, b) => a.score - b.score);
             await ref.set(scores.slice(0, 3));
-            btn.innerText = "✅ ARCHIVÉ";
+            btn.innerText = "✅ RECORD ARCHIVÉ";
             displayTop3();
         } catch (e) { btn.innerText = "ERREUR"; }
     }
 
     function displayTop3() {
-        db.ref(`users/${pseudo}/games/darts_180/top`).once('value', (s) => {
-            const arr = s.val() || [];
-            document.getElementById('top-list').innerHTML = arr.map((x,i) => `<div>${i+1}. <b>${x.score}</b> fl. (${x.date})</div>`).join('') || "Aucun record";
+        const listDiv = document.getElementById('top-list');
+        if (isGuest) { listDiv.innerHTML = "Mode Invité"; return; }
+        db.ref(`users/${pseudo}/games/darts_180/top`).once('value', (snapshot) => {
+            const scoreArray = snapshot.val() || [];
+            listDiv.innerHTML = scoreArray.map((s, i) => `
+                <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:${i === scoreArray.length - 1 ? 'none' : '1px solid #222'};">
+                    <span>${i+1}. <b style="color:var(--accent-green)">${s.score}</b> <small>fl.</small></span>
+                    <span style="color:#8b949e;">${s.date}</span>
+                </div>`).join('') || "Aucun record.";
         });
     }
 </script>
