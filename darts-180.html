@@ -67,9 +67,32 @@
         .btn-m.active { color: #fff; border-bottom: 4px solid var(--accent); }
 
         .num-grid { display: grid; grid-template-columns: repeat(5, 1fr); flex: 1; gap: 1px; background: #333; }
-        .key { background: #121916; border: none; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .key span { font-size: 1.4rem; font-weight: 900; }
-        .key small { font-size: 0.75rem; color: #555; font-weight: 900; display: block; min-height: 1.2em; } 
+.key { 
+    background: #121916; 
+    border: none; 
+    color: white; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center;
+    height: 65px; /* Force la hauteur de la touche */
+    padding: 5px 0;
+}
+
+.key span { 
+    font-size: 1.4rem; 
+    font-weight: 900; 
+    line-height: 1.2; 
+}
+
+.key small { 
+    font-size: 0.75rem; 
+    color: #555; 
+    font-weight: 900; 
+    display: block; 
+    height: 1.2em; /* Force la hauteur de la zone de texte, même vide */
+    line-height: 1.2;
+}
 
         .special-row { display: grid; grid-template-columns: 1fr 1.2fr 1.2fr 1.2fr; height: 70px; gap: 1px; background: #333; }
         .sp-key { background: #121916; color: white; border: none; font-weight: bold; font-size: 0.8rem; }
