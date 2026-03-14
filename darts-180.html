@@ -40,13 +40,11 @@
             display: flex; 
             flex-direction: column; 
             align-items: center; 
-            justify-content: center; /* Changé de space-around à center */
+            justify-content: center; /* Plus stable que space-around */
             padding: 5px; 
             color: #fff;
-            height: 100%; /* Force la colonne à remplir la grille */
-            overflow: hidden; /* Empêche tout débordement de texte */
-        }		
-		
+            height: 100%; /* Force la hauteur dans la grille */
+        }
 		
 		
         
@@ -82,15 +80,14 @@
             padding: 15px; 
             border: none; 
             font-weight: 900; 
-            font-size: 0.9rem; 
-            /* Ajout d'une bordure transparente pour stabiliser la hauteur */
+            font-size: 0.9rem;
+            /* On pré-installe la bordure en transparent pour que la taille soit fixe */
             border-bottom: 4px solid transparent; 
-            transition: border-color 0.1s;
         }
 
         #m1.active { color: #fff; border-bottom-color: var(--accent); }
         #m2.active { color: #fff; border-bottom-color: var(--accent-orange); }
-        #m3.active { color: #fff; border-bottom-color: var(--accent-red); }	
+        #m3.active { color: #fff; border-bottom-color: var(--accent-red); }
 		
 
         .num-grid { display: grid; grid-template-columns: repeat(5, 1fr); flex: 1; gap: 1px; background: #333; }
@@ -203,7 +200,7 @@
     let reste = 180, totalDarts = 0, dartsInTurn = [], visualDarts = [], multiplier = 1, gameOver = false;
 
     window.onload = () => {
-        document.getElementById('title-label').innerText = "🔥 180 !1";
+        document.getElementById('title-label').innerText = "🔥 180 !2";
         document.getElementById('msg-txt').innerText = "À TOI DE JOUER !";
         renderPad();
         updateUI();
