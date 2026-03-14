@@ -19,7 +19,7 @@
         body { 
             font-family: -apple-system, system-ui, sans-serif; 
             background: var(--bg); color: var(--text); 
-            margin: 0; padding: 0; height: 97.1dvh;
+            margin: 0; padding: 0; height: 96.8dvh;
             display: flex; flex-direction: column; overflow: hidden; 
             position: fixed; width: 100%;
         }
@@ -73,15 +73,7 @@
         .num-grid { display: grid; grid-template-columns: repeat(5, 1fr); flex: 1; gap: 1px; background: #333; }
         .key { background: #121916; border: none; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .key span { font-size: 1.4rem; font-weight: 900; }
-		
-		.key small { 
-    font-size: 0.75rem; 
-    color: #555; 
-    font-weight: 900; 
-    display: block; 
-    height: 1.45em; /* Change min-height par height fixe */
-    line-height: 1.2em;
-}
+        .key small { font-size: 0.75rem; color: #555; font-weight: 900; display: block; min-height: 1.2em; } 
 
         .special-row { display: grid; grid-template-columns: 1fr 1.2fr 1.2fr 1.2fr; height: 70px; gap: 1px; background: #333; }
         .sp-key { background: #121916; color: white; border: none; font-weight: bold; font-size: 0.8rem; }
@@ -188,34 +180,27 @@
     let reste = 180, totalDarts = 0, dartsInTurn = [], visualDarts = [], multiplier = 1, gameOver = false;
 
     window.onload = () => {
-        document.getElementById('title-label').innerText = "🔥 180 !5";
+        document.getElementById('title-label').innerText = "🔥 180 !8";
         document.getElementById('msg-txt').innerText = "À TOI DE JOUER !";
         renderPad();
         updateUI();
     };
 
-function renderPad() {
-    const pad = document.getElementById('pad');
-    pad.innerHTML = "";
-    for(let i=1; i<=20; i++) {
-        // On affiche toujours la valeur calculée, 
-        // mais on peut la cacher avec l'opacité si multiplier == 1
-        let valCalculated = i * multiplier;
-        let opacity = (multiplier > 1) ? 1 : 0; 
-        pad.innerHTML += `
-            <button class="key" onclick="addDart(${i})">
-                <span>${i}</span>
-                <small style="opacity: ${opacity}">${valCalculated}</small>
-            </button>`;
+    function renderPad() {
+        const pad = document.getElementById('pad');
+        pad.innerHTML = "";
+        for(let i=1; i<=20; i++) {
+            let sub = (multiplier > 1) ? (i * multiplier) : "&nbsp;"; 
+            pad.innerHTML += `<button class="key" onclick="addDart(${i})"><span>${i}</span><small>${sub}</small></button>`;
+        }
     }
-}
 
     function setMod(m) {
-        if(gameOver) return;
         multiplier = m;
         document.querySelectorAll('.btn-m').forEach(b => b.classList.remove('active'));
         document.getElementById('m'+m).classList.add('active');
-        document.documentElement.style.setProperty('--mode-color', m===1 ? 'var(--accent)' : m===2 ? 'var(--accent-orange)' : 'var(--accent-red)');
+        const colors = ["", "var(--accent)", "var(--accent-orange)", "var(--accent-red)"];
+        document.documentElement.style.setProperty('--mode-color', colors[m]);
         renderPad();
     }
 
