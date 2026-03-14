@@ -107,17 +107,7 @@
         <div class="top-title">🏠 180 !44</div>
     </div>
     
-    <div id="setup-screen">
-        <div class="setup-box">
-            <div id="suggest-box" class="suggest-p" onclick="addSuggestedPlayer()">AJOUTER : <b id="suggest-name"></b> ?</div>
-            <div class="player-input-group">
-                <input type="text" id="pName" placeholder="NOM DU JOUEUR..." autocomplete="off">
-                <button class="btn-add" id="btnAdd" onclick="addPlayerToGame()">+</button>
-            </div>
-            <div id="pList"></div>
-            <button class="btn-start" id="startBtn" onclick="startGame()" style="display: none;">COMMENCER LA PARTIE</button>
-        </div>
-    </div>
+
 
     <div id="game-screen">
         <div class="score-section">
@@ -183,13 +173,30 @@
     let scoreAtStartOfTurn = 180;
     let retoursRestants = 0;
 
-    window.onload = () => {
-        if(currentPseudo && currentPseudo !== "INVITÉ") {
-            document.getElementById('suggest-box').style.display = 'block';
-            document.getElementById('suggest-name').innerText = currentPseudo;
-        }
-        renderPad();
-    };
+// Au lieu de window.onload avec setup-box
+window.onload = () => {
+    const pseudo = (localStorage.getItem('darts_pseudo') || "INVITÉ").toUpperCase();
+    
+    // On crée le joueur unique directement
+    players = [{ 
+        name: pseudo, 
+        score: 180, 
+        totalDarts: 0, 
+        lastV: "---", 
+        isVerified: (pseudo !== "INVITÉ"),
+        scoreAvantTour: 180, 
+        derniersPoints: [], 
+        derniersVisuels: [] 
+    }];
+
+    scoreAtStartOfTurn = 180;
+    retoursRestants = 1;
+    
+    // On affiche l'écran de jeu et on génère l'interface
+    document.getElementById('game-screen').style.display = 'flex';
+    renderPad();
+    syncUI();
+};
 
     function addSuggestedPlayer() { addPlayerToGame(currentPseudo); document.getElementById('suggest-box').style.display = 'none'; }
 
