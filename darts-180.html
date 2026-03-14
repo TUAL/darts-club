@@ -35,7 +35,7 @@
         .suggest-p { background: #21262d; border: 1px dashed var(--accent); color: var(--accent); padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 0.8rem; cursor: pointer; display: none; }
 
         /* --- JEU (Interface 2) --- */
-        #game-screen { display: flex; height: 90dvh; flex-direction: column; background: #000; }
+        #game-screen { display: none; height: 90dvh; flex-direction: column; background: #000; }
         .top-bar { height: 50px; background: #1a1a1a; display: flex; align-items: center; padding: 0 15px; flex-shrink: 0; border-bottom: 1px solid #333; }
         .back-icon { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 1px solid #444; border-radius: 4px; cursor: pointer; }
         .top-title { flex: 1; text-align: center; font-size: 0.75rem; font-weight: 900; letter-spacing: 1px; color: #ccc; }
@@ -104,10 +104,20 @@
         <div class="back-icon" onclick="if(confirm('Quitter la partie ?')) window.location.href='menu.html'">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
         </div>
-        <div class="top-title">🏠 180 !</div>
+        <div class="top-title">🏠 180 !44</div>
     </div>
     
-
+    <div id="setup-screen">
+        <div class="setup-box">
+            <div id="suggest-box" class="suggest-p" onclick="addSuggestedPlayer()">AJOUTER : <b id="suggest-name"></b> ?</div>
+            <div class="player-input-group">
+                <input type="text" id="pName" placeholder="NOM DU JOUEUR..." autocomplete="off">
+                <button class="btn-add" id="btnAdd" onclick="addPlayerToGame()">+</button>
+            </div>
+            <div id="pList"></div>
+            <button class="btn-start" id="startBtn" onclick="startGame()" style="display: none;">COMMENCER LA PARTIE</button>
+        </div>
+    </div>
 
     <div id="game-screen">
         <div class="score-section">
@@ -173,30 +183,13 @@
     let scoreAtStartOfTurn = 180;
     let retoursRestants = 0;
 
-// Au lieu de window.onload avec setup-box
-window.onload = () => {
-    const pseudo = (localStorage.getItem('darts_pseudo') || "INVITÉ").toUpperCase();
-    
-    // On crée le joueur unique directement
-    players = [{ 
-        name: pseudo, 
-        score: 180, 
-        totalDarts: 0, 
-        lastV: "---", 
-        isVerified: (pseudo !== "INVITÉ"),
-        scoreAvantTour: 180, 
-        derniersPoints: [], 
-        derniersVisuels: [] 
-    }];
-
-    scoreAtStartOfTurn = 180;
-    retoursRestants = 1;
-    
-    // On affiche l'écran de jeu et on génère l'interface
-    document.getElementById('game-screen').style.display = 'flex';
-    renderPad();
-    syncUI();
-};
+    window.onload = () => {
+        if(currentPseudo && currentPseudo !== "INVITÉ") {
+            document.getElementById('suggest-box').style.display = 'block';
+            document.getElementById('suggest-name').innerText = currentPseudo;
+        }
+        renderPad();
+    };
 
     function addSuggestedPlayer() { addPlayerToGame(currentPseudo); document.getElementById('suggest-box').style.display = 'none'; }
 
