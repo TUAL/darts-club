@@ -16,13 +16,20 @@
         }
         * { box-sizing: border-box; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
         
-        body { 
-            font-family: -apple-system, system-ui, sans-serif; 
-            background: var(--bg); color: var(--text); 
-            margin: 0; padding: 0; height: 100dvh;
-            display: flex; flex-direction: column; overflow: hidden; 
-            position: fixed; width: 100%;
-        }
+body { 
+	font-family: -apple-system, system-ui, sans-serif; 
+	background: var(--bg); color: var(--text); 
+	margin: 0; padding: 0; 
+	height: 100%; 
+	min-height: 100%; 
+	max-height: 100%;
+	flex-shrink: 0;   /* Empêche le flexbox parent de réduire ce bloc */		
+	display: flex; flex-direction: column; 
+	overflow: hidden; 
+	position: fixed; width: 100%;
+
+}
+
 
         .top-bar { height: 50px; background: #1a1a1a; display: flex; align-items: center; padding: 0 15px; flex-shrink: 0; border-bottom: 1px solid #333; }
         .back-icon { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 1px solid #444; border-radius: 4px; cursor: pointer; }
@@ -34,8 +41,20 @@
         .lvl-btn b { display: block; font-size: 1.1rem; }
         .lvl-btn span { font-size: 0.7rem; color: #8b949e; }
 
-        #game-screen { display: none; height: 90dvh; flex-direction: column; background: #000; }
-        .score-section { height: 45dvh; display: flex; flex-direction: column; background: var(--bg-dark); padding: 10px 0; }
+#game-screen { display: none; flex-direction: column; background: #000; }
+
+.score-section { 
+    height: 45%; 
+    min-height: 45%; 
+    max-height: 45%;
+    display: flex; 
+    flex-direction: column; 
+    background: var(--bg-dark); 
+    padding: 10px 0;
+    overflow: hidden; /* Empêche le contenu interne de pousser les bords */
+    flex-shrink: 0;   /* Empêche le flexbox parent de réduire ce bloc */
+}
+
         .header-scores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 0 10px; flex: 1; }
         
         .p-column { 
@@ -52,7 +71,19 @@
 
         .turn-announcer { height: 35px; display: flex; align-items: center; justify-content: center; color: var(--accent-orange); font-weight: 900; font-size: 0.8rem; text-transform: uppercase; }
 
-        .input-info { height: 75px; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0 15px; background: #000; }
+.input-info { 
+    height: 60px !important; 
+    min-height: 60px !important;
+    max-height: 60px !important;
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 10px; 
+    padding: 0 15px; 
+    background: #000;
+    flex-shrink: 0; /* Empêche la section de se faire écraser */
+}
+
         .dart-val { 
             width: 70px; height: 55px; background: white; color: black; 
             border-radius: 30px; display: flex; flex-direction: column; 
@@ -63,10 +94,20 @@
         .btn-valid-darts { flex: 1; height: 55px; background: #222; border: none; color: #444; border-radius: 30px; font-weight: 900; font-size: 0.85rem; }
         .btn-valid-darts.ready { color: #fff; cursor: pointer; background: var(--accent-orange) !important; color: #000 !important; }
 
-        .keyboard { 
-            height: 55dvh; background: #1a1a1a; display: flex; flex-direction: column; padding: 2px;
-            border-top: 4px solid var(--mode-color); transition: border-color 0.2s;
-        }
+.keyboard { 
+	background: #1a1a1a; 
+	display: flex; 
+	flex-direction: column; 
+	padding: 2px;
+	border-top: 4px solid var(--mode-color); 
+	transition: border-color 0.2s;
+	height: 55%; 
+	min-height: 55%; 
+	max-height: 55%;
+	overflow: hidden; /* Empêche le contenu interne de pousser les bords */
+	flex-shrink: 0;   /* Empêche le flexbox parent de réduire ce bloc */						
+}
+
         .mod-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: #333; }
         .btn-m { background: #1a1a1a; color: #888; padding: 15px; border: none; font-weight: 900; font-size: 0.9rem; }
         #m1.active { color: #fff; border-bottom: 4px solid var(--accent); }
