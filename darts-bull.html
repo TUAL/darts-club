@@ -10,24 +10,42 @@
     <style>
         :root { 
             --bg: #0b0e14; --card: #161b22; --text: #f0f6fc;
-            --accent: #58a6ff; --bg-dark: #121916;
+            --accent: #58a6ff; --bg-dark: #121916;--accent-miss: #fff;
             --accent-orange: #f39c12; --accent-green: #2ecc71; --accent-red: #e74c3c;
         }
         * { box-sizing: border-box; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
         
-        body { 
-            font-family: -apple-system, system-ui, sans-serif; 
-            background: var(--bg); color: var(--text); 
-            margin: 0; padding: 0; height: 100dvh;
-            display: flex; flex-direction: column; overflow: hidden; 
-            position: fixed; width: 100%;
-        }
+	body { 
+		font-family: -apple-system, system-ui, sans-serif; 
+		background: var(--bg); color: var(--text); 
+		margin: 0; padding: 0; 
+		height: 91%; 
+		min-height: 91%; 
+		max-height: 91%;
+		flex-shrink: 0;   /* Empêche le flexbox parent de réduire ce bloc */		
+		display: flex; flex-direction: column; 
+		overflow: hidden; 
+		position: fixed; width: 100%;
+	
+	}
+
 
         .top-bar { height: 50px; background: #1a1a1a; display: flex; align-items: center; padding: 0 15px; flex-shrink: 0; border-bottom: 1px solid #333; }
         .back-icon { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 1px solid #444; border-radius: 4px; cursor: pointer; }
         .top-title { flex: 1; text-align: center; font-size: 0.75rem; font-weight: 900; letter-spacing: 1px; color: #ccc; }
 
-        .score-section { height: 36.5dvh; display: flex; flex-direction: column; background: var(--bg-dark); padding: 10px 0; }
+.score-section { 
+    height: 40%; 
+    min-height: 40%; 
+    max-height: 40%;
+    display: flex; 
+    flex-direction: column; 
+    background: var(--bg-dark); 
+    padding: 10px 0;
+    overflow: hidden; /* Empêche le contenu interne de pousser les bords */
+    flex-shrink: 0;   /* Empêche le flexbox parent de réduire ce bloc */
+}
+
         .header-scores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0 10px; flex: 1; }
 
         .turn-announcer { height: 35px; display: flex; align-items: center; justify-content: center; color: var(--accent-orange); font-weight: 900; font-size: 0.8rem; text-transform: uppercase; }
@@ -40,12 +58,26 @@
         .p-column.active { background: var(--accent-orange); border-color: #fff; color: #000; }
         .p-column.blue { background: var(--accent); border-color: #fff; color: #000; }
         
-        .p-name { font-size: 0.85rem; font-weight: 900; text-transform: uppercase; }
-        .p-score { font-size: 3.2rem; font-weight: 900; line-height: 1; margin: 5px 0; }
+.p-name { font-size: 0.85rem; font-weight: 900; text-transform: uppercase; }
+.p-score { font-size: 4rem; font-weight: 900; line-height: 0.70; margin: 5px 0; }
+.p-score-flech { font-size: 3rem; font-weight: 900; line-height: 0.70; margin: 5px 0; }
+.p-last-v { font-size: 0.65rem; font-weight: bold; margin-bottom: 5px; opacity: 0.9; }
+.p-stats { font-size: 0.65rem; font-weight: 900; width: 90%; }
         .target-sub { font-size: 0.65rem; font-weight: 900; margin-top: 10px; text-transform: uppercase; opacity: 0.8; }
-        .p-stats { font-size: 0.6rem; font-weight: 900; width: 90%; }
 
-        .input-info { height: 75px; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0 15px; background: #000; border-bottom: 4px solid var(--accent); }
+.input-info { 
+    height: 60px !important; 
+    min-height: 60px !important;
+    max-height: 60px !important;
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 10px; 
+    padding: 0 15px; 
+    background: #000;
+    flex-shrink: 0; /* Empêche la section de se faire écraser */
+}
+
         .dart-val { 
             width: 70px; height: 55px; background: white; color: black; 
             border-radius: 30px; display: flex; flex-direction: column; 
@@ -56,15 +88,21 @@
         .btn-valid-darts { flex: 1; height: 55px; background: #222; border: none; color: #444; border-radius: 30px; font-weight: 900; font-size: 0.85rem; text-transform: uppercase; }
         .btn-valid-darts.ready { background: var(--accent-orange) !important; color: #000 !important; }
 
-		.keyboard { flex: 0 0 30dvh; background: #1a1a1a; display: flex; flex-direction: column; padding: 20px; }
-        .num-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; flex: 1; gap: 1px; background: #333; }
+
+        .keyboard {flex: 1; background: #1a1a1a; display: flex; flex-direction: column; padding: 2px; }		
+		
+        .num-grid {display: grid; grid-template-columns: 1fr 1fr 1fr; flex: 1;height: 180px; gap: 1px; }
+	
+		
         .key { background: #121916; border: none; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .key span { font-size: 1.2rem; font-weight: 900; }
         .key small { font-size: 0.6rem; color: #666; font-weight: 900; text-transform: uppercase; margin-top: 5px; }
-        .key.red { border-bottom: 5px solid var(--accent-red); }
-        .key.green { border-bottom: 5px solid var(--accent-green); }
-
-        .special-row { display: grid; grid-template-columns: 1fr; height: 60px; background: #333; }
+        .key.red { border-bottom: 5px solid var(--accent-red);margin-top: 25px;margin-bottom: 100px; }
+        .key.green {border-bottom: 5px solid var(--accent-green);margin-top: 25px;margin-bottom: 100px;}
+        .key.miss {border-bottom: 5px solid var(--accent-miss);margin-top: 25px;margin-bottom: 100px;border-left:1px solid #333; border-right:1px solid #333; }
+		
+        .special-row { display: grid; grid-template-columns: 1fr; height: 60px;gap: 1px; background: #333;border-top: 4px solid var(--accent);  }
+		
         .sp-key { background: #121916; color: #888; border: none; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; }
 
         .overlay { display:none; position:fixed; inset:0; background: rgba(13,17,23,0.98); z-index:999; flex-direction:column; justify-content:center; align-items:center; padding: 20px; }
@@ -87,12 +125,12 @@
                 <div class="p-name">POINTS</div>
                 <div id="val-score" class="p-score">0</div>
                 <div class="target-sub">&nbsp;</div>
-                <div class="p-stats">&nbsp;<br>OBJ : 10</div>	
+                <div class="p-stats">&nbsp;<br>OBJECTIF : 10pts</div>	
             </div>
             <div class="p-column blue">
                 <div class="p-name">JETS</div>
-                <div id="val-darts" class="p-score">0</div>
-                <div class="target-sub">&nbsp;</div>
+                <div id="val-darts" class="p-score-flech">0</div>
+                <div class="target-sub">18 FLÉCHETTES MAX</div>
                 <div class="p-stats">&nbsp;<br>&nbsp;</div>	
             </div>
             <div style="visibility: hidden;"></div>
@@ -112,9 +150,9 @@
             <button class="sp-key" onclick="undo()">RETOUR ⌫</button>
         </div>  
         <div class="num-grid">
-            <button class="key red" onclick="addDart(2, 'red')"><span>BULLSEYE</span><small>2 PTS</small></button>
-            <button class="key green" onclick="addDart(1, 'green')"><span>BULL</span><small>1 PT</small></button>
-            <button class="key" onclick="addDart(0, 'miss')"><span>ZÉRO</span><small>0 PT</small></button>
+            <button class="key green" onclick="addDart(2, 'red')"><span>BULLSEYE</span><small>2 PTS</small></button>
+            <button class="key miss" onclick="addDart(1, 'green')"><span>BULL</span><small>1 PT</small></button>
+            <button class="key red" onclick="addDart(0, 'miss')"><span>ZÉRO</span><small>0 PT</small></button>
         </div>
     </div>
 
@@ -177,7 +215,7 @@
     function updateUI() {
         const currentTurnSum = turnDarts.reduce((acc, d) => acc + d.pts, 0);
         document.getElementById('val-score').innerText = totalScore + currentTurnSum;
-        document.getElementById('val-darts').innerText = totalDarts + turnDarts.length + "/18";
+        document.getElementById('val-darts').innerText = totalDarts + turnDarts.length;
 
         for(let i=0; i<3; i++) {
             const slot = document.getElementById('v'+i);
