@@ -1,27 +1,37 @@
 const CACHE_NAME = 'darts-club-v1';
-// Liste des fichiers à sauvegarder pour le mode hors-ligne
-const ASSETS_TO_CACHE = [
+// Liste des fichiers à rendre disponibles hors ligne
+const ASSETS = [
   './',
   './index.html',
   './menu.html',
-  './manifest.json',
-  './icon.png'
+  './game.html', // Ajoutez ici le nom de vos fichiers de jeu
+  './icon.png',
+  './manifest.json'
 ];
 
-// Installation du Service Worker et mise en cache
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
+// Installation : Mise en cache des fichiers
+self.addEventListener('install', (e) => {
+  e.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+  );
+});
+
+// Activation : Nettoyage des vieux caches
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then((keys) => {
+      return Promise.all(
+        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
+      );
     })
   );
 });
 
 // Stratégie : Répondre avec le cache, sinon chercher sur le réseau
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
+self.addEventListener('fetch', (e) => {
+  e.respondWith(
+    caches.match(e.request).then((response) => {
+      return response || fetch(e.request);
     })
   );
 });

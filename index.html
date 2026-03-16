@@ -9,39 +9,6 @@
     <link rel="manifest" href="manifest.json">
     
     <style>
-let deferredPrompt;
-const addBtn = document.getElementById('btn-install');
-
-window.addEventListener('beforeinstallprompt', (e) => {
-    // Empêche Chrome 67 et versions antérieures d'afficher automatiquement l'invite
-    e.preventDefault();
-    // Stocke l'événement pour qu'il puisse être déclenché plus tard
-    deferredPrompt = e;
-    // Met à jour l'interface pour montrer le bouton d'installation
-    addBtn.style.display = 'block';
-
-    addBtn.addEventListener('click', (e) => {
-        // Cache notre bouton
-        addBtn.style.display = 'none';
-        // Montre l'invite d'installation
-        deferredPrompt.prompt();
-        // Attend la réponse de l'utilisateur
-        deferredPrompt.userChoice.then((choiceResult) => {
-            if (choiceResult.outcome === 'accepted') {
-                console.log('L\'utilisateur a accepté l\'installation');
-            } else {
-                console.log('L\'utilisateur a refusé l\'installation');
-            }
-            deferredPrompt = null;
-        });
-    });
-});
-
-// Cache le bouton une fois l'app installée
-window.addEventListener('appinstalled', (evt) => {
-    addBtn.style.display = 'none';
-    console.log('Darts Club a été installée');
-});
         :root { 
             --bg: #0b0e14; --card: #161b22; --text: #f0f6fc;
             --accent: #58a6ff; --s-color: #238636; --t-color: #da3633;
@@ -273,6 +240,40 @@ async function handleAuth() {
 			return false;
 		}
 	}, false);
+	
+let deferredPrompt;
+const addBtn = document.getElementById('btn-install');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Empêche Chrome 67 et versions antérieures d'afficher automatiquement l'invite
+    e.preventDefault();
+    // Stocke l'événement pour qu'il puisse être déclenché plus tard
+    deferredPrompt = e;
+    // Met à jour l'interface pour montrer le bouton d'installation
+    addBtn.style.display = 'block';
+
+    addBtn.addEventListener('click', (e) => {
+        // Cache notre bouton
+        addBtn.style.display = 'none';
+        // Montre l'invite d'installation
+        deferredPrompt.prompt();
+        // Attend la réponse de l'utilisateur
+        deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                console.log('L\'utilisateur a accepté l\'installation');
+            } else {
+                console.log('L\'utilisateur a refusé l\'installation');
+            }
+            deferredPrompt = null;
+        });
+    });
+});
+
+// Cache le bouton une fois l'app installée
+window.addEventListener('appinstalled', (evt) => {
+    addBtn.style.display = 'none';
+    console.log('Darts Club a été installée');
+});
 </script>
 </body>
 </html>
