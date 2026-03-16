@@ -57,7 +57,7 @@
         .p-column.active-2 { background: var(--accent-red); border-color: #fff; opacity: 1; color: #000; }
 
 .p-name { font-size: 0.85rem; font-weight: 900; text-transform: uppercase; }
-.p-score { font-size: 4rem; font-weight: 900; line-height: 0.70; margin: 5px 0; }
+.p-score { font-size: 3rem; font-weight: 900; line-height: 0.70; margin: 5px 0; }
 .p-last-v { font-size: 0.65rem; font-weight: bold; margin-bottom: 5px; opacity: 0.9; }
 .p-stats { font-size: 0.65rem; font-weight: 900; width: 90%; }
 
@@ -306,35 +306,61 @@ function addDart(val) {
         syncUI();
     }
 
-    async function saveVictory() {
-        const winner = gameState.players.find(p => p.id === myId);
-        const avg = parseFloat(((winner.totalPoints / winner.totalDarts) * 3).toFixed(2));
-        const btn = document.getElementById('btn-save-only');
+async function saveVictory() {
+    const winner = gameState.players.find(p => p.id === myId);
+    if (!winner) return;
+
+    // Calcul de la moyenne finale précise
+    const avg = parseFloat(((winner.totalPoints / winner.totalDarts) * 3).toFixed(2));
+    const btn = document.getElementById('btn-save-only');
+    
+    try {
+        btn.disabled = true; 
+        btn.innerText = "ENREGISTREMENT...";
         
-        try {
-            btn.disabled = true; 
-            btn.innerText = "ENREGISTREMENT...";
-            const ref = db.ref(`users/${winner.name}/games/live_501`);
-            
-            // Mise à jour du Top 3
-            const snap = await ref.child('top').once('value');
-            let top = snap.val() || [];
-            top.push({ avg: avg, darts: winner.totalDarts, date: new Date().toLocaleDateString('fr-FR') });
-            top.sort((a, b) => b.avg - a.avg);
-            await ref.child('top').set(top.slice(0, 3));
-			await ref.child('stats/wins').transaction(c => (c || 0) + 1);
-       
-            btn.innerText = "✅ ARCHIVÉ";
-            btn.style.background = "#2ecc71";
-            
-            // Retour au menu après un court délai
-            setTimeout(() => resetStand(), 1500);
-        } catch(e) { 
-            console.error(e);
-            btn.disabled = false; 
-            btn.innerText = "ERREUR";
+        // Référence vers les données du joueur pour le mode Live
+        const ref = db.ref(`users/${winner.name}/games/live_501`);
+        
+        // 1. Mise à jour du Top 3
+        const snap = await ref.child('top').once('value');
+        let top = snap.val() || [];
+        top.push({ avg: avg, darts: winner.totalDarts, date: new Date().toLocaleDateString('fr-FR') });
+        top.sort((a, b) => b.avg - a.avg);
+        await ref.child('top').set(top.slice(0, 3));
+
+        // 2. Incrémentation de la victoire (WINS)
+        await ref.child('stats/wins').transaction(c => (c || 0) + 1);
+
+        // 3. Attribution des POINTS selon le barème
+        let pointsToGrant = 0;
+        if (avg >= 85) {
+            pointsToGrant = 5;
+        } else if (avg >= 70) {
+            pointsToGrant = 3;
+        } else if (avg >= 55) {
+            pointsToGrant = 2;
+        } else {
+            pointsToGrant = 1;
         }
+
+        // Enregistrement des points dans stats/points
+        await ref.child('stats/points').transaction(currentPoints => {
+            return (currentPoints || 0) + pointsToGrant;
+        });
+
+        // Feedback visuel final
+        btn.innerText = "✅ ARCHIVÉ";
+        btn.style.background = "#2ecc71";
+        
+        // Retour au menu après un court délai
+        setTimeout(() => resetStand(), 1500);
+        
+    } catch(e) { 
+        console.error(e);
+        btn.disabled = false; 
+        btn.innerText = "ERREUR";
     }
+}
 
     function undoLastDart() {
         if (dartsInTurn.length === 0) return;
