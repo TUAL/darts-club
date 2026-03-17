@@ -47,7 +47,7 @@
         .p-column.active-ia { background: var(--accent-red); border-color: #fff; opacity: 1; color: #000; }
         
         .p-name { font-size: 0.85rem; font-weight: 900; text-transform: uppercase; }
-        .p-score { font-size: 4rem; font-weight: 900; line-height: 1; margin: 5px 0; }
+        .p-score { font-size: 3rem; font-weight: 900; line-height: 1; margin: 5px 0; }
         .p-stats { font-size: 0.65rem; font-weight: 900; width: 90%; text-align: left; }
 
         .turn-announcer { height: 35px; display: flex; align-items: center; justify-content: center; color: var(--accent-orange); font-weight: 900; font-size: 0.8rem; text-transform: uppercase; }
@@ -379,6 +379,22 @@ async function handleJustSave() {
             // 2. Incrémentation du compteur de victoires (WINS)
             await gameRef.child('stats/wins').transaction(currentWins => {
                 return (currentWins || 0) + 1;
+            });
+			
+            // 3. Calcul et enregistrement des POINTS selon le barème
+            let pointsToGrant = 0;
+            if (finalAvg >= 85) {
+                pointsToGrant = 5;
+            } else if (finalAvg >= 70) {
+                pointsToGrant = 3;
+            } else if (finalAvg >= 55) {
+                pointsToGrant = 2;
+            } else {
+                pointsToGrant = 1;
+            }
+
+            await gameRef.child('stats/points').transaction(currentPoints => {
+                return (currentPoints || 0) + pointsToGrant;
             });
 
             btn.innerText = "✅ ARCHIVÉ";
