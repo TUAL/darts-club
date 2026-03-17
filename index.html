@@ -71,15 +71,25 @@
             border: 1px solid var(--border); margin-top: 5px;
         }
 
-        #btn-install {
-            display: none;
-            background: linear-gradient(145deg, #004422, #001a0d);
-            color: var(--install-color);
-            border: 1px solid var(--install-color);
-            margin-top: 20px;
-            font-size: 0.8rem;
-            animation: fadeIn 0.5s ease-in;
-        }
+#btn-install {
+    display: none; /* Reste caché si déjà installé */
+    width: 90%;
+    max-width: 300px;
+    background: rgba(63, 100, 127, 0.1);
+    color: var(--install-color);
+    border: 1px dashed var(--install-color);
+    border-radius: 50px; /* Bord arrondi style pilule */
+    padding: 12px;
+    margin-top: 30px; /* Espace sous le cadre */
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    animation: fadeIn 0.5s ease-in;
+}
+
+#btn-install:active {
+    background: rgba(63, 100, 127, 0.2);
+    transform: scale(0.95);
+}
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
@@ -109,13 +119,13 @@
         <button id="auth-submit" class="btn btn-login" onclick="handleAuth()">SE CONNECTER / CRÉER</button>
         
         <button class="btn btn-guest" onclick="continueGuest()">SESSION LIBRE</button>
-
+</div>
         <button id="btn-install" class="btn" onclick="installApp()">
             ✨ INSTALLER L'APPLICATION
         </button>
         
         <div id="msg"></div>
-    </div>
+
     
     <div class="footer-info">
         MARS 2026 • VERSION 2.1
