@@ -290,13 +290,13 @@
             });
 
             // Numéro
-            const [lx, ly] = polar(centerA, R_DOUBLE_IN + 14);
+            const [lx, ly] = polar(centerA, R_DOUBLE_IN + 16);
             const txt = document.createElementNS(ns, "text");
             txt.setAttribute("x", lx.toFixed(1));
             txt.setAttribute("y", ly.toFixed(1));
             txt.setAttribute("text-anchor", "middle");
             txt.setAttribute("dominant-baseline", "middle");
-            txt.setAttribute("font-size", "16");
+            txt.setAttribute("font-size", "18");
             txt.setAttribute("font-weight", "900");
             txt.setAttribute("fill", "white");
             txt.style.pointerEvents = "none";
