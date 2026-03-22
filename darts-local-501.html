@@ -24,7 +24,7 @@
             position: fixed; width: 100%;
         }
 
-        /* --- SETUP (Interface 1) --- */
+        /* --- SETUP --- */
         #setup-screen { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding:20px; }
         .setup-box { width: 100%; max-width: 320px; text-align: center; }
         .player-input-group { background: var(--card); padding: 8px; border-radius: 12px; border: 1px solid #30363d; display: flex; gap: 8px; margin-bottom: 15px; }
@@ -34,7 +34,7 @@
         .btn-start { background: var(--accent); color: #fff; padding: 15px; border-radius: 12px; font-weight: bold; border: none; width: 100%; margin-top: 10px; }
         .suggest-p { background: #21262d; border: 1px dashed var(--accent); color: var(--accent); padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 0.8rem; cursor: pointer; display: none; }
 
-        /* --- JEU (Interface 2) --- */
+        /* --- JEU --- */
         #game-screen { display: none; height: 90dvh; flex-direction: column; background: #000; }
 
         .top-bar { height: 50px; background: #1a1a1a; display: flex; align-items: center; padding: 0 15px; flex-shrink: 0; border-bottom: 1px solid #333; }
@@ -42,7 +42,6 @@
         .top-title { flex: 1; text-align: center; font-size: 0.75rem; font-weight: 900; letter-spacing: 1px; color: #ccc; }
 
         .score-section { height: 45dvh; display: flex; flex-direction: column; background: var(--bg-dark); padding: 10px 0; }
-
         .header-scores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0 10px; flex: 1; }
         
         .p-column { 
@@ -53,7 +52,6 @@
         .p-column.active-0 { background: var(--accent-orange); border-color: #fff; opacity: 1; color: #000; }
         .p-column.active-1 { background: var(--accent-green); border-color: #fff; opacity: 1; color: #000; }
         .p-column.active-2 { background: var(--accent-red); border-color: #fff; opacity: 1; color: #000; }
-        
         .p-name { font-size: 0.85rem; font-weight: 900; text-transform: uppercase; }
         .p-score { font-size: 3rem; font-weight: 900; line-height: 0.70; margin: 5px 0; }
         .p-last-v { font-size: 0.65rem; font-weight: bold; margin-bottom: 5px; opacity: 0.9; }
@@ -62,89 +60,65 @@
         .turn-announcer { height: 35px; display: flex; align-items: center; justify-content: center; color: var(--accent-orange); font-weight: 900; font-size: 0.8rem; text-transform: uppercase; }
 
         .input-info { height: 75px; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0 15px; background: #000; }
-
-        .dart-val { 
-            width: 70px; height: 55px; background: white; color: black; 
-            border-radius: 30px; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; font-weight: 900; font-size: 1.1rem;
-        }
-        .dart-val small {font-size: 0.55rem; font-weight: bold; color: #555; }
-        
-        .btn-valid-darts {flex: 1; height: 55px; background: #222; border: none; color: #444; border-radius: 30px; font-weight: 900; font-size: 0.85rem; }
+        .dart-val { width: 70px; height: 55px; background: white; color: black; border-radius: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; font-size: 1.1rem; }
+        .dart-val small { font-size: 0.55rem; font-weight: bold; color: #555; }
+        .btn-valid-darts { flex: 1; height: 55px; background: #222; border: none; color: #444; border-radius: 30px; font-weight: 900; font-size: 0.85rem; }
         .btn-valid-darts.ready { color: #fff; cursor: pointer; }
 
-        .keyboard { 
-            height: 55dvh; background: #1a1a1a; display: flex; flex-direction: column; padding: 2px;
-            border-top: 4px solid var(--mode-color); transition: border-color 0.2s;
-        }
-
+        /* --- CLAVIER --- */
+        .keyboard { height: 55dvh; background: #1a1a1a; display: flex; flex-direction: column; padding: 2px; border-top: 4px solid var(--mode-color); transition: border-color 0.2s; }
         .mod-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: #333; }
         .btn-m { background: #1a1a1a; color: #888; padding: 15px; border: none; font-weight: 900; font-size: 0.9rem; }
-        
         #m1.active { color: #fff; border-bottom: 4px solid var(--accent); }
         #m2.active { color: #fff; border-bottom: 4px solid var(--accent-orange); }
         #m3.active { color: #fff; border-bottom: 4px solid var(--accent-red); }
-
         .num-grid { display: grid; grid-template-columns: repeat(5, 1fr); flex: 1; gap: 1px; background: #333; }
         .key { background: #121916; border: none; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .key span { font-size: 1.4rem; font-weight: 900; }
-        .key small { font-size: 0.75rem; color: #555; font-weight: 900; display: block; min-height: 1.2em; } 
-
+        .key small { font-size: 0.75rem; color: #555; font-weight: 900; display: block; min-height: 1.2em; }
         .special-row { display: grid; grid-template-columns: 1fr 1.2fr 1.2fr 1.2fr; height: 70px; gap: 1px; background: #333; }
         .sp-key { background: #121916; color: white; border: none; font-weight: bold; font-size: 0.8rem; }
 
-        /* --- TARGET MODE --- */
+        /* --- MODE CIBLE SVG --- */
         #target-frame {
-            display: none; 
-            height: 55dvh; 
-            background: #000; 
+            display: none;
+            height: 55dvh;
+            background: #000;
             position: relative;
             flex-direction: column;
             align-items: center;
             justify-content: center;
         }
-
-        /* SVG dartboard container */
         #dartboard-container {
+            position: relative;
             width: 320px;
             height: 320px;
-            position: relative;
         }
-
-        /* Flash overlay for hit feedback */
-        #hit-flash {
-            position: absolute;
-            inset: 0;
-            border-radius: 50%;
-            background: rgba(255,255,255,0);
-            pointer-events: none;
-            transition: background 0.05s;
-            z-index: 10;
-        }
-
         .btn-miss {
-            position: absolute; top: 10px; right: 10px;
-            width: 60px; height: 60px; background: #161b22;
+            position: absolute; top: 5px; right: 5px;
+            width: 50px; height: 50px; background: #161b22;
             color: #fff; border: 1px solid #30363d; border-radius: 15px;
             font-weight: 900; z-index: 12;
         }
-
         .target-undo {
-            position: absolute; bottom: 10px; right: 10px;
-            width: 60px; height: 60px; background: #30363d;
+            position: absolute; bottom: 5px; right: 5px;
+            width: 50px; height: 50px; background: #30363d;
             color: #fff; border: none; border-radius: 50%;
             font-size: 1.5rem; z-index: 12;
         }
 
-zone-label
+        /* --- BOUTON MODE --- */
+        #mode-toggle-zone { display: flex; align-items: center; justify-content: center; min-width: 50px; height: 100%; }
+        .btn-mode { width: 45px; height: 45px; border-radius: 8px; border: 1px solid #333; background: #21262d; cursor: pointer; font-size: 1.3rem; }
+        .btn-mode:active { background: #30363d; transform: scale(0.95); }
 
         /* --- OVERLAY VICTOIRE --- */
         .overlay { 
-            display:none; position:fixed; inset:0; background: rgba(13,17,23,0.98); 
-            z-index:999; flex-direction:column; justify-content: center; align-items:center; padding: 20px; 
+            display: none; position: fixed; inset: 0; background: rgba(13,17,23,0.98); 
+            z-index: 999; flex-direction: column; justify-content: center; align-items: center; padding: 20px; 
         }
         .final-box { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid #30363d; width: 100%; max-width: 300px; text-align: center; }
-        .btn-save { background: var(--accent) !important; font-size: 0.85rem; font-weight: 800; border-radius: 10px; height: 50px; width: 100%; margin: 10px 0; color: white; border:none; }
+        .btn-save { background: var(--accent) !important; font-size: 0.85rem; font-weight: 800; border-radius: 10px; height: 50px; width: 100%; margin: 10px 0; color: white; border: none; }
     </style>
 </head>
 <body>
@@ -184,13 +158,9 @@ zone-label
             <button class="btn-valid-darts" id="btn-validate" onclick="finishTurn()" disabled>OK</button>
         </div>
 
-        <!-- TARGET MODE: SVG Dartboard -->
         <div id="target-frame">
-            <button class="btn-miss" onclick="showHitFeedback('MISS', 0); addDart(0)">MISS<br>0</button>
-            <div id="dartboard-container">
-                <!-- SVG injected by JS -->
-                <div id="hit-flash"></div>
-            </div>
+            <button class="btn-miss" onclick="addDart(0)">MISS<br>0</button>
+            <div id="dartboard-container"></div>
             <button class="target-undo" onclick="undoLastDart()">↩</button>
         </div>
 
@@ -212,7 +182,9 @@ zone-label
 
     <div id="end-screen" class="overlay">
         <div class="top-bar" style="width: 100%; position: absolute; top: 0; left: 0;">
-            <div class="back-icon" onclick="window.location.href='menu.html'"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
+            <div class="back-icon" onclick="window.location.href='menu.html'">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            </div>
             <div class="top-title">🏠 501 - DARTS LOCAL</div>
         </div>
         <div class="final-box">
@@ -246,7 +218,7 @@ zone-label
     let retoursRestants = 0;
 
     window.onload = () => {
-        if(currentPseudo && currentPseudo !== "INVITÉ") {
+        if (currentPseudo && currentPseudo !== "INVITÉ") {
             document.getElementById('suggest-box').style.display = 'block';
             document.getElementById('suggest-name').innerText = currentPseudo;
         }
@@ -255,14 +227,14 @@ zone-label
     };
 
     // =============================================
-    // SVG DARTBOARD — Segments mathématiquement exacts
+    // SVG DARTBOARD — segments mathématiquement exacts
     // =============================================
     function buildSVGDartboard() {
         const dartOrder = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5];
         const cx = 160, cy = 160;
-        const R_DOUBLE_OUT = 158, R_DOUBLE_IN = 130;
-        const R_TRIPLE_OUT = 90, R_TRIPLE_IN = 50;
-        const R_BULL_OUT = 35, R_BULL_IN = 15;
+        const R_DOUBLE_OUT = 158, R_DOUBLE_IN = 125;
+        const R_TRIPLE_OUT = 90,  R_TRIPLE_IN  = 50;
+        const R_BULL_OUT   = 35,  R_BULL_IN    = 15;
 
         function polar(angleDeg, r) {
             const rad = (angleDeg - 90) * Math.PI / 180;
@@ -289,7 +261,7 @@ zone-label
         svg.setAttribute("height", "320");
         svg.style.display = "block";
 
-        // Background circle
+        // Fond
         const bg = document.createElementNS(ns, "circle");
         bg.setAttribute("cx", cx); bg.setAttribute("cy", cy); bg.setAttribute("r", "160");
         bg.setAttribute("fill", "#111");
@@ -297,6 +269,7 @@ zone-label
 
         const segAngle = 18.0, half = 9.0;
 
+        // Zones visuelles
         dartOrder.forEach((val, i) => {
             const centerA = i * segAngle;
             const a1 = centerA - half, a2 = centerA + half;
@@ -304,28 +277,26 @@ zone-label
             const colSimple = isEven ? "#1a1a1a" : "#FFFFCC";
             const colRing   = isEven ? "#267F00" : "#BB0000";
 
-            // Visual zones
-            const zones = [
-                { r1: R_TRIPLE_OUT+1, r2: R_DOUBLE_IN-1, color: colSimple },
-                { r1: R_BULL_OUT+1,   r2: R_TRIPLE_IN-1, color: colSimple },
-                { r1: R_TRIPLE_IN,    r2: R_TRIPLE_OUT,   color: colRing },
-                { r1: R_DOUBLE_IN,    r2: R_DOUBLE_OUT,   color: colRing },
-            ];
-            zones.forEach(z => {
+            [
+                { r1: R_TRIPLE_OUT + 1, r2: R_DOUBLE_IN - 1, color: colSimple },
+                { r1: R_BULL_OUT + 1,   r2: R_TRIPLE_IN - 1, color: colSimple },
+                { r1: R_TRIPLE_IN,      r2: R_TRIPLE_OUT,     color: colRing },
+                { r1: R_DOUBLE_IN,      r2: R_DOUBLE_OUT,     color: colRing },
+            ].forEach(z => {
                 const p = document.createElementNS(ns, "path");
                 p.setAttribute("d", arcPath(z.r1, z.r2, a1, a2));
                 p.setAttribute("fill", z.color);
                 svg.appendChild(p);
             });
 
-            // Number label
-            const [lx, ly] = polar(centerA, R_DOUBLE_IN + 10);
+            // Numéro
+            const [lx, ly] = polar(centerA, R_DOUBLE_IN + 14);
             const txt = document.createElementNS(ns, "text");
             txt.setAttribute("x", lx.toFixed(1));
             txt.setAttribute("y", ly.toFixed(1));
             txt.setAttribute("text-anchor", "middle");
             txt.setAttribute("dominant-baseline", "middle");
-            txt.setAttribute("font-size", "11");
+            txt.setAttribute("font-size", "16");
             txt.setAttribute("font-weight", "900");
             txt.setAttribute("fill", "white");
             txt.style.pointerEvents = "none";
@@ -333,7 +304,7 @@ zone-label
             svg.appendChild(txt);
         });
 
-        // Bull circles (visual)
+        // Bull visuel
         [{ r: R_BULL_OUT, fill: "#267F00" }, { r: R_BULL_IN, fill: "#BB0000" }].forEach(b => {
             const c = document.createElementNS(ns, "circle");
             c.setAttribute("cx", cx); c.setAttribute("cy", cy); c.setAttribute("r", b.r);
@@ -341,81 +312,65 @@ zone-label
             svg.appendChild(c);
         });
 
-        // Border ring
+        // Bordure
         const border = document.createElementNS(ns, "circle");
         border.setAttribute("cx", cx); border.setAttribute("cy", cy); border.setAttribute("r", "159");
-        border.setAttribute("fill", "none"); border.setAttribute("stroke", "#444"); border.setAttribute("stroke-width", "2");
+        border.setAttribute("fill", "none"); border.setAttribute("stroke", "#555"); border.setAttribute("stroke-width", "2");
         svg.appendChild(border);
 
-        // ---- CLICK ZONES (transparent, on top) ----
+        // Zones de clic transparentes
         dartOrder.forEach((val, i) => {
             const centerA = i * segAngle;
             const a1 = centerA - half, a2 = centerA + half;
 
-            const clickZones = [
-                { r1: R_TRIPLE_OUT+1, r2: R_DOUBLE_IN-1, m: 1 },
-                { r1: R_BULL_OUT+1,   r2: R_TRIPLE_IN-1, m: 1 },
-                { r1: R_TRIPLE_IN,    r2: R_TRIPLE_OUT,   m: 3 },
-                { r1: R_DOUBLE_IN,    r2: R_DOUBLE_OUT,   m: 2 },
-            ];
-            clickZones.forEach(z => {
+            [
+                { r1: R_TRIPLE_OUT + 1, r2: R_DOUBLE_IN - 1, m: 1 },
+                { r1: R_BULL_OUT + 1,   r2: R_TRIPLE_IN - 1, m: 1 },
+                { r1: R_TRIPLE_IN,      r2: R_TRIPLE_OUT,     m: 3 },
+                { r1: R_DOUBLE_IN,      r2: R_DOUBLE_OUT,     m: 2 },
+            ].forEach(z => {
                 const p = document.createElementNS(ns, "path");
                 p.setAttribute("d", arcPath(z.r1, z.r2, a1, a2));
                 p.setAttribute("fill", "transparent");
                 p.style.cursor = "pointer";
                 p.addEventListener("click", () => {
-                    const pts = val * z.m;
-                    const label = z.m === 3 ? `T${val}` : z.m === 2 ? `D${val}` : `S${val}`;
                     multiplier = z.m;
-                    showHitFeedback(label, pts);
                     addDart(val);
                 });
                 svg.appendChild(p);
             });
         });
 
-        // Bull click zones
-        [{ r: R_BULL_OUT, val: 25, label: "B25", pts: 25 }, { r: R_BULL_IN, val: 50, label: "BULL", pts: 50 }].forEach(b => {
+        // Bull cliquable
+        [
+            { r: R_BULL_OUT, val: 25 },
+            { r: R_BULL_IN,  val: 50 },
+        ].forEach(b => {
             const c = document.createElementNS(ns, "circle");
             c.setAttribute("cx", cx); c.setAttribute("cy", cy); c.setAttribute("r", b.r);
             c.setAttribute("fill", "transparent");
             c.style.cursor = "pointer";
-            c.addEventListener("click", (e) => {
-                e.stopPropagation();
-                showHitFeedback(b.label, b.pts);
-                addDart(b.val);
-            });
+            c.addEventListener("click", (e) => { e.stopPropagation(); addDart(b.val); });
             svg.appendChild(c);
         });
 
-        const container = document.getElementById('dartboard-container');
-        container.insertBefore(svg, container.firstChild);
-    }
-
-    // ---- HIT FEEDBACK ----
-    let feedbackTimer = null;
-    function showHitFeedback(label, pts) {
-        const flash = document.getElementById('hit-flash');
-
-        flash.style.background = pts > 0 ? "rgba(255,255,255,0.25)" : "rgba(80,0,0,0.3)";
-
-        clearTimeout(feedbackTimer);
-        feedbackTimer = setTimeout(() => {
-            flash.style.background = "rgba(255,255,255,0)";
-        }, 700);
+        document.getElementById('dartboard-container').appendChild(svg);
     }
 
     // =============================================
-    // GAME LOGIC (unchanged)
+    // SETUP
     // =============================================
-    function addSuggestedPlayer() { addPlayerToGame(currentPseudo); document.getElementById('suggest-box').style.display = 'none'; }
+    function addSuggestedPlayer() {
+        addPlayerToGame(currentPseudo);
+        document.getElementById('suggest-box').style.display = 'none';
+    }
 
     async function addPlayerToGame(forcedName = null) {
         const input = document.getElementById('pName');
         const btnAdd = document.getElementById('btnAdd');
         const name = (forcedName || input.value).trim().toUpperCase();
-        if(!name || players.length >= 3) return;
-        if(players.some(p => p.name === name)) return;
+        if (!name || players.length >= 3) return;
+        if (players.some(p => p.name === name)) return;
         btnAdd.disabled = true; btnAdd.innerText = "...";
         try {
             const userSnap = await db.ref(`users/${name}`).once('value');
@@ -459,11 +414,14 @@ zone-label
         syncUI();
     }
 
+    // =============================================
+    // CLAVIER
+    // =============================================
     function renderPad() {
         const pad = document.getElementById('pad');
         pad.innerHTML = "";
-        for(let i=1; i<=20; i++) {
-            let sub = (multiplier > 1) ? (i * multiplier) : "&nbsp;"; 
+        for (let i = 1; i <= 20; i++) {
+            let sub = (multiplier > 1) ? (i * multiplier) : "&nbsp;";
             pad.innerHTML += `<button class="key" onclick="addDart(${i})"><span>${i}</span><small>${sub}</small></button>`;
         }
     }
@@ -471,30 +429,31 @@ zone-label
     function toggleInput(mode) {
         const kb = document.getElementById('kb-frame');
         const target = document.getElementById('target-frame');
-        const btnToTarget = document.getElementById('btn-to-target');
-        const btnToKb = document.getElementById('btn-to-kb');
         if (mode === 'kb') {
             kb.style.display = 'flex';
             target.style.display = 'none';
-            btnToTarget.style.display = 'block';
-            btnToKb.style.display = 'none';
+            document.getElementById('btn-to-target').style.display = 'block';
+            document.getElementById('btn-to-kb').style.display = 'none';
         } else {
             kb.style.display = 'none';
             target.style.display = 'flex';
-            btnToTarget.style.display = 'none';
-            btnToKb.style.display = 'block';
+            document.getElementById('btn-to-target').style.display = 'none';
+            document.getElementById('btn-to-kb').style.display = 'block';
         }
     }
 
     function setMod(m) {
         multiplier = m;
         document.querySelectorAll('.btn-m').forEach(b => b.classList.remove('active'));
-        document.getElementById('m'+m).classList.add('active');
+        document.getElementById('m' + m).classList.add('active');
         const colors = ["", "var(--accent)", "var(--accent-orange)", "var(--accent-red)"];
         document.documentElement.style.setProperty('--mode-color', colors[m]);
         renderPad();
     }
 
+    // =============================================
+    // LOGIQUE DE JEU
+    // =============================================
     function addDart(val) {
         if (dartsInTurn.length >= 3 || isBust) return;
         let m = (val === 50 || val === 25 || val === 0) ? 1 : multiplier;
@@ -520,11 +479,11 @@ zone-label
     function updateVisuals() {
         const btn = document.getElementById('btn-validate');
         const colors = ["var(--accent-orange)", "var(--accent-green)", "var(--accent-red)"];
-        for(let i=0; i<3; i++) {
-            const el = document.getElementById('v'+i);
+        for (let i = 0; i < 3; i++) {
+            const el = document.getElementById('v' + i);
             el.innerHTML = visualDarts[i] ? `${dartsInTurn[i]}<small>${visualDarts[i]}</small>` : `--<small>-</small>`;
         }
-        if(dartsInTurn.length === 3 || isBust || players[currentPlayer].score === 0) {
+        if (dartsInTurn.length === 3 || isBust || players[currentPlayer].score === 0) {
             btn.classList.add('ready');
             btn.style.background = colors[currentPlayer] || "#238636";
             btn.style.color = "#000";
@@ -544,7 +503,7 @@ zone-label
         p.derniersVisuels = [...visualDarts];
         p.totalDarts += dartsInTurn.length;
         p.lastV = isBust ? "BUST" : visualDarts.join(' | ');
-        if(p.score === 0) { showVictory(p); return; }
+        if (p.score === 0) { showVictory(p); return; }
         currentPlayer = (currentPlayer + 1) % players.length;
         scoreAtStartOfTurn = players[currentPlayer].score;
         retoursRestants = players.length;
@@ -585,7 +544,7 @@ zone-label
         container.innerHTML = players.map((p, i) => {
             let nbFlechesTotal = p.totalDarts + (i === currentPlayer ? dartsInTurn.length : 0);
             let avg = nbFlechesTotal > 0 ? (((501 - p.score) / nbFlechesTotal) * 3).toFixed(1) : "0.0";
-            return `<div class="p-column ${i === currentPlayer ? 'active-'+i : ''}">
+            return `<div class="p-column ${i === currentPlayer ? 'active-' + i : ''}">
                 <div class="p-name">${p.name}</div>
                 <div class="p-score">${p.score}</div>
                 <div class="p-last-v">${p.lastV}</div>
@@ -599,18 +558,18 @@ zone-label
         document.getElementById('game-screen').style.display = 'none';
         document.getElementById('end-screen').style.display = 'flex';
         document.getElementById('winner-display').innerText = p.name + " GAGNE !";
-        const btnSave = document.getElementById('btn-save-only');
-        btnSave.style.display = p.isVerified ? 'block' : 'none';
+        document.getElementById('btn-save-only').style.display = p.isVerified ? 'block' : 'none';
         document.getElementById('local-stats-list').innerHTML = players.map(player => `
-            <div style="display:flex; justify-content:space-between; margin-bottom:5px; color:${player === p ? '#2ecc71':'#fff'}">
-                <span>${player.name}</span><span><b>${player.totalDarts > 0 ? (501 / player.totalDarts * 3).toFixed(1) : "0"}</b> AVG (${player.totalDarts} fl.)</span>
+            <div style="display:flex; justify-content:space-between; margin-bottom:5px; color:${player === p ? '#2ecc71' : '#fff'}">
+                <span>${player.name}</span>
+                <span><b>${player.totalDarts > 0 ? (501 / player.totalDarts * 3).toFixed(1) : "0"}</b> AVG (${player.totalDarts} fl.)</span>
             </div>`).join('');
     }
 
     async function saveGameData() {
         const btn = document.getElementById('btn-save-only');
         const winner = players.find(p => p.score === 0);
-        if(!winner || !winner.isVerified) return;
+        if (!winner || !winner.isVerified) return;
         btn.innerText = "PATIENTEZ..."; btn.disabled = true;
         try {
             const avg = parseFloat((501 / winner.totalDarts * 3).toFixed(2));
@@ -627,9 +586,9 @@ zone-label
             }
             btn.innerText = "✅ ARCHIVÉ";
             btn.style.background = "#2ecc71";
-        } catch(e) { 
+        } catch(e) {
             console.error(e); btn.innerText = "ERREUR"; btn.disabled = false;
-        }       
+        }
     }
 </script>
 </body>
