@@ -20,31 +20,23 @@
             font-family: -apple-system, system-ui, sans-serif; 
             background: var(--bg); color: var(--text); 
             margin: 0; padding: 0; 
-    height: 91%; 
-    min-height: 91%; 
-    max-height: 91%;
-    flex-shrink: 0;   /* Empêche le flexbox parent de réduire ce bloc */		
+            height: 91%; min-height: 91%; max-height: 91%;
+            flex-shrink: 0;
             display: flex; flex-direction: column; 
-			overflow: hidden; 
+            overflow: hidden; 
             position: fixed; width: 100%;
-		
         }
 
         .top-bar { height: 50px; background: #1a1a1a; display: flex; align-items: center; padding: 0 15px; flex-shrink: 0; border-bottom: 1px solid #333; }
         .back-icon { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 1px solid #444; border-radius: 4px; cursor: pointer; }
         .top-title { flex: 1; text-align: center; font-size: 0.75rem; font-weight: 900; letter-spacing: 1px; color: #ccc; }
 
-.score-section { 
-    height: 40%; 
-    min-height: 40%; 
-    max-height: 40%;
-    display: flex; 
-    flex-direction: column; 
-    background: var(--bg-dark); 
-    padding: 10px 0;
-    overflow: hidden; /* Empêche le contenu interne de pousser les bords */
-    flex-shrink: 0;   /* Empêche le flexbox parent de réduire ce bloc */
-}   
+        .score-section { 
+            height: 40%; min-height: 40%; max-height: 40%;
+            display: flex; flex-direction: column; 
+            background: var(--bg-dark); padding: 10px 0;
+            overflow: hidden; flex-shrink: 0;
+        }
 
         .header-scores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0 10px; flex: 1; }
         
@@ -53,10 +45,8 @@
             display: flex; flex-direction: column; align-items: center; justify-content: space-around;
             padding: 10px 5px; opacity: 0.4; transition: 0.3s; color: #fff;
         }
-        
         .p-column.active-0 { background: var(--accent-orange); border-color: #fff; opacity: 1; color: #000; }
-        .p-column.active-1 { background: var(--accent-green); border-color: #fff; opacity: 1; color: #000; }
-        
+        .p-column.active-1 { background: var(--accent-green);  border-color: #fff; opacity: 1; color: #000; }
         .p-name { font-size: 0.85rem; font-weight: 900; text-transform: uppercase; }
         .p-score { font-size: 3.2rem; font-weight: 900; line-height: 1; margin: 5px 0; }
         .p-last-v { font-size: 0.65rem; font-weight: bold; margin-bottom: 5px; opacity: 0.9; }
@@ -64,18 +54,11 @@
 
         .turn-announcer { height: 35px; display: flex; align-items: center; justify-content: center; color: var(--accent-orange); font-weight: 900; font-size: 0.8rem; text-transform: uppercase; }
 
-.input-info { 
-    height: 60px !important; 
-    min-height: 60px !important;
-    max-height: 60px !important;
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    gap: 10px; 
-    padding: 0 15px; 
-    background: #000;
-    flex-shrink: 0; /* Empêche la section de se faire écraser */
-}
+        .input-info { 
+            height: 60px !important; min-height: 60px !important; max-height: 60px !important;
+            display: flex; align-items: center; justify-content: center; 
+            gap: 10px; padding: 0 15px; background: #000; flex-shrink: 0;
+        }
 
         .dart-val { 
             width: 70px; height: 55px; background: white; color: black; 
@@ -83,37 +66,63 @@
             align-items: center; justify-content: center; font-weight: 900; font-size: 1.1rem;
         }
         .dart-val small { font-size: 0.55rem; font-weight: bold; color: #555; }
-        
-        .btn-valid-darts { flex: 1; height: 55px; background: #222; border: none; color: #444; border-radius: 30px; font-weight: 900; font-size: 0.85rem; }
+        .btn-valid-darts { max-width: 80px; flex: 1; height: 55px; background: #222; border: none; color: #444; border-radius: 30px; font-weight: 900; font-size: 0.85rem; }
         .btn-valid-darts.ready { color: #fff; cursor: pointer; }
 
-        .keyboard { 
+        /* --- BOUTON MODE --- */
+        #mode-toggle-zone { display: flex; align-items: center; justify-content: center; min-width: 50px; height: 100%; }
+        .btn-mode { width: 45px; height: 45px; border-radius: 8px; border: 1px solid #333; background: #21262d; cursor: pointer; font-size: 1.3rem; }
+        .btn-mode:active { background: #30363d; transform: scale(0.95); }
 
-			background: #1a1a1a; 
-			display: flex; 
-			flex-direction: column; 
-			padding: 2px;
-            border-top: 4px solid var(--mode-color); 
-			transition: border-color 0.2s;
-    height: 49%; 
-    min-height: 49%; 
-    max-height: 49%;
-    overflow: hidden; /* Empêche le contenu interne de pousser les bords */
-    flex-shrink: 0;   /* Empêche le flexbox parent de réduire ce bloc */						
+        /* --- CLAVIER --- */
+        .keyboard { 
+            background: #1a1a1a; display: flex; flex-direction: column; padding: 2px;
+            border-top: 4px solid var(--mode-color); transition: border-color 0.2s;
+            height: 49%; min-height: 49%; max-height: 49%;
+            overflow: hidden; flex-shrink: 0;
         }
-		
         .mod-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: #333; }
         .btn-m { background: #1a1a1a; color: #888; padding: 15px; border: none; font-weight: 900; font-size: 0.9rem; }
         .btn-m.active { color: #fff; border-bottom: 4px solid var(--accent); }
-
         .num-grid { display: grid; grid-template-columns: repeat(5, 1fr); flex: 1; gap: 1px; background: #333; }
         .key { background: #121916; border: none; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .key span { font-size: 1.4rem; font-weight: 900; }
-        .key small { font-size: 0.75rem; color: #555; font-weight: 900; display: block; min-height: 1.2em; } 
-
+        .key small { font-size: 0.75rem; color: #555; font-weight: 900; display: block; min-height: 1.2em; }
         .special-row { display: grid; grid-template-columns: 1fr 1.2fr 1.2fr 1.2fr; height: 70px; gap: 1px; background: #333; }
         .sp-key { background: #121916; color: white; border: none; font-weight: bold; font-size: 0.8rem; }
 
+        /* --- MODE CIBLE SVG --- */
+        #target-frame {
+            display: none;
+            height: 49%; min-height: 49%; max-height: 49%;
+            background: #000;
+            position: relative;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        #dartboard-container {
+            position: relative;
+            width: min(45dvh, 90vw);
+            height: min(45dvh, 90vw);
+            max-width: 500px;
+            max-height: 500px;
+        }
+        .btn-miss {
+            position: absolute; top: 5px; right: 5px;
+            width: 50px; height: 50px; background: #161b22;
+            color: #fff; border: 1px solid #30363d; border-radius: 15px;
+            font-weight: 900; z-index: 12;
+        }
+        .target-undo {
+            position: absolute; bottom: 5px; right: 5px;
+            width: 50px; height: 50px; background: #30363d;
+            color: #fff; border: none; border-radius: 50%;
+            font-size: 1.5rem; z-index: 12;
+        }
+
+        /* --- OVERLAY --- */
         .overlay { display:none; position:fixed; inset:0; background: rgba(13,17,23,0.98); z-index:999; flex-direction:column; justify-content:center; align-items:center; padding: 20px; }
         .final-box { background: var(--card); padding: 15px; border-radius: 15px; border: 1px solid #30363d; width: 100%; max-width: 260px; text-align: center; }
         .end-btn-container { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 260px; margin-top: 15px; }
@@ -148,12 +157,24 @@
     </div>
     
     <div class="input-info">
+        <div id="mode-toggle-zone">
+            <button class="btn-mode" id="btn-to-target" onclick="toggleInput('target')">🎯</button>
+            <button class="btn-mode" id="btn-to-kb" onclick="toggleInput('kb')" style="display:none;">⌨️</button>
+        </div>
         <div class="dart-val" id="v0">--<small>-</small></div>
         <div class="dart-val" id="v1">--<small>-</small></div>
         <div class="dart-val" id="v2">--<small>-</small></div>
         <button class="btn-valid-darts" id="btn-validate" onclick="finishTurn()" disabled>VALIDER</button>
     </div>
 
+    <!-- MODE CIBLE -->
+    <div id="target-frame">
+        <button class="btn-miss" onclick="addDart(0)">MISS<br>0</button>
+        <div id="dartboard-container"></div>
+        <button class="target-undo" onclick="undo()">↩</button>
+    </div>
+
+    <!-- CLAVIER -->
     <div class="keyboard" id="kb-frame">
         <div class="mod-row">
             <button class="btn-m active" id="m1" onclick="setMod(1)">SIMPLE</button>
@@ -170,23 +191,20 @@
     </div>
 
     <div id="end-screen" class="overlay">
-		<div class="top-bar" style="width: 100%; position: absolute; top: 0; left: 0;">
-			<div class="back-icon" onclick="window.location.href='menu.html'"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
-			<div class="top-title">🏁 CHECKOUT</div>
-		</div>	
-	
+        <div class="top-bar" style="width: 100%; position: absolute; top: 0; left: 0;">
+            <div class="back-icon" onclick="window.location.href='menu.html'"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
+            <div class="top-title">🏁 CHECKOUT</div>
+        </div>
         <div class="final-box">
             <h1 id="end-title-label" style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase; margin: 0;">Résultat</h1>
             <div id="final-score-display" style="font-size: 3.5rem; font-weight: 900; margin: 5px 0; line-height: 1;">--</div>
             <p id="end-msg" style="font-size: 0.85rem; color: #fff; font-weight: bold; margin: 10px 0 0 0; background: #1a1a1a; display: inline-block; padding: 4px 12px; border-radius: 4px;"></p>
             <p id="end-avg-display" style="font-size: 0.85rem; color: #fff; font-weight: bold; margin: 8px 0 0 0; background: #004ab3; padding: 4px 12px; border-radius: 4px; display: none;"></p>
         </div>
-        
         <div id="top-scores" style="margin: 15px 0; width: 100%; max-width: 260px; font-size: 0.75rem;">
             <div style="color: var(--accent-orange); font-weight: bold; text-align: center; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;">🏆 Top 3 Moyennes (PPR)</div>
             <div id="top-list" style="background: var(--card); border-radius: 10px; padding: 5px 10px; border: 1px solid #333;">...</div>
         </div>
-
         <div class="end-btn-container">
             <button id="btn-save-only" class="end-btn btn-save" style="display:none;" onclick="handleJustSave()">ENREGISTRER LE SCORE</button>
             <button class="end-btn btn-valid" onclick="location.reload()">REJOUER</button>
@@ -217,15 +235,14 @@
     let scoreAtTurnStart, gameOver = false;
 
     window.onload = () => {
-        document.getElementById('title-label').innerText = "🏁 DARTS CHECKOUT";
         initGame();
         renderPad();
+        buildSVGDartboard();
     };
 
     function initGame() {
-        do { initialScore = Math.floor(Math.random() * (170 - 61 + 1)) + 61; } 
+        do { initialScore = Math.floor(Math.random() * (170 - 61 + 1)) + 61; }
         while (exclusions.includes(initialScore));
-        
         reste = initialScore;
         scoreAtTurnStart = reste;
         document.getElementById('val-reste').innerText = reste;
@@ -233,6 +250,161 @@
         updateUI();
     }
 
+    // =============================================
+    // TOGGLE CLAVIER / CIBLE
+    // =============================================
+    function toggleInput(mode) {
+        const kb = document.getElementById('kb-frame');
+        const target = document.getElementById('target-frame');
+        if (mode === 'kb') {
+            kb.style.display = 'flex';
+            target.style.display = 'none';
+            document.getElementById('btn-to-target').style.display = 'block';
+            document.getElementById('btn-to-kb').style.display = 'none';
+        } else {
+            kb.style.display = 'none';
+            target.style.display = 'flex';
+            document.getElementById('btn-to-target').style.display = 'none';
+            document.getElementById('btn-to-kb').style.display = 'block';
+        }
+    }
+
+    // =============================================
+    // SVG DARTBOARD
+    // =============================================
+    function buildSVGDartboard() {
+        const dartOrder = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5];
+        const cx = 160, cy = 160;
+        const R_DOUBLE_OUT = 158, R_DOUBLE_IN = 125;
+        const R_TRIPLE_OUT = 90,  R_TRIPLE_IN  = 50;
+        const R_BULL_OUT   = 35,  R_BULL_IN    = 15;
+
+        function polar(angleDeg, r) {
+            const rad = (angleDeg - 90) * Math.PI / 180;
+            return [cx + r * Math.cos(rad), cy + r * Math.sin(rad)];
+        }
+
+        function arcPath(r1, r2, a1, a2) {
+            const [x1o, y1o] = polar(a1, r2);
+            const [x2o, y2o] = polar(a2, r2);
+            const [x1i, y1i] = polar(a1, r1);
+            const [x2i, y2i] = polar(a2, r1);
+            const large = (a2 - a1) > 180 ? 1 : 0;
+            return `M ${x1i.toFixed(3)} ${y1i.toFixed(3)} `
+                 + `L ${x1o.toFixed(3)} ${y1o.toFixed(3)} `
+                 + `A ${r2} ${r2} 0 ${large} 1 ${x2o.toFixed(3)} ${y2o.toFixed(3)} `
+                 + `L ${x2i.toFixed(3)} ${y2i.toFixed(3)} `
+                 + `A ${r1} ${r1} 0 ${large} 0 ${x1i.toFixed(3)} ${y1i.toFixed(3)} Z`;
+        }
+
+        const ns = "http://www.w3.org/2000/svg";
+        const svg = document.createElementNS(ns, "svg");
+        svg.setAttribute("viewBox", "0 0 320 320");
+        svg.setAttribute("width", "100%");
+        svg.setAttribute("height", "100%");
+        svg.style.display = "block";
+
+        const bg = document.createElementNS(ns, "circle");
+        bg.setAttribute("cx", cx); bg.setAttribute("cy", cy); bg.setAttribute("r", "160");
+        bg.setAttribute("fill", "#111");
+        svg.appendChild(bg);
+
+        const segAngle = 18.0, half = 9.0;
+
+        // Zones visuelles
+        dartOrder.forEach((val, i) => {
+            const centerA = i * segAngle;
+            const a1 = centerA - half, a2 = centerA + half;
+            const isEven = i % 2 === 0;
+            const colSimple = isEven ? "#1a1a1a" : "#FFFFCC";
+            const colRing   = isEven ? "#267F00" : "#BB0000";
+
+            [
+                { r1: R_TRIPLE_OUT + 1, r2: R_DOUBLE_IN - 1, color: colSimple },
+                { r1: R_BULL_OUT + 1,   r2: R_TRIPLE_IN - 1, color: colSimple },
+                { r1: R_TRIPLE_IN,      r2: R_TRIPLE_OUT,     color: colRing },
+                { r1: R_DOUBLE_IN,      r2: R_DOUBLE_OUT,     color: colRing },
+            ].forEach(z => {
+                const p = document.createElementNS(ns, "path");
+                p.setAttribute("d", arcPath(z.r1, z.r2, a1, a2));
+                p.setAttribute("fill", z.color);
+                svg.appendChild(p);
+            });
+
+            const [lx, ly] = polar(centerA, R_DOUBLE_IN + 16);
+            const txt = document.createElementNS(ns, "text");
+            txt.setAttribute("x", lx.toFixed(1));
+            txt.setAttribute("y", ly.toFixed(1));
+            txt.setAttribute("text-anchor", "middle");
+            txt.setAttribute("dominant-baseline", "middle");
+            txt.setAttribute("font-size", "18");
+            txt.setAttribute("font-weight", "900");
+            txt.setAttribute("fill", "white");
+            txt.style.pointerEvents = "none";
+            txt.textContent = val;
+            svg.appendChild(txt);
+        });
+
+        [{ r: R_BULL_OUT, fill: "#267F00" }, { r: R_BULL_IN, fill: "#BB0000" }].forEach(b => {
+            const c = document.createElementNS(ns, "circle");
+            c.setAttribute("cx", cx); c.setAttribute("cy", cy); c.setAttribute("r", b.r);
+            c.setAttribute("fill", b.fill);
+            svg.appendChild(c);
+        });
+
+        const border = document.createElementNS(ns, "circle");
+        border.setAttribute("cx", cx); border.setAttribute("cy", cy); border.setAttribute("r", "159");
+        border.setAttribute("fill", "none"); border.setAttribute("stroke", "#555"); border.setAttribute("stroke-width", "2");
+        svg.appendChild(border);
+
+        // Zones de clic
+        dartOrder.forEach((val, i) => {
+            const centerA = i * segAngle;
+            const a1 = centerA - half, a2 = centerA + half;
+            const isEven = i % 2 === 0;
+
+            [
+                { r1: R_TRIPLE_OUT + 1, r2: R_DOUBLE_IN - 1, m: 1 },
+                { r1: R_BULL_OUT + 1,   r2: R_TRIPLE_IN - 1, m: 1 },
+                { r1: R_TRIPLE_IN,      r2: R_TRIPLE_OUT,     m: 3 },
+                { r1: R_DOUBLE_IN,      r2: R_DOUBLE_OUT,     m: 2 },
+            ].forEach(z => {
+                const p = document.createElementNS(ns, "path");
+                p.setAttribute("d", arcPath(z.r1, z.r2, a1, a2));
+                p.setAttribute("fill", "transparent");
+                p.style.cursor = "pointer";
+p.addEventListener("click", () => {
+    const isEvenZone = p.getAttribute("data-even") === "1";
+    const flashColor = (!isEvenZone && z.m === 1) ? "rgba(243,156,18,0.8)" : "rgba(243,156,18,0.8)";
+    p.setAttribute("fill", flashColor);
+    setTimeout(() => p.setAttribute("fill", "transparent"), 150);
+    multiplier = z.m;
+    addDart(val);
+});
+                svg.appendChild(p);
+            });
+        });
+
+        [{ r: R_BULL_OUT, val: 25 }, { r: R_BULL_IN, val: 50 }].forEach(b => {
+            const c = document.createElementNS(ns, "circle");
+            c.setAttribute("cx", cx); c.setAttribute("cy", cy); c.setAttribute("r", b.r);
+            c.setAttribute("fill", "transparent");
+            c.style.cursor = "pointer";
+            c.addEventListener("click", (e) => {
+                e.stopPropagation();
+                c.setAttribute("fill", "rgba(243,156,18,0.8)");
+                setTimeout(() => c.setAttribute("fill", "transparent"), 150);
+                addDart(b.val);
+            });
+            svg.appendChild(c);
+        });
+
+        document.getElementById('dartboard-container').appendChild(svg);
+    }
+
+    // =============================================
+    // CLAVIER
+    // =============================================
     function renderPad() {
         const pad = document.getElementById('pad');
         pad.innerHTML = "";
@@ -251,23 +423,26 @@
         renderPad();
     }
 
+    // =============================================
+    // LOGIQUE DE JEU
+    // =============================================
     function addDart(val) {
         if (dartsInTurn.length >= 3 || isBust || totalDarts >= 6 || gameOver) return;
         let m = (val === 50 || val === 25 || val === 0) ? 1 : multiplier;
         let pts = (val === 50) ? 50 : val * m;
 
         if (reste - pts < 0 || reste - pts === 1 || (reste - pts === 0 && m !== 2 && val !== 50)) {
-            isBust = true; 
-            visualDarts.push("BUST"); 
+            isBust = true;
+            visualDarts.push("BUST");
             dartsInTurn.push(0);
         } else {
             reste -= pts;
             let label = (val === 50) ? "BULL" : (val === 25) ? "B25" : (val === 0) ? "Out" : (m === 3 ? "T" : m === 2 ? "D" : "S") + val;
-            visualDarts.push(label); 
+            visualDarts.push(label);
             dartsInTurn.push(pts);
         }
-        totalDarts++; 
-        setMod(1); 
+        totalDarts++;
+        setMod(1);
         updateUI();
     }
 
@@ -286,7 +461,6 @@
         const isFault = isBust;
 
         btn.disabled = !(isThreeDarts || isVictory || isLastChance || isFault);
-        
         if(!btn.disabled) { 
             btn.classList.add('ready'); 
             btn.style.background = "var(--accent-orange)"; 
@@ -300,23 +474,20 @@
 
     function finishTurn() {
         if (gameOver) return;
-        if (reste === 0 || totalDarts >= 6) { 
-            showEnd(); 
-            return; 
-        }
+        if (reste === 0 || totalDarts >= 6) { showEnd(); return; }
         document.getElementById('last-label').innerText = visualDarts.join(' | ');
         if (isBust) reste = scoreAtTurnStart;
         scoreAtTurnStart = reste;
-        dartsInTurn = []; visualDarts = []; isBust = false; 
+        dartsInTurn = []; visualDarts = []; isBust = false;
         updateUI();
     }
 
     function undo() {
         if (dartsInTurn.length === 0 || gameOver) return;
-        let p = dartsInTurn.pop(); 
+        let p = dartsInTurn.pop();
         visualDarts.pop();
         if (!isBust) reste += p;
-        isBust = false; totalDarts--; 
+        isBust = false; totalDarts--;
         updateUI();
     }
 
@@ -327,51 +498,42 @@
         const fs = document.getElementById('final-score-display');
         fs.innerText = win ? initialScore : initialScore - reste;
         fs.style.color = win ? "var(--accent-green)" : "var(--accent-red)";
-        
-        // Message principal
         document.getElementById('end-msg').innerText = win ? `Fini en ${totalDarts} fléchettes.` : `Il restait ${reste} pts sur ${initialScore}.`;
-        
-        // Affichage de la moyenne (PPR) si gagné
         const avgEl = document.getElementById('end-avg-display');
         if(win) {
-            const estimationDartsAvant = 16; 
+            const estimationDartsAvant = 16;
             const moyenne501 = parseFloat(((501 / (estimationDartsAvant + totalDarts)) * 3).toFixed(2));
             avgEl.innerText = `${moyenne501} avg`;
             avgEl.style.display = 'inline-block';
         } else {
             avgEl.style.display = 'none';
         }
-
         if(win && !isGuest) document.getElementById('btn-save-only').style.display = 'block';
         displayTop3();
     }
-	
+
     async function handleJustSave() {
         if(isGuest) return;
         const btn = document.getElementById('btn-save-only');
-        const estimationDartsAvant = 16; 
+        const estimationDartsAvant = 16;
         const moyenne501 = parseFloat(((501 / (estimationDartsAvant + totalDarts)) * 3).toFixed(2));
         try {
             btn.disabled = true; btn.innerText = "ENREGISTREMENT...";
             const pseudoUpper = pseudo.toUpperCase().trim();
             const ref = db.ref(`users/${pseudoUpper}/games/checkouts/top`);
             const snap = await ref.once('value');
-            
             let topScores = [];
             if(snap.exists()) {
                 const val = snap.val();
                 topScores = Array.isArray(val) ? val : Object.values(val);
             }
-
             topScores.push({ date: new Date().toLocaleDateString('fr-FR'), moyenne: moyenne501, score_ferme: initialScore, darts: totalDarts });
             topScores.sort((a, b) => b.moyenne - a.moyenne);
             await ref.set(topScores.slice(0, 3));
             btn.innerText = "✅ ARCHIVÉ";
             displayTop3();
         } catch (e) { 
-            console.error(e);
-            btn.disabled = false; 
-            btn.innerText = "ERREUR"; 
+            console.error(e); btn.disabled = false; btn.innerText = "ERREUR";
         }
     }
 

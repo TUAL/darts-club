@@ -43,10 +43,9 @@
             display: flex; flex-direction: column; align-items: center; justify-content: space-around;
             padding: 10px 5px; opacity: 0.4; transition: 0.3s; color: #fff;
         }
-        .p-column.active-p { background: var(--accent-orange); border-color: #fff; opacity: 1; color: #000; }
-        .p-column.active-ia { background: var(--accent-red); border-color: #fff; opacity: 1; color: #000; }
-        
-        .p-name { font-size: 0.85rem; font-weight: 900; text-transform: uppercase; }
+        .p-column.active-p  { background: var(--accent-orange); border-color: #fff; opacity: 1; color: #000; }
+        .p-column.active-ia { background: var(--accent-red);    border-color: #fff; opacity: 1; color: #000; }
+        .p-name  { font-size: 0.85rem; font-weight: 900; text-transform: uppercase; }
         .p-score { font-size: 3rem; font-weight: 900; line-height: 1; margin: 5px 0; }
         .p-stats { font-size: 0.65rem; font-weight: 900; width: 90%; text-align: left; }
 
@@ -59,10 +58,15 @@
             align-items: center; justify-content: center; font-weight: 900; font-size: 1.1rem;
         }
         .dart-val small { font-size: 0.55rem; font-weight: bold; color: #555; }
-        
-        .btn-valid-darts { flex: 1; height: 55px; background: #222; border: none; color: #444; border-radius: 30px; font-weight: 900; font-size: 0.85rem; }
+        .btn-valid-darts {  max-width: 80px; flex: 1; height: 55px; background: #222; border: none; color: #444; border-radius: 30px; font-weight: 900; font-size: 0.85rem; }
         .btn-valid-darts.ready { color: #fff; cursor: pointer; background: var(--accent-orange) !important; color: #000 !important; }
 
+        /* --- BOUTON MODE --- */
+        #mode-toggle-zone { display: flex; align-items: center; justify-content: center; min-width: 50px; height: 100%; }
+        .btn-mode { width: 45px; height: 45px; border-radius: 8px; border: 1px solid #333; background: #21262d; cursor: pointer; font-size: 1.3rem; }
+        .btn-mode:active { background: #30363d; transform: scale(0.95); }
+
+        /* --- CLAVIER --- */
         .keyboard { 
             height: 55dvh; background: #1a1a1a; display: flex; flex-direction: column; padding: 2px;
             border-top: 4px solid var(--mode-color); transition: border-color 0.2s;
@@ -72,21 +76,48 @@
         #m1.active { color: #fff; border-bottom: 4px solid var(--accent); }
         #m2.active { color: #fff; border-bottom: 4px solid var(--accent-orange); }
         #m3.active { color: #fff; border-bottom: 4px solid var(--accent-red); }
-
         .num-grid { display: grid; grid-template-columns: repeat(5, 1fr); flex: 1; gap: 1px; background: #333; }
         .key { background: #121916; border: none; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .key span { font-size: 1.4rem; font-weight: 900; }
-        .key small { font-size: 0.75rem; color: #555; font-weight: 900; display: block; min-height: 1.2em; } 
-
+        .key small { font-size: 0.75rem; color: #555; font-weight: 900; display: block; min-height: 1.2em; }
         .special-row { display: grid; grid-template-columns: 1fr 1.2fr 1.2fr 1.2fr; height: 70px; gap: 1px; background: #333; }
         .sp-key { background: #121916; color: white; border: none; font-weight: bold; font-size: 0.8rem; }
 
+        /* --- MODE CIBLE SVG --- */
+        #target-frame {
+            display: none;
+            height: 55dvh;
+            background: #000;
+            position: relative;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        #dartboard-container {
+            position: relative;
+            width: min(45dvh, 90vw);
+            height: min(45dvh, 90vw);
+            max-width: 500px;
+            max-height: 500px;
+        }
+        .btn-miss {
+            position: absolute; top: 5px; right: 5px;
+            width: 50px; height: 50px; background: #161b22;
+            color: #fff; border: 1px solid #30363d; border-radius: 15px;
+            font-weight: 900; z-index: 12;
+        }
+        .target-undo {
+            position: absolute; bottom: 5px; right: 5px;
+            width: 50px; height: 50px; background: #30363d;
+            color: #fff; border: none; border-radius: 50%;
+            font-size: 1.5rem; z-index: 12;
+        }
+
+        /* --- OVERLAY --- */
         .overlay { display:none; position:fixed; inset:0; background: rgba(13,17,23,0.98); z-index:999; flex-direction:column; justify-content: center; align-items:center; padding: 20px; }
         .final-box { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid #30363d; width: 100%; max-width: 300px; text-align: center; }
         .btn-save { background: var(--accent) !important; font-size: 0.85rem; font-weight: 800; border-radius: 10px; height: 50px; width: 100%; margin: 10px 0; color: white; border:none; }
-        .end-btn-container { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 260px; margin-top: 15px; }
-   
-	</style>
+    </style>
 </head>
 <body>
     <div class="top-bar">
@@ -127,18 +158,30 @@
                     <div class="p-score" id="ia-score-val">501</div>
                     <div class="p-stats" id="ia-stats">MOY: 0.0<br>0 FLÉCHETTES</div>
                 </div>
-            <div style="visibility: hidden;"></div>
+                <div style="visibility: hidden;"></div>
             </div>
             <div class="turn-announcer" id="turn-txt">À TOI DE JOUER !</div>
         </div>
         
         <div class="input-info">
+            <div id="mode-toggle-zone">
+                <button class="btn-mode" id="btn-to-target" onclick="toggleInput('target')">🎯</button>
+                <button class="btn-mode" id="btn-to-kb" onclick="toggleInput('kb')" style="display:none;">⌨️</button>
+            </div>
             <div class="dart-val" id="v0">--<small>-</small></div>
             <div class="dart-val" id="v1">--<small>-</small></div>
             <div class="dart-val" id="v2">--<small>-</small></div>
             <button class="btn-valid-darts" id="btn-validate" onclick="confirmTurn()" disabled>VALIDER</button>
         </div>
 
+        <!-- MODE CIBLE -->
+        <div id="target-frame">
+            <button class="btn-miss" onclick="addDart(0)">MISS<br>0</button>
+            <div id="dartboard-container"></div>
+            <button class="target-undo" onclick="undoLast()">↩</button>
+        </div>
+
+        <!-- CLAVIER -->
         <div class="keyboard" id="kb-frame">
             <div class="mod-row">
                 <button class="btn-m active" id="m1" onclick="setMod(1)">SIMPLE</button>
@@ -155,20 +198,16 @@
         </div>
     </div>
 
-<div id="end-screen" class="overlay">
+    <div id="end-screen" class="overlay">
         <div class="top-bar" style="width: 100%; position: absolute; top: 0; left: 0;">
             <div class="back-icon" onclick="window.location.href='menu.html'"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
             <div class="top-title">🤖 IA CHALLENGE - 501</div>
         </div>
-        
         <div class="final-box">
             <h1 style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;">MATCH TERMINÉ</h1>
             <div id="final-result" style="font-size: 2rem; font-weight: 900; margin: 5px 0;">VICTOIRE</div>
             <p id="winner-display" style="font-size: 0.8rem; color: #fff; margin-bottom:15px; font-weight:bold;"></p>
-            
-            <div id="local-stats-list" style="background: #0b1410; border-radius: 8px; padding: 10px; border: 1px solid #30363d; text-align: left; font-size: 0.75rem;">
-                </div>
-
+            <div id="local-stats-list" style="background: #0b1410; border-radius: 8px; padding: 10px; border: 1px solid #30363d; text-align: left; font-size: 0.75rem;"></div>
             <button id="btn-save-only" class="btn-save" style="display:none;" onclick="handleJustSave()">ENREGISTRER</button>
             <button class="btn-save" style="background:#30363d !important;" onclick="location.reload()">REJOUER</button>
         </div>
@@ -188,14 +227,12 @@
     const db = firebase.database();
     const auth = firebase.auth();
 
-    auth.onAuthStateChanged(async (user) => {
-        if (!user) await auth.signInAnonymously();
-    });
+    auth.onAuthStateChanged(async (user) => { if (!user) await auth.signInAnonymously(); });
 
     const pseudoRaw = localStorage.getItem('darts_pseudo') || "INVITÉ";
     const pseudo = pseudoRaw.toUpperCase().trim();
     const isGuest = localStorage.getItem('is_guest') === 'true' || pseudo === "INVITÉ";
-    
+
     let pScore = 501, iaScore = 501, iaLevel = 1;
     let pDarts = 0, pPoints = 0, iaDarts = 0, iaPoints = 0;
     let multiplier = 1, turnDarts = [], visualDarts = [], isBust = false;
@@ -208,8 +245,162 @@
         document.getElementById('level-screen').style.display = 'none';
         document.getElementById('game-screen').style.display = 'flex';
         renderPad();
+        buildSVGDartboard();
     }
 
+    // =============================================
+    // TOGGLE CLAVIER / CIBLE
+    // =============================================
+    function toggleInput(mode) {
+        const kb = document.getElementById('kb-frame');
+        const target = document.getElementById('target-frame');
+        if (mode === 'kb') {
+            kb.style.display = 'flex';
+            target.style.display = 'none';
+            document.getElementById('btn-to-target').style.display = 'block';
+            document.getElementById('btn-to-kb').style.display = 'none';
+        } else {
+            kb.style.display = 'none';
+            target.style.display = 'flex';
+            document.getElementById('btn-to-target').style.display = 'none';
+            document.getElementById('btn-to-kb').style.display = 'block';
+        }
+    }
+
+    // =============================================
+    // SVG DARTBOARD
+    // =============================================
+    function buildSVGDartboard() {
+        const dartOrder = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5];
+        const cx = 160, cy = 160;
+        const R_DOUBLE_OUT = 158, R_DOUBLE_IN = 125;
+        const R_TRIPLE_OUT = 90,  R_TRIPLE_IN  = 50;
+        const R_BULL_OUT   = 35,  R_BULL_IN    = 15;
+
+        function polar(angleDeg, r) {
+            const rad = (angleDeg - 90) * Math.PI / 180;
+            return [cx + r * Math.cos(rad), cy + r * Math.sin(rad)];
+        }
+
+        function arcPath(r1, r2, a1, a2) {
+            const [x1o, y1o] = polar(a1, r2);
+            const [x2o, y2o] = polar(a2, r2);
+            const [x1i, y1i] = polar(a1, r1);
+            const [x2i, y2i] = polar(a2, r1);
+            const large = (a2 - a1) > 180 ? 1 : 0;
+            return `M ${x1i.toFixed(3)} ${y1i.toFixed(3)} `
+                 + `L ${x1o.toFixed(3)} ${y1o.toFixed(3)} `
+                 + `A ${r2} ${r2} 0 ${large} 1 ${x2o.toFixed(3)} ${y2o.toFixed(3)} `
+                 + `L ${x2i.toFixed(3)} ${y2i.toFixed(3)} `
+                 + `A ${r1} ${r1} 0 ${large} 0 ${x1i.toFixed(3)} ${y1i.toFixed(3)} Z`;
+        }
+
+        const ns = "http://www.w3.org/2000/svg";
+        const svg = document.createElementNS(ns, "svg");
+        svg.setAttribute("viewBox", "0 0 320 320");
+        svg.setAttribute("width", "100%");
+        svg.setAttribute("height", "100%");
+        svg.style.display = "block";
+
+        const bg = document.createElementNS(ns, "circle");
+        bg.setAttribute("cx", cx); bg.setAttribute("cy", cy); bg.setAttribute("r", "160");
+        bg.setAttribute("fill", "#111");
+        svg.appendChild(bg);
+
+        const segAngle = 18.0, half = 9.0;
+
+        dartOrder.forEach((val, i) => {
+            const centerA = i * segAngle;
+            const a1 = centerA - half, a2 = centerA + half;
+            const isEven = i % 2 === 0;
+            const colSimple = isEven ? "#1a1a1a" : "#FFFFCC";
+            const colRing   = isEven ? "#267F00" : "#BB0000";
+
+            [
+                { r1: R_TRIPLE_OUT + 1, r2: R_DOUBLE_IN - 1, color: colSimple },
+                { r1: R_BULL_OUT + 1,   r2: R_TRIPLE_IN - 1, color: colSimple },
+                { r1: R_TRIPLE_IN,      r2: R_TRIPLE_OUT,     color: colRing },
+                { r1: R_DOUBLE_IN,      r2: R_DOUBLE_OUT,     color: colRing },
+            ].forEach(z => {
+                const p = document.createElementNS(ns, "path");
+                p.setAttribute("d", arcPath(z.r1, z.r2, a1, a2));
+                p.setAttribute("fill", z.color);
+                svg.appendChild(p);
+            });
+
+            const [lx, ly] = polar(centerA, R_DOUBLE_IN + 16);
+            const txt = document.createElementNS(ns, "text");
+            txt.setAttribute("x", lx.toFixed(1));
+            txt.setAttribute("y", ly.toFixed(1));
+            txt.setAttribute("text-anchor", "middle");
+            txt.setAttribute("dominant-baseline", "middle");
+            txt.setAttribute("font-size", "18");
+            txt.setAttribute("font-weight", "900");
+            txt.setAttribute("fill", "white");
+            txt.style.pointerEvents = "none";
+            txt.textContent = val;
+            svg.appendChild(txt);
+        });
+
+        [{ r: R_BULL_OUT, fill: "#267F00" }, { r: R_BULL_IN, fill: "#BB0000" }].forEach(b => {
+            const c = document.createElementNS(ns, "circle");
+            c.setAttribute("cx", cx); c.setAttribute("cy", cy); c.setAttribute("r", b.r);
+            c.setAttribute("fill", b.fill);
+            svg.appendChild(c);
+        });
+
+        const border = document.createElementNS(ns, "circle");
+        border.setAttribute("cx", cx); border.setAttribute("cy", cy); border.setAttribute("r", "159");
+        border.setAttribute("fill", "none"); border.setAttribute("stroke", "#555"); border.setAttribute("stroke-width", "2");
+        svg.appendChild(border);
+
+        dartOrder.forEach((val, i) => {
+            const centerA = i * segAngle;
+            const a1 = centerA - half, a2 = centerA + half;
+            const isEven = i % 2 === 0;
+
+            [
+                { r1: R_TRIPLE_OUT + 1, r2: R_DOUBLE_IN - 1, m: 1 },
+                { r1: R_BULL_OUT + 1,   r2: R_TRIPLE_IN - 1, m: 1 },
+                { r1: R_TRIPLE_IN,      r2: R_TRIPLE_OUT,     m: 3 },
+                { r1: R_DOUBLE_IN,      r2: R_DOUBLE_OUT,     m: 2 },
+            ].forEach(z => {
+                const p = document.createElementNS(ns, "path");
+                p.setAttribute("d", arcPath(z.r1, z.r2, a1, a2));
+                p.setAttribute("fill", "transparent");
+                p.style.cursor = "pointer";
+p.addEventListener("click", () => {
+    const isEvenZone = p.getAttribute("data-even") === "1";
+    const flashColor = (!isEvenZone && z.m === 1) ? "rgba(243,156,18,0.8)" : "rgba(243,156,18,0.8)";
+    p.setAttribute("fill", flashColor);
+    setTimeout(() => p.setAttribute("fill", "transparent"), 150);
+    multiplier = z.m;
+    addDart(val);
+});
+                svg.appendChild(p);
+            });
+        });
+
+        [{ r: R_BULL_OUT, val: 25 }, { r: R_BULL_IN, val: 50 }].forEach(b => {
+            const c = document.createElementNS(ns, "circle");
+            c.setAttribute("cx", cx); c.setAttribute("cy", cy); c.setAttribute("r", b.r);
+            c.setAttribute("fill", "transparent");
+            c.style.cursor = "pointer";
+            c.addEventListener("click", (e) => {
+                e.stopPropagation();
+                c.setAttribute("fill", "rgba(243,156,18,0.8)");
+                setTimeout(() => c.setAttribute("fill", "transparent"), 150);
+                addDart(b.val);
+            });
+            svg.appendChild(c);
+        });
+
+        document.getElementById('dartboard-container').appendChild(svg);
+    }
+
+    // =============================================
+    // CLAVIER
+    // =============================================
     function renderPad() {
         const pad = document.getElementById('numPad');
         pad.innerHTML = "";
@@ -228,6 +419,9 @@
         renderPad();
     }
 
+    // =============================================
+    // LOGIQUE DE JEU
+    // =============================================
     function addDart(val) {
         if (turnDarts.length >= 3 || isBust || pScore === 0) return;
         let m = (val === 50 || val === 25 || val === 0) ? 1 : multiplier;
@@ -257,7 +451,6 @@
         const btn = document.getElementById('btn-validate');
         btn.disabled = !(turnDarts.length === 3 || isBust || pScore === 0);
         if(!btn.disabled) btn.classList.add('ready'); else btn.classList.remove('ready');
-
         const pAvg = pDarts + turnDarts.length > 0 ? (((501 - pScore) / (pDarts + turnDarts.length)) * 3).toFixed(1) : "0.0";
         document.getElementById('p-stats').innerHTML = `MOY: ${pAvg}<br>${pDarts + turnDarts.length} FLÉCHETTES`;
     }
@@ -271,6 +464,7 @@
 
     function startIaTurn() {
         document.getElementById('kb-frame').style.pointerEvents = "none";
+        document.getElementById('target-frame').style.pointerEvents = "none";
         document.getElementById('col-p').classList.remove('active-p');
         document.getElementById('col-ia').classList.add('active-ia');
         document.getElementById('turn-txt').innerText = "L'IA RÉFLÉCHIT...";
@@ -297,6 +491,7 @@
     function resetTurn() {
         turnDarts = []; visualDarts = []; isBust = false;
         document.getElementById('kb-frame').style.pointerEvents = "auto";
+        document.getElementById('target-frame').style.pointerEvents = "auto";
         document.getElementById('col-ia').classList.remove('active-ia');
         document.getElementById('col-p').classList.add('active-p');
         document.getElementById('turn-txt').innerText = "À TOI DE JOUER";
@@ -321,26 +516,18 @@
     function showEnd(win) {
         document.getElementById('game-screen').style.display = 'none';
         document.getElementById('end-screen').style.display = 'flex';
-        
         const res = document.getElementById('final-result');
-        const winDisp = document.getElementById('winner-display');
-        const statsList = document.getElementById('local-stats-list');
-        
         const pAvg = ((pPoints / pDarts) * 3).toFixed(1);
-        const iaAvg = ((iaPoints / iaDarts) * 3).toFixed(1);
-
         if(win) {
             res.innerText = "VICTOIRE";
             res.style.color = "var(--accent-green)";
-            winDisp.innerText = pseudo;
+            document.getElementById('winner-display').innerText = pseudo;
         } else {
             res.innerText = "DÉFAITE";
             res.style.color = "var(--accent-red)";
-            winDisp.innerText = "IA NIVEAU " + iaLevel;
+            document.getElementById('winner-display').innerText = "IA NIVEAU " + iaLevel;
         }
-
-        statsList.innerHTML = `
-
+        document.getElementById('local-stats-list').innerHTML = `
             <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
                 <span style="color:#8b949e">Moyenne (AVG)</span>
                 <span style="color:var(--accent-orange); font-weight:bold;">${pAvg}</span>
@@ -348,60 +535,33 @@
             <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
                 <span style="color:#8b949e">Fléchettes</span>
                 <span>${pDarts}</span>
-            </div>
-        `;
-
-        if(win && !isGuest) {
-            document.getElementById('btn-save-only').style.display = 'block';
-        }
+            </div>`;
+        if(win && !isGuest) document.getElementById('btn-save-only').style.display = 'block';
     }
 
-async function handleJustSave() {
+    async function handleJustSave() {
         if(isGuest) return;
         const btn = document.getElementById('btn-save-only');
         const finalAvg = parseFloat(((pPoints / pDarts) * 3).toFixed(2));
         const gameRef = db.ref('users/' + pseudo + '/games/ia_501');
-        
         try {
             btn.disabled = true; btn.innerText = "ENREGISTREMENT...";
-            
-            // 1. Enregistrement du Top Score
             const snapshot = await gameRef.child('top').once('value');
             let scores = [];
-            if(snapshot.exists()){
+            if(snapshot.exists()) {
                 const val = snapshot.val();
                 scores = Array.isArray(val) ? val : Object.values(val);
             }
             scores.push({ date: new Date().toLocaleDateString('fr-FR'), avg: finalAvg, darts: pDarts, lvl: iaLevel });
             scores.sort((a, b) => b.avg - a.avg);
             await gameRef.child('top').set(scores.slice(0, 3));
-
-            // 2. Incrémentation du compteur de victoires (WINS)
-            await gameRef.child('stats/wins').transaction(currentWins => {
-                return (currentWins || 0) + 1;
-            });
-			
-            // 3. Calcul et enregistrement des POINTS selon le barème
-            let pointsToGrant = 0;
-            if (finalAvg >= 85) {
-                pointsToGrant = 5;
-            } else if (finalAvg >= 70) {
-                pointsToGrant = 3;
-            } else if (finalAvg >= 55) {
-                pointsToGrant = 2;
-            } else {
-                pointsToGrant = 1;
-            }
-
-            await gameRef.child('stats/points').transaction(currentPoints => {
-                return (currentPoints || 0) + pointsToGrant;
-            });
-
+            await gameRef.child('stats/wins').transaction(c => (c || 0) + 1);
+            let pts = finalAvg >= 85 ? 5 : finalAvg >= 70 ? 3 : finalAvg >= 55 ? 2 : 1;
+            await gameRef.child('stats/points').transaction(c => (c || 0) + pts);
             btn.innerText = "✅ ARCHIVÉ";
             btn.style.background = "#2ecc71";
         } catch(e) {
-            console.error(e);
-            btn.disabled = false; btn.innerText = "ERREUR";
+            console.error(e); btn.disabled = false; btn.innerText = "ERREUR";
         }
     }
 </script>
