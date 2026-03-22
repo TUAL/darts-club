@@ -89,11 +89,11 @@
             align-items: center;
             justify-content: center;
         }
-        #dartboard-container {
-            position: relative;
-            width: 320px;
-            height: 320px;
-        }
+#dartboard-container {
+    position: relative;
+    width: min(320px, 55dvh);
+    height: min(320px, 55dvh);
+}
         .btn-miss {
             position: absolute; top: 5px; right: 5px;
             width: 50px; height: 50px; background: #161b22;
@@ -257,8 +257,8 @@
         const ns = "http://www.w3.org/2000/svg";
         const svg = document.createElementNS(ns, "svg");
         svg.setAttribute("viewBox", "0 0 320 320");
-        svg.setAttribute("width", "320");
-        svg.setAttribute("height", "320");
+svg.setAttribute("width", "100%");
+svg.setAttribute("height", "100%");
         svg.style.display = "block";
 
         // Fond
@@ -273,7 +273,7 @@
         dartOrder.forEach((val, i) => {
             const centerA = i * segAngle;
             const a1 = centerA - half, a2 = centerA + half;
-            const isEven = i % 2 === 0;
+            const isEven = i % 2 === 0;		
             const colSimple = isEven ? "#1a1a1a" : "#FFFFCC";
             const colRing   = isEven ? "#267F00" : "#BB0000";
 
@@ -285,6 +285,7 @@
             ].forEach(z => {
                 const p = document.createElementNS(ns, "path");
                 p.setAttribute("d", arcPath(z.r1, z.r2, a1, a2));
+p.setAttribute("data-even", isEven ? "1" : "0");				
                 p.setAttribute("fill", z.color);
                 svg.appendChild(p);
             });
@@ -329,14 +330,18 @@
                 { r1: R_TRIPLE_IN,      r2: R_TRIPLE_OUT,     m: 3 },
                 { r1: R_DOUBLE_IN,      r2: R_DOUBLE_OUT,     m: 2 },
             ].forEach(z => {
-                const p = document.createElementNS(ns, "path");
+                const p = document.createElementNS(ns, "path");			
                 p.setAttribute("d", arcPath(z.r1, z.r2, a1, a2));
                 p.setAttribute("fill", "transparent");
                 p.style.cursor = "pointer";
-                p.addEventListener("click", () => {
-                    multiplier = z.m;
-                    addDart(val);
-                });
+p.addEventListener("click", () => {
+    const isEvenZone = p.getAttribute("data-even") === "1";
+    const flashColor = (!isEvenZone && z.m === 1) ? "rgba(243,156,18,0.8)" : "rgba(243,156,18,0.8)";
+    p.setAttribute("fill", flashColor);
+    setTimeout(() => p.setAttribute("fill", "transparent"), 150);
+    multiplier = z.m;
+    addDart(val);
+});
                 svg.appendChild(p);
             });
         });
@@ -350,7 +355,14 @@
             c.setAttribute("cx", cx); c.setAttribute("cy", cy); c.setAttribute("r", b.r);
             c.setAttribute("fill", "transparent");
             c.style.cursor = "pointer";
-            c.addEventListener("click", (e) => { e.stopPropagation(); addDart(b.val); });
+c.addEventListener("click", (e) => {
+    e.stopPropagation();
+    // Flash
+    c.setAttribute("fill", "rgba(243,156,18,0.8)");
+    setTimeout(() => c.setAttribute("fill", "transparent"), 150);
+    
+    addDart(b.val);
+});
             svg.appendChild(c);
         });
 
