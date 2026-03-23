@@ -96,16 +96,16 @@
     max-width: 500px;
     max-height: 500px;
 }
-     .btn-miss {
-            position: absolute; top: 5px; right: 5px;
+		.btn-miss {
+            position: absolute; bottom: 5px; right: 5px;
             width: 50px; height: 50px; background: #161b22;
             color: #fff; border: 1px solid #30363d; border-radius: 15px;
             font-weight: 900; z-index: 12;
         }
         .target-undo {
-            position: absolute; bottom: 5px; right: 5px;
+            position: absolute; bottom: 5px; left: 5px;
             width: 50px; height: 50px; background: #30363d;
-            color: #fff; border: none; border-radius: 50%;
+            color: #fff; border: 1px solid #30363d; border-radius: 15px;
             font-size: 1.5rem; z-index: 12;
         }
 
@@ -139,7 +139,7 @@
     background: #121212;
     padding: 2rem;
     border-radius: 15px;
-    border-left: 5px solid #a333ff; /* Le violet de ton image */
+    border-left: 5px solid #2ecc71; /* Le violet de ton image */
     max-width: 400px;
     text-align: center;
     color: white;
@@ -157,7 +157,7 @@
 }
 
 .modal-title {
-    background: linear-gradient(45deg, #ff3366, #a333ff);
+    background: #2ecc71;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -179,9 +179,9 @@
 }
 
 .btn-cancel { background: #333; color: white; }
-.btn-confirm { background: #ff3366; color: white; }
+.btn-confirm { background: #333; color: white; }
 
-.btn-confirm:hover { transform: scale(1.05); background: #ff4d7a; }
+.btn-confirm:hover { transform: scale(1.05); background: #2ecc71; }
  </style>
 </head>
 <body>
@@ -240,7 +240,7 @@
         <div id="target-frame">
             <button class="btn-miss" onclick="addDart(0)">MISS<br>0</button>
             <div id="dartboard-container"></div>
-            <button class="target-undo" onclick="undoLastDart()">↩</button>
+            <button class="target-undo" onclick="undoLastDart()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 4v7a4 4 0 0 1-4 4H4"/><path d="m9 10-5 5 5 5"/></svg></button>
         </div>
 
         <div class="keyboard" id="kb-frame">
