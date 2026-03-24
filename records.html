@@ -6,6 +6,7 @@
     <title>Darts Club - Records</title>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
     <style>
         :root {
             --bg: #0b101a; --card: #161b22; --text: #ffffff;
@@ -21,10 +22,9 @@
         .mode-section { background: var(--card); border-radius: 15px; padding: 18px; border: 1px solid #30363d; margin-bottom: 20px; }
         h2 { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; margin: 0 0 15px 0; text-transform: uppercase; }
         
-        /* Grille asymétrique : Global plus large que Perso */
         .stats-grid { 
             display: grid; 
-            grid-template-columns: 1.2fr 0.8fr; 
+            grid-template-columns: 1.05fr 0.95fr; 
             gap: 12px; 
             padding-top: 15px; 
             border-top: 1px solid #30363d; 
@@ -34,20 +34,18 @@
         .stat-title { font-size: 0.55rem; color: #8b949e; text-transform: uppercase; font-weight: 900; margin-bottom: 10px; display: block; }
         
         .score-row { display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; margin-bottom: 6px; }
-        
-        /* Style spécial pour les chiffres 1,2,3 */
         .rank-num { font-size: 0.7rem; color: #444; font-weight: bold; margin-right: 8px; width: 12px; display: inline-block; }
         .medal { font-size: 0.85rem; margin-right: 4px; }
         
         .name { color: #8b949e; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 65px; }
         .val { font-weight: bold; color: #fff; }
         
-        footer { position: fixed; bottom: 0; width: 100%; height: 75px; display: flex; align-items: center; justify-content: center; background: rgba(11, 16, 26, 0.95); backdrop-filter: blur(10px); border-top: 1px solid #30363d; }
         .back-btn { color: #8b949e; text-decoration: none; font-size: 0.75rem; text-transform: uppercase; padding: 10px 30px; border: 1px solid #30363d; border-radius: 25px; }
+        .back-icon { width: 30px; height: 30px; margin-left:15px; margin-top:15px; display: flex; align-items: center; justify-content: center; border: 1px solid #444; border-radius: 4px; cursor: pointer; }
     </style>
 </head>
 <body>
-
+    <div class="back-icon" onclick="window.location.href='menu.html'"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
     <div class="container">
         <header>
             <h1>RECORDS</h1>
@@ -55,18 +53,26 @@
         </header>
 
         <section class="mode-section" style="border-left: 4px solid var(--live);">
-            <h2 style="color:var(--live)">📡 CARRIÈRE (AVG GLOBAL)</h2>
+            <h2 style="color:var(--live)">DARTS 501 :  📡 LIVE   -   🏠 LOCAL</h2>
             <div class="stats-grid">
-                <div class="stat-block"><span class="stat-title">🏆 TOP MONDIAL</span><div id="global-carriere">...</div></div>
-                <div class="stat-block"><span class="stat-title">👤 MES RECORDS</span><div id="user-carriere">...</div></div>
+                <div class="stat-block"><span class="stat-title">🏆 TOP </span><div id="global-carriere">...</div></div>
+                <div class="stat-block">
+                    <span class="stat-title">👤 MES RECORDS</span>
+                    <div id="stats-carriere"></div>
+                    <div id="user-carriere">...</div>
+                </div>
             </div>
         </section>
 
         <section class="mode-section" style="border-left: 4px solid var(--ia);">
-            <h2 style="color:var(--ia)">🤖 VS IA (501 AVG)</h2>
+            <h2 style="color:var(--ia)">DARTS 501 :  🤖 IA</h2>
             <div class="stats-grid">
-                <div class="stat-block"><span class="stat-title">🏆 TOP MONDIAL</span><div id="global-ia">...</div></div>
-                <div class="stat-block"><span class="stat-title">👤 MES RECORDS</span><div id="user-ia">...</div></div>
+                <div class="stat-block"><span class="stat-title">🏆 TOP </span><div id="global-ia">...</div></div>
+                <div class="stat-block">
+                    <span class="stat-title">👤 MES RECORDS</span>
+                    <div id="stats-ia"></div>
+                    <div id="user-ia">...</div>
+                </div>
             </div>
         </section>
 
@@ -103,14 +109,9 @@
         </section>
     </div>
 
-    <footer><a href="menu.html" class="back-btn">⬅ Menu Principal</a></footer>
-
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
     <script>
         const firebaseConfig = {
-			apiKey: "AIzaSyCSeggBmTOXR_XyspjuAsbhMfncp9MYUBA",
+            apiKey: "AIzaSyCSeggBmTOXR_XyspjuAsbhMfncp9MYUBA",
             authDomain: "dartsclub-1aab9.firebaseapp.com",
             databaseURL: "https://dartsclub-1aab9-default-rtdb.europe-west1.firebasedatabase.app",
             projectId: "dartsclub-1aab9",
@@ -118,20 +119,15 @@
             messagingSenderId: "769714266505",
             appId: "1:769714266505:web:ea1758db2c96702979c158"
         };
-if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
 
-const auth = firebase.auth(); // Ajoute cette ligne
-const db = firebase.database(); // Ajoute cette ligne
-
-// AJOUTE CE BLOC : Force la connexion pour valider les permissions
-auth.onAuthStateChanged(async (user) => {
-    if (!user) {
-        await auth.signInAnonymously();
-    }
-});
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) await auth.signInAnonymously();
+        });
 
         const pseudo = localStorage.getItem('darts_pseudo') || "INVITÉ";
-        const isGuest = localStorage.getItem('is_guest') === 'true' || pseudo === "INVITÉ";
 
         const modes = [
             { id: '180', path: 'darts_180', key: 'score', sort: 'asc', unit: 'fl.', subPath: 'top' },
@@ -145,7 +141,27 @@ auth.onAuthStateChanged(async (user) => {
             db.ref('users').once('value', snapshot => {
                 const data = snapshot.val() || {};
 
-                // --- CARRIÈRE ---
+                // --- 1. LOGIQUE DES STATS (WINS / PTS) ---
+                const myGames = data[pseudo]?.games || {};
+                
+                // Carrière
+                const cL = myGames.local_501?.stats || { wins: 0, points: 0 };
+                const cV = myGames.live_501?.stats || { wins: 0, points: 0 };
+                const sC = document.getElementById('stats-carriere');
+                if(sC) {
+                    sC.style = "display: flex; justify-content: space-between; font-size: 0.65rem; font-weight: bold; color: var(--accent); margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px dashed #333;";
+                    sC.innerHTML = `<span>🏆 ${(cL.wins||0)+(cV.wins||0)} victoires</span> <span>${(cL.points||0)+(cV.points||0)} pts</span>`;
+                }
+
+                // IA
+                const cIA = myGames.ia_501?.stats || { wins: 0, points: 0 };
+                const sIA = document.getElementById('stats-ia');
+                if(sIA) {
+                    sIA.style = "display: flex; justify-content: space-between; font-size: 0.65rem; font-weight: bold; color: var(--ia); margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px dashed #333;";
+                    sIA.innerHTML = `<span>🏆 ${cIA.wins||0} victoires</span> <span>${cIA.points||0} pts</span>`;
+                }
+
+                // --- 2. LOGIQUE DES RECORDS ---
                 let globalCarriere = [];
                 let myCarriereScores = [];
                 Object.entries(data).forEach(([user, content]) => {
@@ -163,12 +179,12 @@ auth.onAuthStateChanged(async (user) => {
                     });
                     if (userBestAvg > 0) globalCarriere.push({ name: user, score: userBestAvg });
                 });
+
                 globalCarriere.sort((a, b) => b.score - a.score);
                 myCarriereScores.sort((a, b) => b - a);
                 renderList('global-carriere', globalCarriere.slice(0, 3), 'avg', true);
                 renderList('user-carriere', myCarriereScores.slice(0, 3), 'avg', false);
 
-                // --- AUTRES MODES ---
                 modes.forEach(mode => {
                     let list = [];
                     Object.entries(data).forEach(([user, content]) => {
@@ -202,15 +218,7 @@ auth.onAuthStateChanged(async (user) => {
             let html = "";
             arr.slice(0, 3).forEach((s, i) => {
                 const val = isGlobal ? s.score : (keyName ? (s[keyName] || s) : s);
-                
-                html += `
-                <div class="score-row">
-                    <span>
-                        ${isGlobal ? `<span class="medal">${medals[i]}</span><span class="name">${s.name}</span>` 
-                                  : `<span class="rank-num">${i+1}.</span>`}
-                    </span>
-                    <span class="val">${val} <small style="font-size:0.5rem; opacity:0.4">${unit}</small></span>
-                </div>`;
+                html += `<div class="score-row"><span>${isGlobal ? `<span class="medal">${medals[i]}</span><span class="name">${s.name}</span>` : `<span class="rank-num">${i+1}.</span>`}</span><span class="val">${val} <small style="font-size:0.5rem; opacity:0.4">${unit}</small></span></div>`;
             });
             container.innerHTML = html;
         }
