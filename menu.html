@@ -66,13 +66,14 @@
             opacity: 0.8;
         }
 
-        #user-bar {
-            width: 100%;
-            max-width: 500px;
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 15px;
-        }
+#user-bar {
+    position: absolute; /* Détache l'élément du reste */
+    top: 15px;          /* Ajusté pour être à la même hauteur que le bouton power */
+    left: 25px;         /* Décalage demandé */
+    width: auto;        /* Ne prend que la place nécessaire */
+    z-index: 100;       /* Passe au-dessus de tout */
+    margin: 0;
+}
 
         .player-badge {
             background: rgba(0, 255, 136, 0.05);
@@ -238,36 +239,35 @@
     </style>
 </head>
 <body>
-<div id="app-container">
-		<div id="quitModal" class="modal-overlay">
-			<div class="modal-content">
-				<div class="modal-header">
-					<span class="fire-emoji"></span>
-					<span class="modal-title">QUITTER ?</span>
-				</div>
-				<div class="modal-buttons">
-					<button onclick="closeModal()" class="btn-cancel">RESTER</button>
-					<button onclick="quitApp()" class="btn-confirm">QUITTER</button>
-				</div>
-			</div>
-</div>
-<div class="back-icon" onclick="openModal()" style="position: absolute; top: 5px; right: 5px; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; z-index: 10;">
-	<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-		<path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
-		<line x1="12" y1="2" x2="12" y2="12"></line>
-	</svg>
-</div>
-    <header>
-        <h1>DARTS CLUB</h1>
-        <div class="subtitle">Elite Scoring System</div>
-    </header>
-
     <div id="user-bar">
         <div class="player-badge">
             <span id="player-display">---</span>
             <button class="btn-logout" onclick="logout()">✕</button>
         </div>
     </div>
+	<div class="back-icon" onclick="openModal()" style="position: absolute; top: 5px; right: 5px; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; z-index: 10;">
+		<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+			<path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+			<line x1="12" y1="2" x2="12" y2="12"></line>
+		</svg>
+	</div>
+	<div id="app-container">
+			<div id="quitModal" class="modal-overlay">
+				<div class="modal-content">
+					<div class="modal-header">
+						<span class="fire-emoji"></span>
+						<span class="modal-title">QUITTER ?</span>
+					</div>
+					<div class="modal-buttons">
+						<button onclick="closeModal()" class="btn-cancel">RESTER</button>
+						<button onclick="quitApp()" class="btn-confirm">QUITTER</button>
+					</div>
+				</div>
+	</div>
+    <header>
+        <h1>DARTS CLUB</h1>
+        <div class="subtitle">Elite Scoring System</div>
+    </header>
 
 <div class="menu-grid">
     <a href="darts-live-501.html" class="menu-item live span-3" id="btn-live-501">
@@ -317,20 +317,20 @@
         <div class="desc" style="margin-top: 4px;">Défiez<br>l'IA</div>
     </a>
 
-	<div class="span-6" style="display: flex; justify-content: center; gap: 8px; margin-bottom: -30px;">
+	<div class="span-6" style="display: flex; justify-content: center; gap: 8px; margin-bottom: -30px; margin-top: -10px;">
         <a href="darts-bobs.html" class="menu-item fun" style="flex: 1; max-width: 145px; padding: 10px 5px;">
             <div style="display: flex; align-items: center; gap: 5px;">
                 <div class="icon" style="margin:0; font-size: 1rem;">🎡</div>
                 <div class="title" style="font-size: 0.7rem;">BOB'S 27</div>
             </div>
-            <div class="desc" style="font-size: 0.6rem;">Maîtrise doubles</div>
+            <div class="desc" style="font-size: 0.6rem;">&nbsp;<br>Maîtrise doubles<br>&nbsp;</div>
         </a>
         <a href="darts-180.html" class="menu-item fun" style="flex: 1; max-width: 145px; padding: 10px 5px;">
             <div style="display: flex; align-items: center; gap: 5px;">
                 <div class="icon" style="margin:0; font-size: 1rem;">🔥</div>
                 <div class="title" style="font-size: 0.7rem;">180 !</div>
             </div>
-            <div class="desc" style="font-size: 0.6rem;">Quête de la perfection.</div>
+            <div class="desc" style="font-size: 0.6rem;">&nbsp;<br>Quête de la perfection.<br>&nbsp;</div>
         </a>
     </div>
 
@@ -340,14 +340,14 @@
                 <div class="icon" style="margin:0; font-size: 1rem;">🎯</div>
                 <div class="title" style="font-size: 0.7rem;">BULL</div>
             </div>
-            <div class="desc" style="font-size: 0.6rem;">Focus centre cible.</div>
+            <div class="desc" style="font-size: 0.6rem;">&nbsp;<br>Focus centre cible.<br>&nbsp;</div>
         </a>
         <a href="darts-checkout.html" class="menu-item fun" style="flex: 1; max-width: 145px; padding: 10px 5px;">
             <div style="display: flex; align-items: center; gap: 5px;">
                 <div class="icon" style="margin:0; font-size: 1rem;">🏁</div>
                 <div class="title" style="font-size: 0.7rem;">CHECK</div>
             </div>
-            <div class="desc" style="font-size: 0.6rem;">Finish aléatoire 6 fléchettes.</div>
+            <div class="desc" style="font-size: 0.6rem;">&nbsp;<br>Finish aléatoire<br>6 fléchettes.</div>
         </a>
     </div>
 
@@ -357,14 +357,14 @@
                 <div class="icon" style="margin:0; font-size: 1rem;">🏆</div>
                 <div class="title" style="font-size: 0.7rem;">RECORDS</div>
             </div>
-            <div class="desc" style="font-size: 0.6rem;">Top scores</div>
+            <div class="desc" style="font-size: 0.6rem;">&nbsp;<br>Top scores</div>
         </a>
         <a href="infos.html" class="menu-item nav-btn" style="flex: 1; max-width: 145px; padding: 10px 5px;">
             <div style="display: flex; align-items: center; gap: 5px;">
                 <div class="icon" style="margin:0; font-size: 1rem;">ℹ️</div>
                 <div class="title" style="font-size: 0.7rem;">INFOS</div>
             </div>
-            <div class="desc" style="font-size: 0.6rem;">GUIDE & RÈGLES</div>
+            <div class="desc" style="font-size: 0.6rem;">&nbsp;<br>GUIDE & RÈGLES</div>
         </a>
     </div>
 </div>
