@@ -40,7 +40,6 @@
         .name { color: #8b949e; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 65px; }
         .val { font-weight: bold; color: #fff; }
         
-        .back-btn { color: #8b949e; text-decoration: none; font-size: 0.75rem; text-transform: uppercase; padding: 10px 30px; border: 1px solid #30363d; border-radius: 25px; }
         .back-icon { width: 30px; height: 30px; margin-left:15px; margin-top:15px; display: flex; align-items: center; justify-content: center; border: 1px solid #444; border-radius: 4px; cursor: pointer; }
     </style>
 </head>
@@ -53,7 +52,7 @@
         </header>
 
         <section class="mode-section" style="border-left: 4px solid var(--live);">
-            <h2 style="color:var(--live)">DARTS 501 :  📡 LIVE   -   🏠 LOCAL</h2>
+            <h2 style="color:var(--live)">DARTS 501 : 📡 LIVE - 🏠 LOCAL</h2>
             <div class="stats-grid">
                 <div class="stat-block"><span class="stat-title">🏆 TOP </span><div id="global-carriere">...</div></div>
                 <div class="stat-block">
@@ -65,17 +64,41 @@
         </section>
 
         <section class="mode-section" style="border-left: 4px solid var(--ia);">
-            <h2 style="color:var(--ia)">DARTS 501 :  🤖 IA</h2>
+            <h2 style="color:var(--ia)">DARTS 501 : 🤖 IA</h2>
             <div class="stats-grid">
                 <div class="stat-block"><span class="stat-title">🏆 TOP </span><div id="global-ia">...</div></div>
                 <div class="stat-block">
                     <span class="stat-title">👤 MES RECORDS</span>
-                    <div id="stats-ia"></div>
+                    <div id="stats-ia-501"></div>
                     <div id="user-ia">...</div>
                 </div>
             </div>
         </section>
 
+        <section class="mode-section" style="border-left: 4px solid var(--live);">
+            <h2 style="color:var(--live)">DARTS CRICKET : 📡 LIVE - 🏠 LOCAL</h2>
+            <div class="stats-grid">
+                <div class="stat-block"><span class="stat-title">🏆 TOP </span><div id="global-cricket">...</div></div>
+                <div class="stat-block">
+                    <span class="stat-title">👤 MES RECORDS</span>
+                    <div id="stats-cricket"></div>
+                    <div id="user-cricket">...</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mode-section" style="border-left: 4px solid var(--ia);">
+            <h2 style="color:var(--ia)">DARTS CRICKET : 🤖 IA</h2>
+            <div class="stats-grid">
+                <div class="stat-block"><span class="stat-title">🏆 TOP </span><div id="global-ia-cricket">...</div></div>
+                <div class="stat-block">
+                    <span class="stat-title">👤 MES RECORDS</span>
+                    <div id="stats-ia-cricket"></div>
+                    <div id="user-ia-cricket">...</div>
+                </div>
+            </div>
+        </section>
+        
         <section class="mode-section" style="border-left: 4px solid var(--fun);">
             <h2 style="color:var(--fun)">🎡 BOB'S 27</h2>
             <div class="stats-grid">
@@ -101,7 +124,7 @@
         </section>
 
         <section class="mode-section" style="border-left: 4px solid var(--fun);">
-            <h2 style="color:var(--fun)">🏁 CHECKOUTS (AVG)</h2>
+            <h2 style="color:var(--fun)">🏁 CHECKOUTS</h2>
             <div class="stats-grid">
                 <div class="stat-block"><span class="stat-title">🏆 PODIUM</span><div id="global-checkouts">...</div></div>
                 <div class="stat-block"><span class="stat-title">👤 MES TOP 3</span><div id="user-checkouts">...</div></div>
@@ -129,98 +152,152 @@
 
         const pseudo = localStorage.getItem('darts_pseudo') || "INVITÉ";
 
-        const modes = [
-            { id: '180', path: 'darts_180', key: 'score', sort: 'asc', unit: 'fl.', subPath: 'top' },
-            { id: 'bull', path: 'bull_challenge', key: 'darts', sort: 'asc', unit: 'fl.', subPath: 'top' },
-            { id: 'bobs', path: 'bobs_27', key: 'score', sort: 'desc', unit: 'pts', subPath: 'top' },
-            { id: 'checkouts', path: 'checkouts', key: 'moyenne', sort: 'desc', unit: 'avg', subPath: 'top' },
-            { id: 'ia', path: 'ia_501', key: 'avg', sort: 'desc', unit: 'avg', subPath: 'top' }
+        const modesConfig = [
+            { id: '180', path: 'darts_180', key: 'score', sort: 'asc', unit: 'fl.' },
+            { id: 'bull', path: 'bull_challenge', key: 'darts', sort: 'asc', unit: 'fl.' },
+            { id: 'bobs', path: 'bobs_27', key: 'score', sort: 'desc', unit: 'pts' },
+            { id: 'checkouts', path: 'checkouts', key: 'moyenne', sort: 'desc', unit: 'avg' }
         ];
 
         function loadAll() {
             db.ref('users').once('value', snapshot => {
                 const data = snapshot.val() || {};
-
-                // --- 1. LOGIQUE DES STATS (WINS / PTS) ---
                 const myGames = data[pseudo]?.games || {};
-                
-                // Carrière
-                const cL = myGames.local_501?.stats || { wins: 0, points: 0 };
-                const cV = myGames.live_501?.stats || { wins: 0, points: 0 };
-                const sC = document.getElementById('stats-carriere');
-                if(sC) {
-                    sC.style = "display: flex; justify-content: space-between; font-size: 0.65rem; font-weight: bold; color: var(--accent); margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px dashed #333;";
-                    sC.innerHTML = `<span>🏆 ${(cL.wins||0)+(cV.wins||0)} victoires</span> <span>${(cL.points||0)+(cV.points||0)} pts</span>`;
-                }
 
-                // IA
-                const cIA = myGames.ia_501?.stats || { wins: 0, points: 0 };
-                const sIA = document.getElementById('stats-ia');
-                if(sIA) {
-                    sIA.style = "display: flex; justify-content: space-between; font-size: 0.65rem; font-weight: bold; color: var(--ia); margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px dashed #333;";
-                    sIA.innerHTML = `<span>🏆 ${cIA.wins||0} victoires</span> <span>${cIA.points||0} pts</span>`;
-                }
-
-                // --- 2. LOGIQUE DES RECORDS ---
-                let globalCarriere = [];
-                let myCarriereScores = [];
+                // --- 1. DARTS 501 (LIVE & LOCAL) ---
+                let global501 = [];
+                let my501Scores = [];
                 Object.entries(data).forEach(([user, content]) => {
-                    let userBestAvg = 0;
-                    ['live_501', 'local_501'].forEach(path => {
-                        const top = content.games?.[path]?.top;
+                    let best = 0;
+                    ['live_501', 'local_501'].forEach(p => {
+                        const top = content.games?.[p]?.top;
                         if (top) {
-                            const arr = Array.isArray(top) ? top : Object.values(top);
-                            arr.forEach(e => {
-                                const val = parseFloat(e.avg || 0);
-                                if (val > userBestAvg) userBestAvg = val;
-                                if (user === pseudo) myCarriereScores.push(val);
+                            Object.values(top).forEach(e => {
+                                if (e.avg > best) best = e.avg;
+                                if (user === pseudo) my501Scores.push(e.avg);
                             });
                         }
                     });
-                    if (userBestAvg > 0) globalCarriere.push({ name: user, score: userBestAvg });
+                    if (best > 0) global501.push({ name: user, score: best });
                 });
+                
+                const s501 = (myGames.live_501?.stats?.wins || 0) + (myGames.local_501?.stats?.wins || 0);
+                const p501 = (myGames.live_501?.stats?.points || 0) + (myGames.local_501?.stats?.points || 0);
+                const sC501 = document.getElementById('stats-carriere');
+                if(sC501) {
+                    sC501.style = "display: flex; justify-content: space-between; font-size: 0.65rem; font-weight: bold; color: var(--accent); margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px dashed #333;";
+                    sC501.innerHTML = `<span>🏆 ${s501} victoires</span> <span>${p501} pts</span>`;
+                }
+                renderList('global-carriere', global501.sort((a,b)=>b.score-a.score).slice(0,3), 'avg', true);
+                renderList('user-carriere', my501Scores.sort((a,b)=>b-a).slice(0,3), 'avg', false);
 
-                globalCarriere.sort((a, b) => b.score - a.score);
-                myCarriereScores.sort((a, b) => b - a);
-                renderList('global-carriere', globalCarriere.slice(0, 3), 'avg', true);
-                renderList('user-carriere', myCarriereScores.slice(0, 3), 'avg', false);
+                // --- 2. DARTS 501 IA ---
+                let globalIA = [];
+                let myIAScores = [];
+                Object.entries(data).forEach(([user, content]) => {
+                    const top = content.games?.ia_501?.top;
+                    if (top) {
+                        let best = 0;
+                        Object.values(top).forEach(e => {
+                            if (e.avg > best) best = e.avg;
+                            if (user === pseudo) myIAScores.push(e.avg);
+                        });
+                        if (best > 0) globalIA.push({ name: user, score: best });
+                    }
+                });
+                const sIA501 = myGames.ia_501?.stats || { wins: 0, points: 0 };
+                const sIA501Div = document.getElementById('stats-ia-501');
+                if(sIA501Div) {
+                    sIA501Div.style = "display: flex; justify-content: space-between; font-size: 0.65rem; font-weight: bold; color: var(--ia); margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px dashed #333;";
+                    sIA501Div.innerHTML = `<span>🏆 ${sIA501.wins} victoires</span> <span>${sIA501.points} pts</span>`;
+                }
+                renderList('global-ia', globalIA.sort((a,b)=>b.score-a.score).slice(0,3), 'avg', true);
+                renderList('user-ia', myIAScores.sort((a,b)=>b-a).slice(0,3), 'avg', false);
 
-                modes.forEach(mode => {
-                    let list = [];
-                    Object.entries(data).forEach(([user, content]) => {
-                        const records = content.games?.[mode.path]?.[mode.subPath];
-                        if (records) {
-                            const arr = Array.isArray(records) ? records : Object.values(records);
-                            arr.forEach(entry => {
-                                const val = entry[mode.key];
-                                if (val !== undefined) list.push({ name: user, score: parseFloat(val) });
+                // --- 3. DARTS CRICKET (LIVE & LOCAL) ---
+                let globalCrick = [];
+                let myCrickScores = [];
+                Object.entries(data).forEach(([user, content]) => {
+                    let best = 0;
+                    ['live_cricket', 'local_cricket'].forEach(p => {
+                        const top = content.games?.[p]?.top;
+                        if (top) {
+                            Object.values(top).forEach(e => {
+                                if (e.mpr > best) best = e.mpr;
+                                if (user === pseudo) myCrickScores.push(e.mpr);
                             });
                         }
                     });
-                    list.sort((a, b) => mode.sort === 'asc' ? a.score - b.score : b.score - a.score);
-                    renderList(`global-${mode.id}`, list.slice(0, 3), mode.unit, true);
+                    if (best > 0) globalCrick.push({ name: user, score: best });
+                });
+                const sC = (myGames.live_cricket?.stats?.wins || 0) + (myGames.local_cricket?.stats?.wins || 0);
+                const pC = (myGames.live_cricket?.stats?.points || 0) + (myGames.local_cricket?.stats?.points || 0);
+                const sCCrick = document.getElementById('stats-cricket');
+                if(sCCrick) {
+                    sCCrick.style = "display: flex; justify-content: space-between; font-size: 0.65rem; font-weight: bold; color: var(--accent); margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px dashed #333;";
+                    sCCrick.innerHTML = `<span>🏆 ${sC} victoires</span> <span>${pC} pts</span>`;
+                }
+                renderList('global-cricket', globalCrick.sort((a,b)=>b.score-a.score).slice(0,3), 'mpr', true);
+                renderList('user-cricket', myCrickScores.sort((a,b)=>b-a).slice(0,3), 'mpr', false);
 
-                    const myRecs = data[pseudo]?.games?.[mode.path]?.[mode.subPath] || [];
-                    renderList(`user-${mode.id}`, myRecs, mode.unit, false, mode.key);
+                // --- 4. DARTS CRICKET IA ---
+                let globalCrickIA = [];
+                let myCrickIAScores = [];
+                Object.entries(data).forEach(([user, content]) => {
+                    const top = content.games?.ia_cricket?.top;
+                    if (top) {
+                        let best = 0;
+                        Object.values(top).forEach(e => {
+                            if (e.mpr > best) best = e.mpr;
+                            if (user === pseudo) myCrickIAScores.push(e.mpr);
+                        });
+                        if (best > 0) globalCrickIA.push({ name: user, score: best });
+                    }
+                });
+                const sCIA = myGames.ia_cricket?.stats || { wins: 0, points: 0 };
+                const sCIADiv = document.getElementById('stats-ia-cricket');
+                if(sCIADiv) {
+                    sCIADiv.style = "display: flex; justify-content: space-between; font-size: 0.65rem; font-weight: bold; color: var(--ia); margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px dashed #333;";
+                    sCIADiv.innerHTML = `<span>🏆 ${sCIA.wins} victoires</span> <span>${sCIA.points} pts</span>`;
+                }
+                renderList('global-ia-cricket', globalCrickIA.sort((a,b)=>b.score-a.score).slice(0,3), 'mpr', true);
+                renderList('user-ia-cricket', myCrickIAScores.sort((a,b)=>b-a).slice(0,3), 'mpr', false);
+
+                // --- 5. AUTRES MODES ---
+                modesConfig.forEach(m => {
+                    let gList = [];
+                    Object.entries(data).forEach(([user, content]) => {
+                        const top = content.games?.[m.path]?.top;
+                        if (top) {
+                            let best = m.sort === 'asc' ? 999 : 0;
+                            Object.values(top).forEach(e => {
+                                const val = e[m.key] || e.score || 0;
+                                if (m.sort === 'asc' ? (val < best && val > 0) : (val > best)) best = val;
+                            });
+                            if (best !== 999 && best !== 0) gList.push({ name: user, score: best });
+                        }
+                    });
+                    const myTops = myGames[m.path]?.top ? Object.values(myGames[m.path].top).map(e => e[m.key] || e.score) : [];
+                    renderList(`global-${m.id}`, gList.sort((a,b) => m.sort === 'asc' ? a.score-b.score : b.score-a.score).slice(0,3), m.unit, true);
+                    renderList(`user-${m.id}`, myTops.sort((a,b) => m.sort === 'asc' ? a-b : b-a).slice(0,3), m.unit, false);
                 });
             });
         }
 
-        function renderList(id, scores, unit, isGlobal, keyName) {
+        function renderList(id, scores, unit, isGlobal) {
             const container = document.getElementById(id);
             if (!container) return;
-            const arr = Array.isArray(scores) ? scores : Object.values(scores);
-            if (arr.length === 0) {
-                container.innerHTML = '<div style="color:#444; font-size:0.65rem; padding-top:5px;">Aucun record</div>';
+            if (scores.length === 0) {
+                container.innerHTML = '<div style="color:#444; font-size:0.65rem;">Aucun record</div>';
                 return;
             }
             const medals = ["🥇", "🥈", "🥉"];
-            let html = "";
-            arr.slice(0, 3).forEach((s, i) => {
-                const val = isGlobal ? s.score : (keyName ? (s[keyName] || s) : s);
-                html += `<div class="score-row"><span>${isGlobal ? `<span class="medal">${medals[i]}</span><span class="name">${s.name}</span>` : `<span class="rank-num">${i+1}.</span>`}</span><span class="val">${val} <small style="font-size:0.5rem; opacity:0.4">${unit}</small></span></div>`;
-            });
-            container.innerHTML = html;
+            container.innerHTML = scores.map((s, i) => `
+                <div class="score-row">
+                    <span>${isGlobal ? `<span class="medal">${medals[i]}</span><span class="name">${s.name}</span>` : `<span class="rank-num">${i+1}.</span>`}</span>
+                    <span class="val">${isGlobal ? s.score : s} <small style="font-size:0.5rem; opacity:0.4">${unit}</small></span>
+                </div>
+            `).join('');
         }
 
         window.onload = loadAll;

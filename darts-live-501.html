@@ -146,7 +146,7 @@
     background: #121212;
     padding: 2rem;
     border-radius: 15px;
-    border-left: 5px solid #f39c12; /* Le violet de ton image */
+    border-left: 5px solid #f39c12;
     max-width: 400px;
     text-align: center;
     color: white;
@@ -462,7 +462,7 @@ p.addEventListener("click", () => {
     // STANDS & FIREBASE
     // =============================================
     function initStands() {
-        db.ref('rooms').on('value', snap => {
+        db.ref('rooms_501').on('value', snap => {
             const rooms = snap.val() || {};
             const grid = document.getElementById('standGrid');
             if(!grid) return;
@@ -485,13 +485,13 @@ p.addEventListener("click", () => {
         if(!myName) return alert("ENTRE TON PSEUDO");
         localStorage.setItem('darts_pseudo', myName);
         roomName = name;
-        document.getElementById('room-display').innerText = "📡 LIVE : " + name;
-        if(count === 0) db.ref(`rooms/${name}`).set({ status: "playing", currentPlayer: 0 });
-        const playerRef = db.ref(`rooms/${name}/players`).push();
+        document.getElementById('room-display').innerText = "📡 501 LIVE : " + name;
+        if(count === 0) db.ref(`rooms_501/${name}`).set({ status: "playing", currentPlayer: 0 });
+        const playerRef = db.ref(`rooms_501/${name}/players`).push();
         myId = playerRef.key;
         playerRef.set({ name: myName, score: 501, q: parseInt(document.getElementById('qualifInput').value)||0, totalDarts: 0, totalPoints: 0 });
 
-        db.ref(`rooms/${name}`).on('value', snap => {
+        db.ref(`rooms_501/${name}`).on('value', snap => {
             const data = snap.val();
             if(!data || !data.players) return;
             const pArray = Object.entries(data.players)
@@ -572,7 +572,7 @@ p.addEventListener("click", () => {
         const p = gameState.players[myIndex];
         const finalScore = isBust ? scoreAtTurnStart : localDisplayScore;
         const ptsTurn = isBust ? 0 : dartsInTurn.reduce((a, b) => a + b, 0);
-        db.ref(`rooms/${roomName}/players/${myId}`).update({
+        db.ref(`rooms_501/${roomName}/players/${myId}`).update({
             score: finalScore,
             beforeTurnScore: scoreAtTurnStart,
             totalDarts: p.totalDarts + dartsInTurn.length,
@@ -580,9 +580,9 @@ p.addEventListener("click", () => {
             lastTurn: isBust ? "BUST" : visualDarts.join(" | ")
         }).then(() => {
             if (finalScore === 0) {
-                db.ref(`rooms/${roomName}`).update({ status: "finished" });
+                db.ref(`rooms_501/${roomName}`).update({ status: "finished" });
             } else {
-                db.ref(`rooms/${roomName}`).update({
+                db.ref(`rooms_501/${roomName}`).update({
                     currentPlayer: (gameState.currentPlayer + 1) % gameState.players.length,
                     lastPlayerId: myId
                 });
@@ -657,7 +657,7 @@ p.addEventListener("click", () => {
 
     async function resetStand() {
         if(confirm("Vider le stand et revenir au menu ?")) {
-            await db.ref(`rooms/${roomName}`).remove();
+            await db.ref(`rooms_501/${roomName}`).remove();
             location.reload();
         }
     }

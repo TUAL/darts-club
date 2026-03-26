@@ -262,7 +262,7 @@
             <h1 style="font-size:0.7rem; color:#8b949e; text-transform:uppercase;">MATCH TERMINÉ</h1>
             <p id="win-name" style="font-size:1.8rem; font-weight:900; margin:10px 0; color:var(--accent-green);"></p>
             <div id="win-stats" style="background:#0b1410; border-radius:8px; padding:10px; border:1px solid #30363d; text-align:left; font-size:0.75rem; margin-bottom:10px;"></div>
-            <button id="btn-save" class="btn-save" onclick="saveIA()">ARCHIVER</button>
+            <button id="btn-save" class="btn-save" onclick="saveIA()">ARCHIVER LA VICTOIRE</button>
             <button class="btn-save" style="background:#30363d !important;" onclick="location.reload()">REJOUER</button>
         </div>
     </div>
@@ -300,7 +300,7 @@
         iaLevel = lvl;
         players = [
             { name: currentPseudo, score: 0, marks: {20:0,19:0,18:0,17:0,16:0,15:0,25:0}, totalDarts: 0, isIA: false },
-            { name: "ROBOT-IA", score: 0, marks: {20:0,19:0,18:0,17:0,16:0,15:0,25:0}, totalDarts: 0, isIA: true }
+            { name: "IA", score: 0, marks: {20:0,19:0,18:0,17:0,16:0,15:0,25:0}, totalDarts: 0, isIA: true }
         ];
         document.getElementById('level-screen').style.display = 'none';
         document.getElementById('game-screen').style.display = 'flex';
