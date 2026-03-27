@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Darts Club - Bob's 27</title>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <style>
+        :root { 
+            --bg: #0b0e14; --card: #161b22; --text: #f0f6fc;
+            --accent: #58a6ff; --bg-dark: #121916;
+            --accent-orange: #f39c12; --accent-green: #2ecc71; --accent-red: #e74c3c;
+        }
+        * { box-sizing: border-box; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+        
+	body { 
+		font-family: -apple-system, system-ui, sans-serif; 
+		background: var(--bg); color: var(--text); 
+		margin: 0; padding: 0; 
+		height: 91%; 
+		min-height: 91%; 
+		max-height: 91%;
+		flex-shrink: 0;   /* Empêche le flexbox parent de réduire ce bloc */		
+		display: flex; flex-direction: column; 
+		overflow: hidden; 
+		position: fixed; width: 100%;
+	
+	}
+
+        .top-bar { height: 50px; background: #1a1a1a; display: flex; align-items: center; padding: 0 15px; flex-shrink: 0; border-bottom: 1px solid #333; }
+        .back-icon { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 1px solid #444; border-radius: 4px; cursor: pointer; }
+        .top-title { flex: 1; text-align: center; font-size: 0.75rem; font-weight: 900; letter-spacing: 1px; color: #ccc; }
+
+.score-section { 
+    height: 40%; 
+    min-height: 40%; 
+    max-height: 40%;
+    display: flex; 
+    flex-direction: column; 
+    background: var(--bg-dark); 
+    padding: 10px 0;
+    overflow: hidden; /* Empêche le contenu interne de pousser les bords */
+    flex-shrink: 0;   /* Empêche le flexbox parent de réduire ce bloc */
+}
+         .header-scores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0 10px; flex: 1; }
+
+        .turn-announcer { height: 35px; display: flex; align-items: center; justify-content: center; color: var(--accent-orange); font-weight: 900; font-size: 0.8rem; text-transform: uppercase; }
+        
+        .p-column { 
+            background: #1a1a1a; border: 3px solid #333; border-radius: 15px; 
+            display: flex; flex-direction: column; align-items: center; justify-content: space-around;
+            padding: 10px 5px; opacity: 1; transition: 0.3s; color: #fff;
+        }
+        
+        .p-column.active-0 { background: var(--accent-orange); border-color: #fff; opacity: 1; color: #000; }
+        .p-column.active-1 { background: var(--accent); border-color: #fff; opacity: 1; color: #fff; }
+
+/* CLASSES DE COULEUR DYNAMIQUE */
+.bg-red { 
+	background: var(--accent-red) !important; 
+	border-color: #fff !important; 
+	color: #fff !important; 
+}
+.bg-green { 
+	background: var(--accent-green) !important; 
+	border-color: #fff !important; 
+	color: #fff !important; 
+}
+      
+.p-name { font-size: 0.85rem; font-weight: 900; text-transform: uppercase; }
+.p-score { font-size: 3rem; font-weight: 900; line-height: 0.70; margin: 5px 0; }
+.p-score-flech { font-size: 2rem; font-weight: 900; line-height: 0.70; margin: 5px 0;align-items: center;  }
+.p-last-v { font-size: 0.65rem; font-weight: bold; margin-bottom: 5px; opacity: 0.9; }
+.p-stats { font-size: 0.65rem; font-weight: 900; width: 90%; }
+
+        .target-sub { font-size: 0.65rem; font-weight: 900; margin-top: 10px; text-transform: uppercase; opacity: 0.8; }
+
+.input-info { 
+    height: 60px !important; 
+    min-height: 60px !important;
+    max-height: 60px !important;
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 10px; 
+    padding: 0 15px; 
+    background: #000;
+    flex-shrink: 0; /* Empêche la section de se faire écraser */
+}
+
+        .dart-val { 
+            width: 70px; height: 55px; background: white; color: black; 
+            border-radius: 30px; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; font-weight: 900; font-size: 1.1rem;
+        }
+        .dart-val small { font-size: 0.55rem; font-weight: bold; color: #555; text-transform: uppercase; }
+        
+        .btn-valid-darts { flex: 1; height: 55px; background: #222; border: none; color: #444; border-radius: 30px; font-weight: 900; font-size: 0.85rem; text-transform: uppercase; }
+        .btn-valid-darts.ready { background: var(--accent-orange) !important; color: #000 !important; }
+
+        /* CLAVIER RÉDUIT DE 40% */
+        .keyboard { flex: 1; background: #1a1a1a; display: flex; flex-direction: column; padding: 2px; }
+ 
+
+
+
+		.num-grid { display: grid; grid-template-columns: 1fr 1fr; height: 180px; gap: 1px; background: #333; }
+        .key { background: #121916; border: none; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px; }
+        .key span { font-size: 1.4rem; font-weight: 900; }
+        .key small { font-size: 0.5rem; color: #555; font-weight: 900; text-transform: uppercase; }
+
+        .special-row { display: grid; grid-template-columns: 1fr; height: 60px;gap: 1px; background: #333;border-top: 4px solid var(--accent);  }
+		
+
+		
+		
+        .sp-key { background: #121916; color: white; border: none; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; }
+
+        .overlay { display:none; position:fixed; inset:0; background: rgba(13,17,23,0.98); z-index:999; flex-direction:column; justify-content:center; align-items:center; padding: 20px; }
+        .final-box { background: var(--card); padding: 15px; border-radius: 15px; border: 1px solid #30363d; width: 100%; max-width: 260px; text-align: center; }
+        .end-btn-container { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 260px; margin-top: 15px; }
+        .end-btn { height: 50px; border-radius: 10px; font-size: 0.85rem; text-transform: uppercase; font-weight: 800; border: none; color: white; }
+        .btn-save { background: var(--accent-green) !important; }
+        .btn-valid { background: var(--accent) !important; }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <div class="back-icon" onclick="window.location.href='menu.html'"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
+        <div class="top-title">🎡 BOB'S 27</div>
+    </div>
+
+    <div class="score-section">
+        <div class="header-scores">
+            <div class="p-column active-0">
+                <div class="p-name">SCORE</div>
+                <div id="val-score" class="p-score">27</div>
+                <div class="target-sub">&nbsp;</div>
+                <div class="p-stats">&nbsp;<br>&nbsp;</div>				
+            </div>
+            <div class="p-column active-1">
+                <div class="p-name">CIBLE</div>
+                <div id="val-target" class="p-score-flech">D1</div>
+                <div class="target-sub">DOUBLES</div>
+                <div class="p-stats">&nbsp;<br>&nbsp;</div>						
+            </div>
+            <div style="visibility: hidden;"></div>
+        </div>
+        <div class="turn-announcer" id="msg-txt">À TOI DE JOUER !</div>
+    </div>
+    
+    <div class="input-info">
+        <div class="dart-val" id="v0">--<small>-</small></div>
+        <div class="dart-val" id="v1">--<small>-</small></div>
+        <div class="dart-val" id="v2">--<small>-</small></div>
+        <button class="btn-valid-darts" id="btn-validate" onclick="finishTurn()" disabled>VALIDER</button>
+    </div>
+
+    <div class="keyboard">
+        <div class="special-row">
+            <button class="sp-key" onclick=""></button>
+        </div>	
+        <div class="num-grid">
+            <button class="key" onclick="addHits(0)" style="color:var(--accent-red)"><span>0</span><small>AUCUN</small></button>
+            <button class="key" onclick="addHits(1)"><span>1</span><small>UN DOUBLE</small></button>
+            <button class="key" onclick="addHits(2)"><span>2</span><small>DEUX DOUBLES</small></button>
+            <button class="key" onclick="addHits(3)" style="color:var(--accent-green)"><span>3</span><small>TROIS DOUBLES</small></button>
+        </div>
+    </div>
+
+    <div id="end-screen" class="overlay">
+		<div class="top-bar" style="width: 100%; position: absolute; top: 0; left: 0;">
+			<div class="back-icon" onclick="window.location.href='menu.html'"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
+			<div class="top-title">🎡 BOB'S 27</div>
+		</div>	
+		
+        <div class="final-box">
+            <h1 style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase; margin: 0;">Résultat Final</h1>
+            <div id="final-score-display" style="font-size: 3.5rem; font-weight: 900; margin: 5px 0; line-height: 1;">--</div>
+            <p id="end-msg" style="font-size: 0.85rem; color: #fff; font-weight: bold; margin: 10px 0 0 0; background: #1a1a1a; display: inline-block; padding: 4px 12px; border-radius: 4px;"></p>
+        </div>
+        <div id="top-scores" style="margin: 15px 0; width: 100%; max-width: 260px; font-size: 0.75rem;">
+            <div style="color: var(--accent-orange); font-weight: bold; text-align: center; margin-bottom: 8px; text-transform: uppercase;">🏆 Top 3 Records</div>
+            <div id="top-list" style="background: var(--card); border-radius: 10px; padding: 5px 10px; border: 1px solid #333;">...</div>
+        </div>
+        <div class="end-btn-container">
+            <button id="btn-save-only" class="end-btn btn-save" style="display:none;" onclick="handleJustSave()">ENREGISTRER</button>
+            <button class="end-btn btn-valid" onclick="location.reload()">REJOUER</button>
+        </div>
+    </div>
+
+<script>
+     const firebaseConfig = {
+        apiKey: "AIzaSyCSeggBmTOXR_XyspjuAsbhMfncp9MYUBA",
+        authDomain: "dartsclub-1aab9.firebaseapp.com",
+        databaseURL: "https://dartsclub-1aab9-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "dartsclub-1aab9",
+        storageBucket: "dartsclub-1aab9.firebasestorage.app",
+        messagingSenderId: "769714266505",
+        appId: "1:769714266505:web:ea1758db2c96702979c158"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const auth = firebase.auth();
+
+    auth.onAuthStateChanged(async (user) => { 
+        if (!user) await auth.signInAnonymously(); 
+    });
+
+    const pseudo = localStorage.getItem('darts_pseudo') || "INVITÉ";
+    const isGuest = pseudo === "INVITÉ";
+
+    let score = 27;
+    let targetIdx = 0;
+    const targets = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,25]; 
+    let selectedHits = null;
+    let gameOver = false;
+
+    // --- CETTE FONCTION GÈRE LA COULEUR ---
+    function applyTargetColor(targetValue) {
+        const targetElement = document.getElementById('val-target');
+        const columnElement = targetElement.closest('.p-column');
+        const redDoubles = [20, 18, 13, 10, 2, 3, 7, 8, 14, 12, 25];
+
+        // On enlève les anciennes classes
+        columnElement.classList.remove('bg-red', 'bg-green', 'active-1');
+
+        if (redDoubles.includes(targetValue)) {
+            columnElement.classList.add('bg-red');
+        } else {
+            columnElement.classList.add('bg-green');
+        }
+        
+        targetElement.innerText = targetValue === 25 ? "BULL" : "D" + targetValue;
+    }
+
+    function updateUI() {
+        const t = targets[targetIdx];
+        const scoreEl = document.getElementById('val-score');
+        
+        // APPEL DE LA COULEUR ICI
+        applyTargetColor(t);
+
+        scoreEl.innerText = score;
+        scoreEl.style.color = (score < 0) ? "#7F0000" : "black";
+
+        for(let i=0; i<3; i++) {
+            const slot = document.getElementById('v'+i);
+            if(selectedHits === null) slot.innerHTML = `--<small>-</small>`;
+            else slot.innerHTML = (i < selectedHits) ? `HIT<small>IN</small>` : `OUT<small>OUT</small>`;
+        }
+        
+        const btn = document.getElementById('btn-validate');
+        btn.disabled = (selectedHits === null);
+        if(!btn.disabled) btn.classList.add('ready');
+        else btn.classList.remove('ready');
+    }
+
+    function addHits(n) {
+        if(gameOver) return;
+        selectedHits = n;
+        updateUI();
+    }
+
+    function undo() {
+        if(gameOver) return;
+        selectedHits = null;
+        updateUI();
+    }
+
+    function finishTurn() {
+        if(selectedHits === null || gameOver) return;
+        const tVal = targets[targetIdx];
+        const pts = (tVal === 25) ? 50 : tVal * 2;
+
+        if(selectedHits > 0) score += (pts * selectedHits);
+        else score -= pts;
+
+        targetIdx++;
+        if(targetIdx >= targets.length) {
+            showEnd(score > 0);
+        } else {
+            selectedHits = null;
+            updateUI();
+        }
+    }
+
+    function showEnd(win) {
+        gameOver = true;
+        document.getElementById('end-screen').style.display = 'flex';
+        const fs = document.getElementById('final-score-display');
+        fs.innerText = score;
+        fs.style.color = (score > 0) ? "var(--accent-green)" : "var(--accent-red)";
+        document.getElementById('end-msg').innerText = win ? "PARCOURS TERMINÉ !" : "SCORE FINAL NÉGATIF";
+        if(!isGuest) document.getElementById('btn-save-only').style.display = 'block';
+        displayTop3();
+    }
+
+    async function handleJustSave() {
+        if(isGuest) return;
+        const btn = document.getElementById('btn-save-only');
+        try {
+            btn.disabled = true; btn.innerText = "Mise à jour...";
+            const pseudoUpper = pseudo.toUpperCase().trim();
+            const ref = db.ref(`users/${pseudoUpper}/games/bobs_27/top`);
+            
+            const snap = await ref.once('value');
+            let topScores = [];
+            if(snap.exists()) {
+                const val = snap.val();
+                topScores = Array.isArray(val) ? val : Object.values(val);
+            }
+
+            topScores.push({ score: score, date: new Date().toLocaleDateString('fr-FR'), ts: Date.now() });
+            topScores.sort((a, b) => b.score - a.score);
+            
+            await ref.set(topScores.slice(0, 3));
+            btn.innerText = "✅ ENREGISTRÉ";
+            displayTop3();
+        } catch (e) {
+            btn.disabled = false; btn.innerText = "ERREUR";
+        }
+    }
+
+    function displayTop3() {
+        const listDiv = document.getElementById('top-list');
+        if (isGuest) { listDiv.innerHTML = "Mode Invité"; return; }
+        db.ref(`users/${pseudo.toUpperCase()}/games/bobs_27/top`).once('value', (snapshot) => {
+            const data = snapshot.val();
+            let html = "";
+            const scoreArray = data ? (Array.isArray(data) ? data : Object.values(data)) : [];
+            if(scoreArray.length === 0) {
+                html = "Aucun record.";
+            } else {
+                scoreArray.forEach((s, i) => {
+                    html += `<div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:${i===scoreArray.length-1?'none':'1px solid #222'};">
+                        <span>${i+1}. <b style="color:var(--accent-green)">${s.score}</b> pts</span>
+                        <span style="color:#8b949e; font-size:0.7rem;">${s.date}</span>
+                    </div>`;
+                });
+            }
+            listDiv.innerHTML = html;
+        });
+    }
+
+    // Lancement au démarrage
+    updateUI();
+</script>
+</body>
+</html>

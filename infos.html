@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Darts Club - Guide</title>
+    <script src="protection.js"></script>
+    <style>
+        :root {
+            --bg: #000000;
+            --card: #121212;
+            --text: #ffffff;
+            --accent: #00ff88;
+            --live: #ffa500;
+            --ia: #ff4444;
+            --fun: #bc13fe;
+            --info: #58a6ff;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100dvh;
+        }
+
+        .container {
+            flex: 1;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-top: calc(env(safe-area-inset-top) + 20px);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .header-line {
+            height: 2px;
+            width: 50px;
+            background: var(--accent);
+            margin: 10px auto;
+        }
+
+        .mode-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            margin-bottom: 20px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .mode-section {
+            background: var(--card);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid #222;
+            transition: transform 0.1s;
+        }
+
+        .mode-link:active .mode-section {
+            transform: scale(0.97);
+            background: #1a1a1a;
+        }
+
+        h2 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.1rem;
+            margin-top: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .live-h2 { color: var(--live); }
+        .local-h2 { color: var(--accent); }
+        .ia-h2 { color: var(--ia); }
+        .fun-h2 { color: var(--fun); }
+        .info-h2 { color: var(--info); }
+
+        p { font-size: 0.85rem; color: #bbb; margin-bottom: 12px; line-height: 1.4; }
+        ul { margin: 0; padding-left: 18px; font-size: 0.8rem; color: #999; }
+        li { margin-bottom: 6px; }
+        .highlight { color: #fff; font-weight: bold; }
+
+        .info-box {
+            background: rgba(88, 166, 255, 0.05);
+            border: 1px dashed #30363d;
+            margin-top: 10px;
+            border-radius: 15px;
+            padding: 20px;
+        }
+	
+        .back-icon { width: 30px; height: 30px;margin-left:15px; margin-top:15px; display: flex; align-items: center; justify-content: center; border: 1px solid #444; border-radius: 4px; cursor: pointer; }
+
+    </style>
+</head>
+<body>
+        <div class="back-icon" onclick="window.location.href='menu.html'"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
+
+    <div class="container">
+        <header>
+            <h1>GUIDE & RÈGLES</h1>
+            <div class="header-line"></div>
+        </header>
+
+        <a href="darts-live-501.html" class="mode-link">
+            <section class="mode-section" style="border-left: 4px solid var(--live);">
+                <h2 class="live-h2">📡 DARTS LIVE</h2>
+                <p>Le mode multijoueur distant pour jouer avec n'importe qui, n'importe où.</p>
+                <ul>
+                    <li><span class="highlight">Online :</span> Connectez-vous à un salon privé via un nom unique.</li>
+                    <li><span class="highlight">Multi :</span> Jusqu'à 3 joueurs en ligne.</li>
+                    <li><span class="highlight">Sync :</span> Visualisez les fléchettes de vos adversaires en temps réel.</li>
+                    <li><span class="highlight">Stats :</span> Suivi des moyennes et des volées détaillées.</li>
+                </ul>
+            </section>
+        </a>
+
+        <a href="darts-local-501.html" class="mode-link">
+            <section class="mode-section" style="border-left: 4px solid var(--accent);">
+                <h2 class="local-h2">🏠 DARTS LOCAL</h2>
+                <p>Le compteur de référence pour vos parties physiques sur une cible réelle.</p>
+                <ul>
+                    <li><span class="highlight">Multi :</span> Jusqu'à 4 joueurs en local.</li>
+                    <li><span class="highlight">Stats :</span> Suivi des moyennes et des volées détaillées.</li>
+                </ul>
+            </section>
+        </a>
+
+        <a href="darts-ia-501.html" class="mode-link">
+            <section class="mode-section" style="border-left: 4px solid var(--ia);">
+                <h2 class="ia-h2">🤖 DARTS IA</h2>
+                <p>Entraînement en solo contre une intelligence artificielle calibrée.</p>
+                <ul>
+                    <li><span class="highlight">Niveaux :</span> Du débutant au Maître (AVG 40 à 90+).</li>
+                    <li><span class="highlight">Finition :</span> L'IA gère intelligemment ses fermetures en double.</li>
+                </ul>
+            </section>
+        </a>
+
+        <a href="darts-bobs.html" class="mode-link">
+            <section class="mode-section" style="border-left: 4px solid var(--fun);">
+                <h2 class="fun-h2">🎡 BOB'S 27</h2>
+                <p>L'exercice mythique pour forger un mental d'acier sur les doubles.</p>
+                <ul>
+                    <li><span class="highlight">Règle :</span> Départ à 27 pts. On joue du D1 au Bullseye.</li>
+                    <li><span class="highlight">Points :</span> Réussi = valeur ajoutée. Raté (3 flèches) = valeur simple soustraite.</li>
+                </ul>
+            </section>
+        </a>
+
+        <a href="darts-180.html" class="mode-link">
+            <section class="mode-section" style="border-left: 4px solid var(--fun);">
+                <h2 class="fun-h2">🔥 180 !</h2>
+                <p>Le défi de vitesse ultime pour les scoreurs compulsifs.</p>
+                <ul>
+                    <li><span class="highlight">Sprint :</span> Atteignez 180 points en un minimum de fléchettes.</li>
+                    <li><span class="highlight">Limite :</span> Maximum 9 fléchettes autorisées.</li>
+                </ul>
+            </section>
+        </a>
+
+        <a href="darts-bull.html" class="mode-link">
+            <section class="mode-section" style="border-left: 4px solid var(--fun);">
+                <h2 class="fun-h2">🎯 BULL CHALLENGE</h2>
+                <p>Travaillez la précision pure sur le centre de la cible.</p>
+                <ul>
+                    <li><span class="highlight">Objectif :</span> Atteindre un score cumulé de 10 points.</li>
+                    <li><span class="highlight">Barème :</span> Bullseye = 2 pts / Bull simple = 1 pt.</li>
+                    <li><span class="highlight">Limite :</span> Vous avez un maximum de 18 fléchettes pour réussir.</li>
+                </ul>
+            </section>
+        </a>
+
+        <a href="darts-checkout.html" class="mode-link">
+            <section class="mode-section" style="border-left: 4px solid var(--fun);">
+                <h2 class="fun-h2">🏁 CHECK-OUT</h2>
+                <p>Améliorez votre efficacité en fin de partie (finition sous pression).</p>
+                <ul>
+                    <li><span class="highlight">Aléatoire :</span> L'application génère un score entre 61 et 170.</li>
+                    <li><span class="highlight">Contrainte :</span> Fermeture obligatoire par un Double en 6 fléchettes max.</li>
+                </ul>
+            </section>
+        </a>
+
+        <section class="mode-section info-box">
+            <h2 class="info-h2">💾 ENREGISTREMENT DES RECORDS</h2>
+            <p>Pour les modes <span class="highlight">180, BULL et BOB'S 27</span>, vos meilleures performances peuvent être sauvegardées :</p>
+            <ul>
+                <li>Une fois le défi réussi, cliquez sur le bouton <span class="highlight" style="color:var(--info)">ARCHIVER</span> sur l'écran de fin.</li>
+                <li>L'application compare votre score avec votre <span class="highlight">Top 3 personnel</span> stocké sur votre profil.</li>
+                <li>Si vous battez un record, il sera automatiquement mis à jour dans le tableau des scores.</li>
+            </ul>
+        </section>
+		<section class="mode-section" style="border-left: 4px solid var(--info); margin-top: 40px; background: rgba(88, 166, 255, 0.05);">
+            <h2 class="info-h2">📲 INSTALLER L'APPLI</h2>
+            <p>Accédez au <span class="highlight">Darts Club</span> en un clic comme une véritable application.</p>
+            
+            <div style="margin-top: 15px;">
+                <div style="margin-bottom: 15px;">
+                    <span class="highlight" style="color:var(--info)">🤖 ANDROID (Chrome / Google)</span>
+                    <ul style="margin-top:5px;">
+                        <li>Appuyez sur les <span class="highlight">3 points</span> en haut à droite.</li>
+                        <li>Sélectionnez <span class="highlight">"Installer l'application"</span> ou "Ajouter à l'écran d'accueil".</li>
+                    </ul>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <span class="highlight" style="color:var(--info)">🦊 MOZILLA (Firefox)</span>
+                    <ul style="margin-top:5px;">
+                        <li>Appuyez sur les <span class="highlight">3 points</span> dans la barre d'adresse.</li>
+                        <li>Sélectionnez <span class="highlight">"Installer"</span>.</li>
+                    </ul>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <span class="highlight" style="color:var(--info)">🅾️ OPERA</span>
+                    <ul style="margin-top:5px;">
+                        <li>Appuyez sur le <span class="highlight">Logo Opera</span> en bas à droite.</li>
+                        <li>Sélectionnez <span class="highlight">"Écran d'accueil"</span>.</li>
+                    </ul>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <span class="highlight" style="color:var(--info)">🍎 APPLE (Safari)</span>
+                    <ul style="margin-top:5px;">
+                        <li>Appuyez sur le bouton <span class="highlight">Partager</span> (le carré avec une flèche vers le haut).</li>
+                        <li>Faites défiler et choisissez <span class="highlight">"Sur l'écran d'accueil"</span>.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

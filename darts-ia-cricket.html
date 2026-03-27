@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Darts Club - Cricket IA</title>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <style>
+        :root { 
+            --bg: #0b0e14; --card: #161b22; --text: #f0f6fc;
+            --accent: #58a6ff; --bg-dark: #121916;
+            --accent-orange: #f39c12; --accent-green: #2ecc71; --accent-red: #e74c3c;
+            --mode-color: var(--accent);
+        }
+        * { box-sizing: border-box; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+        body { 
+            font-family: -apple-system, system-ui, sans-serif; 
+            background: var(--bg); color: var(--text); 
+            margin: 0; padding: 0; height: 100dvh;
+            display: flex; flex-direction: column; overflow: hidden; 
+            position: fixed; width: 100%;
+        }
+
+        /* --- ÉCRAN DE SÉLECTION --- */
+        #level-screen { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; }
+        .lvl-box { width: 100%; max-width: 320px; }
+        .lvl-btn { background: var(--card); border: 1px solid #30363d; border-radius: 12px; padding: 18px; color: white; width:100%; margin-bottom:10px; text-align:left; position: relative; overflow: hidden; }
+        .lvl-btn b { display: block; font-size: 1.1rem; }
+        .lvl-btn span { font-size: 0.7rem; color: #8b949e; }
+
+        /* --- GAME SCREEN --- */
+        #game-screen { display: none; height: 90dvh; flex-direction: column; background: #000; }
+        /* --- TOP BAR --- */
+        .top-bar { height: 50px; background: #1a1a1a; display: flex; align-items: center; padding: 0 15px; flex-shrink: 0; border-bottom: 1px solid #333; }
+        .back-icon { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 1px solid #444; border-radius: 4px; cursor: pointer; }
+        .top-title { flex: 1; text-align: center; font-size: 0.75rem; font-weight: 900; letter-spacing: 1px; color: #ccc; }
+
+        /* --- SCORE SECTION --- */
+		.score-section { 
+			height: 45dvh; 
+			display: flex; 
+			flex-direction: column; 
+			background: var(--bg-dark); 
+			padding: 5px 0; 
+			overflow: hidden; /* Supprime l'ascenseur interne */
+		}
+		
+        #gamePlayers { display: grid; grid-template-columns:  repeat(3, 1fr); gap: 10px; padding: 0 10px; flex: 1; }
+
+        .p-column { background: #1a1a1a; border: 3px solid #333; border-radius: 12px; display: flex; flex-direction: column; padding: 5px; opacity: 0.4; transition: 0.3s; color: #fff; }
+        .p-column.active { opacity: 1; border-color: var(--accent-green); background: #161b22; }
+
+        /* Couleurs par joueur */
+        .p-column.p-0 { --p-color: var(--accent-green); }
+        .p-column.p-1 { --p-color: var(--accent-red); }
+        .p-column.active { border-color: var(--p-color) !important; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
+        .p-column.active .p-name { color: var(--p-color); }
+
+        .p-name { font-size: 0.9rem; font-weight: 900; text-align: center; text-transform: uppercase; margin-bottom: 2px; }
+        .p-score { font-size: 1.2rem; font-weight: 900; text-align: center; color: var(--accent-orange); margin-bottom: 3px; }
+
+        /* Grille des segments */
+        .cricket-grid { display: flex; flex-direction: column; gap: 1px; font-size: 0.8rem; font-weight: bold; }
+        .segment-row { display: flex; justify-content: space-between; padding: 2px 4px; border-bottom: 1px solid #222; }
+		.mark-symbol {
+			display: inline-block;
+			width: 24px;   /* Largeur fixe pour éviter les sauts de texte */
+			height: 18px;
+			line-height: 18px;
+			text-align: center;
+			font-weight: bold;
+			font-size: 1.0rem;
+			transition: all 0.2s ease; /* Petit effet fluide lors du changement */
+		}
+
+        .turn-announcer { 
+            height: 30px; display: flex; align-items: center; justify-content: center; 
+            color: var(--accent-orange); font-weight: 900; font-size: 0.8rem; text-transform: uppercase; 
+        }
+
+        /* --- INPUT INFO --- */
+        .input-info { height: 75px; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0 15px; background: #000; }
+        .dart-val { 
+            width: 70px; height: 55px; background: white; color: black; border-radius: 30px; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            font-weight: 900; font-size: 1.1rem; 
+        }
+        .dart-val small { font-size: 0.55rem; font-weight: bold; color: #555; }
+        .btn-valid-darts { max-width: 80px; flex: 1; height: 55px; background: #222; border: none; color: #444; border-radius: 30px; font-weight: 900; font-size: 0.85rem; }
+        .btn-valid-darts.ready { color: #fff; cursor: pointer; background: var(--accent-green); }
+
+        /* --- BOUTON MODE --- */
+        #mode-toggle-zone { display: flex; align-items: center; justify-content: center; min-width: 50px; height: 100%; }
+        .btn-mode { width: 45px; height: 45px; border-radius: 8px; border: 1px solid #333; background: #21262d; cursor: pointer; font-size: 1.3rem; }
+        .btn-mode:active { background: #30363d; transform: scale(0.95); }
+
+        /* --- CLAVIER --- */
+        .keyboard { height: 55dvh; background: #1a1a1a; display: flex; flex-direction: column; padding: 2px; border-top: 4px solid var(--mode-color); transition: border-color 0.2s; }
+        .mod-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: #333; }
+        .btn-m { background: #1a1a1a; color: #888; padding: 15px; border: none; font-weight: 900; font-size: 0.9rem; }
+        #m1.active { color: #fff; border-bottom: 4px solid var(--accent); }
+        #m2.active { color: #fff; border-bottom: 4px solid var(--accent-orange); }
+        #m3.active { color: #fff; border-bottom: 4px solid var(--accent-red); }
+        .num-grid { display: grid; grid-template-columns: repeat(5, 1fr); flex: 1; gap: 1px; background: #333; }
+        .key { background: #121916; border: none; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .key span { font-size: 1.4rem; font-weight: 900; }
+        .key small { font-size: 0.75rem; color: #555; font-weight: 900; display: block; min-height: 1.2em; }
+        .special-row { display: grid; grid-template-columns: 1fr 1.2fr 1.2fr 1.2fr; height: 70px; gap: 1px; background: #333; }
+        .sp-key { background: #121916; color: white; border: none; font-weight: bold; font-size: 0.8rem; }
+
+        /* --- MODE CIBLE SVG --- */
+        #target-frame {
+            display: none; height: 55dvh; background: #000;
+            position: relative; flex-direction: column;
+            align-items: center; justify-content: center;
+        }
+        #dartboard-container {
+            position: relative;
+            width: min(45dvh, 90vw);
+            height: min(45dvh, 90vw);
+            max-width: 500px; max-height: 500px;
+        }
+        .btn-miss {
+            position: absolute; bottom: 5px; right: 5px;
+            width: 50px; height: 50px; background: #161b22;
+            color: #fff; border: 1px solid #30363d; border-radius: 15px;
+            font-weight: 900; z-index: 12; cursor: pointer;
+        }
+        .target-undo {
+            position: absolute; bottom: 5px; left: 5px;
+            width: 50px; height: 50px; background: #30363d;
+            color: #fff; border: 1px solid #30363d; border-radius: 15px;
+            font-size: 1.5rem; z-index: 12; cursor: pointer;
+        }
+
+        /* --- OVERLAY VICTOIRE --- */
+        .overlay { 
+            display: none; position: fixed; inset: 0; background: rgba(13,17,23,0.98); 
+            z-index: 999; flex-direction: column; justify-content: center; align-items: center; padding: 20px; 
+        }
+        .final-box { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid #30363d; width: 100%; max-width: 300px; text-align: center; }
+        .btn-save { background: var(--accent) !important; font-size: 0.85rem; font-weight: 800; border-radius: 10px; height: 50px; width: 100%; margin: 10px 0; color: white; border: none; cursor: pointer; }
+
+        /* --- MODAL QUITTER --- */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);
+            z-index: 1000; align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: #121212; padding: 2rem; border-radius: 15px;
+            border-left: 5px solid #2ecc71; max-width: 400px;
+            text-align: center; color: white; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .modal-header { font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .modal-title { background: #2ecc71; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .modal-buttons { display: flex; gap: 15px; margin-top: 2rem; }
+        .modal-buttons button { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-cancel { background: #333; color: white; }
+        .btn-confirm { background: #333; color: white; }
+        .btn-confirm:hover { transform: scale(1.05); background: #2ecc71; }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+		<div id="quitModal" class="modal-overlay">
+			<div class="modal-content">
+				<div class="modal-header">
+					<span class="fire-emoji">🤖</span>
+					<span class="modal-title">QUITTER ?</span>
+				</div>
+				<p>Es-tu sûr de vouloir abandonner<br>la partie en cours ?</p>
+				<div class="modal-buttons">
+					<button onclick="closeModal()" class="btn-cancel">RESTER</button>
+					<button onclick="window.location.href='menu.html'" class="btn-confirm">QUITTER</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="back-icon" onclick="openModal()">
+			<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+				<path d="M19 12H5M12 19l-7-7 7-7"/>
+			</svg>
+		</div>
+        <div class="top-title">🤖 IA CHALLENGE - CRICKET</div>
+    </div>
+	
+    <!-- ÉCRAN SÉLECTION NIVEAU -->
+    <div id="level-screen">
+        <div class="lvl-box">
+            <h1 style="color:var(--accent); font-size:0.8rem; letter-spacing:2px; text-align:center; margin-bottom:20px;">CHOISIS TON ADVERSAIRE</h1>
+            <button class="lvl-btn" onclick="startIA(1)" style="border-left:5px solid #8b949e">
+                <b>NIVEAU 1</b><span>Débutant (MPR ~1.2)</span>
+            </button>
+            <button class="lvl-btn" onclick="startIA(2)" style="border-left:5px solid var(--accent-green)">
+                <b>NIVEAU 2</b><span>Amateur (MPR ~2.0)</span>
+            </button>
+            <button class="lvl-btn" onclick="startIA(3)" style="border-left:5px solid var(--accent-orange)">
+                <b>NIVEAU 3</b><span>Pro (MPR ~2.8)</span>
+            </button>
+            <button class="lvl-btn" onclick="startIA(4)" style="border-left:5px solid var(--accent-red)">
+                <b>NIVEAU 4</b><span>Master (MPR ~3.5)</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- GAME SCREEN -->
+    <div id="game-screen">
+
+        <div class="score-section">
+            <div id="gamePlayers"></div>
+            <div class="turn-announcer" id="turn-txt">À TOI DE JOUER</div>
+        </div>
+
+        <div class="input-info">
+            <div id="mode-toggle-zone">
+                <button class="btn-mode" id="btn-to-target" onclick="toggleInput('target')">🎯</button>
+                <button class="btn-mode" id="btn-to-kb" onclick="toggleInput('kb')" style="display:none;">⌨️</button>
+            </div>
+            <div class="dart-val" id="v0">--<small>-</small></div>
+            <div class="dart-val" id="v1">--<small>-</small></div>
+            <div class="dart-val" id="v2">--<small>-</small></div>
+            <button class="btn-valid-darts" id="btn-validate" onclick="finishTurn()" disabled>VALIDER</button>
+        </div>
+
+        <div id="target-frame">
+            <button class="btn-miss" onclick="addDart(0)">MISS<br>0</button>
+            <div id="dartboard-container"></div>
+            <button class="target-undo" onclick="undoLastDart()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 4v7a4 4 0 0 1-4 4H4"/><path d="m9 10-5 5 5 5"/></svg>
+            </button>
+        </div>
+
+        <div class="keyboard" id="kb-frame">
+            <div class="mod-row">
+                <button class="btn-m active" id="m1" onclick="setMod(1)">SIMPLE</button>
+                <button class="btn-m" id="m2" onclick="setMod(2)">DOUBLE</button>
+                <button class="btn-m" id="m3" onclick="setMod(3)">TRIPLE</button>
+            </div>
+            <div id="pad" class="num-grid"></div>
+            <div class="special-row">
+                <button class="sp-key" onclick="undoLastDart()" style="font-size:1.5rem;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 4v7a4 4 0 0 1-4 4H4"/><path d="m9 10-5 5 5 5"/></svg></button>
+                <button class="sp-key" onclick="addDart(0)">Out<br>0</button>
+                <button class="sp-key" onclick="addDart(25)">25</button>
+                <button class="sp-key" onclick="addDart(50)">BULL</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ÉCRAN FIN DE PARTIE -->
+    <div id="end-screen" class="overlay">
+        <div class="top-bar" style="width: 100%; position: absolute; top: 0; left: 0;">
+            <div class="back-icon" onclick="window.location.href='menu.html'">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            </div>
+            <div class="top-title">🤖 IA CHALLENGE - CRICKET</div>
+        </div>
+        <div class="final-box">
+            <h1 style="font-size:0.7rem; color:#8b949e; text-transform:uppercase;">MATCH TERMINÉ</h1>
+            <p id="win-name" style="font-size:1.8rem; font-weight:900; margin:10px 0; color:var(--accent-green);"></p>
+            <div id="win-stats" style="background:#0b1410; border-radius:8px; padding:10px; border:1px solid #30363d; text-align:left; font-size:0.75rem; margin-bottom:10px;"></div>
+            <button id="btn-save" class="btn-save" onclick="saveIA()">ARCHIVER LA VICTOIRE</button>
+            <button class="btn-save" style="background:#30363d !important;" onclick="location.reload()">REJOUER</button>
+        </div>
+    </div>
+
+<script>
+    // --- FIREBASE CONFIG ---
+    const firebaseConfig = { 
+        apiKey: "AIzaSyCSeggBmTOXR_XyspjuAsbhMfncp9MYUBA",
+        authDomain: "dartsclub-1aab9.firebaseapp.com",
+        databaseURL: "https://dartsclub-1aab9-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "dartsclub-1aab9",
+        storageBucket: "dartsclub-1aab9.firebasestorage.app",
+        messagingSenderId: "769714266505",
+        appId: "1:769714266505:web:ea1758db2c96702979c158"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    auth.onAuthStateChanged(async (user) => { 
+        if (!user) await auth.signInAnonymously(); 
+    });
+
+    // --- VARIABLES GLOBALES ---
+    const currentPseudo = (localStorage.getItem('darts_pseudo') || "INVITÉ").toUpperCase();
+    let players = [];
+    let currentPlayer = 0;
+    let dartsInTurn = [];
+    let multiplier = 1;
+    let iaLevel = 1;
+    const cricketTargets = [20, 19, 18, 17, 16, 15, 25];
+
+    // --- DÉMARRAGE ---
+    function startIA(lvl) {
+        iaLevel = lvl;
+        players = [
+            { name: currentPseudo, score: 0, marks: {20:0,19:0,18:0,17:0,16:0,15:0,25:0}, totalDarts: 0, isIA: false },
+            { name: "IA", score: 0, marks: {20:0,19:0,18:0,17:0,16:0,15:0,25:0}, totalDarts: 0, isIA: true }
+        ];
+        document.getElementById('level-screen').style.display = 'none';
+        document.getElementById('game-screen').style.display = 'flex';
+        renderPad();
+        buildSVGDartboard();
+        syncUI();
+    }
+
+    // --- LOGIQUE DE JEU ---
+    function addDart(val) {
+        const p = players[currentPlayer];
+        if (p.isIA) return;
+        if (dartsInTurn.length >= 3 || isFinished()) return;
+
+        let currentVal = (val === 50) ? 25 : val;
+        let currentMultiplier = (val === 50) ? 2 : (val === 25 && multiplier === 3) ? 2 : multiplier;
+
+        let pointsAdded = 0;
+
+        if (cricketTargets.includes(currentVal)) {
+            let hitCount = currentMultiplier;
+            if (p.marks[currentVal] < 3) {
+                let spaceLeft = 3 - p.marks[currentVal];
+                let toFill = Math.min(hitCount, spaceLeft);
+                p.marks[currentVal] += toFill;
+                hitCount -= toFill;
+            }
+            if (hitCount > 0) {
+                const opp = players[1 - currentPlayer];
+                if (opp.marks[currentVal] < 3) {
+                    pointsAdded = currentVal * hitCount;
+                    p.score += pointsAdded;
+                }
+            }
+        }
+
+        dartsInTurn.push({ val: currentVal, m: currentMultiplier, pts: pointsAdded });
+        setMod(1);
+        syncUI();
+    }
+
+    function undoLastDart() {
+        if (dartsInTurn.length > 0) {
+            const last = dartsInTurn.pop();
+            const p = players[currentPlayer];
+
+            if (last.pts > 0) p.score -= last.pts;
+
+            if (cricketTargets.includes(last.val)) {
+                let marksUsed = last.m - (last.pts > 0 ? last.pts / last.val : 0);
+                p.marks[last.val] = Math.max(0, p.marks[last.val] - marksUsed);
+            }
+
+            syncUI();
+        }
+    }
+
+    function finishTurn() {
+        const p = players[currentPlayer];
+        p.totalDarts += dartsInTurn.length;
+
+        if (isFinished()) return showEnd();
+
+        dartsInTurn = [];
+        currentPlayer = 1 - currentPlayer;
+        syncUI();
+
+        if (players[currentPlayer].isIA) setTimeout(playIA, 800);
+    }
+
+    function isFinished() {
+        const p = players[currentPlayer];
+        const allClosed = cricketTargets.every(t => p.marks[t] >= 3);
+        const maxScore = Math.max(...players.map(pl => pl.score));
+        return allClosed && p.score >= maxScore;
+    }
+
+    // --- IA ---
+    function playIA() {
+        const rates = [0.38, 0.52, 0.68, 0.85];
+        const ia = players[1];
+        const human = players[0];
+
+        for (let i = 0; i < 3; i++) {
+            // Cible prioritaire : segment non encore fermé par tous
+            let target = 20;
+            for (let t of cricketTargets) {
+                if (ia.marks[t] < 3 || human.marks[t] < 3) { target = t; break; }
+            }
+
+            if (Math.random() < rates[iaLevel - 1]) {
+                let r = Math.random();
+                let m = r > 0.8 ? 3 : r > 0.6 ? 2 : 1;
+                if (target === 25 && m === 3) m = 2;
+
+                let hitCount = m;
+                let pointsAdded = 0;
+
+                if (cricketTargets.includes(target)) {
+                    if (ia.marks[target] < 3) {
+                        let fill = Math.min(hitCount, 3 - ia.marks[target]);
+                        ia.marks[target] += fill;
+                        hitCount -= fill;
+                    }
+                    if (hitCount > 0 && human.marks[target] < 3) {
+                        pointsAdded = target * hitCount;
+                        ia.score += pointsAdded;
+                    }
+                }
+
+                dartsInTurn.push({ val: target, m: m, pts: pointsAdded });
+            } else {
+                dartsInTurn.push({ val: 0, m: 1, pts: 0 });
+            }
+        }
+
+        setTimeout(finishTurn, 1000);
+    }
+
+    // --- SYNC UI ---
+    function syncUI() {
+        const container = document.getElementById('gamePlayers');
+        container.innerHTML = players.map((p, i) => `
+            <div class="p-column p-${i} ${i === currentPlayer ? 'active' : ''}">
+                <div class="p-name">${p.name}${p.isIA ? ' <small style="font-size:0.6rem; opacity:0.7">(NIV.'+iaLevel+')</small>' : ''}</div>
+                <div class="p-score">${p.score}</div>
+                <div class="cricket-grid">
+                    ${cricketTargets.map(t => `
+                        <div class="segment-row">
+                            <span>${t === 25 ? 'BULL' : t}</span>
+                            <span class="mark-symbol">${getSymbol(p.marks[t])}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `).join('');
+
+        const isIATurn = players[currentPlayer].isIA;
+        document.getElementById('turn-txt').innerText = isIATurn ? "L'IA RÉFLÉCHIT..." : `À TOI DE JOUER`;
+
+        const btn = document.getElementById('btn-validate');
+        const allClosed = cricketTargets.every(t => players[currentPlayer].marks[t] >= 3);
+        const maxScore = Math.max(...players.map(pl => pl.score));
+        const isWinner = allClosed && players[currentPlayer].score >= maxScore;
+        btn.disabled = isIATurn || !(dartsInTurn.length === 3 || isWinner);
+        btn.classList.toggle('ready', !btn.disabled);
+
+        for (let i = 0; i < 3; i++) {
+            const el = document.getElementById('v' + i);
+            const d = dartsInTurn[i];
+            if (d) {
+                let valTxt = d.val === 0 ? 'MISS' : (d.val === 25 ? 'B' : d.val);
+                let multTxt = d.val === 0 ? '' : (d.m === 3 ? 'T' : d.m === 2 ? 'D' : 'S');
+                el.innerHTML = `${multTxt}${valTxt}<small>${d.pts > 0 ? '+'+d.pts : ''}</small>`;
+            } else {
+                el.innerHTML = '--<small>-</small>';
+            }
+        }
+    }
+
+    function getSymbol(count) {
+        if (count === 0) return '<span style="opacity:0.2">◦</span>';
+        if (count === 1) return '/';
+        if (count === 2) return 'X';
+        if (count >= 3) return '⊗';
+    }
+
+    // --- CLAVIER ---
+    function renderPad() {
+        const pad = document.getElementById('pad');
+        pad.innerHTML = "";
+        for (let i = 1; i <= 20; i++) {
+            pad.innerHTML += `<button class="key" onclick="addDart(${i})"><span>${i}</span></button>`;
+        }
+    }
+
+    function setMod(m) {
+        multiplier = m;
+        document.querySelectorAll('.btn-m').forEach((b, i) => b.classList.toggle('active', i + 1 === m));
+    }
+
+    // --- TOGGLE INPUT MODE ---
+    function toggleInput(mode) {
+        const kb = document.getElementById('kb-frame');
+        const target = document.getElementById('target-frame');
+        if (mode === 'kb') {
+            kb.style.display = 'flex';
+            target.style.display = 'none';
+            document.getElementById('btn-to-target').style.display = 'block';
+            document.getElementById('btn-to-kb').style.display = 'none';
+        } else {
+            kb.style.display = 'none';
+            target.style.display = 'flex';
+            document.getElementById('btn-to-target').style.display = 'none';
+            document.getElementById('btn-to-kb').style.display = 'block';
+        }
+    }
+
+    // --- CIBLE SVG PRÉCISE ---
+    function buildSVGDartboard() {
+        const container = document.getElementById('dartboard-container');
+        container.innerHTML = "";
+
+        const dartOrder = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5];
+        const cx = 160, cy = 160;
+        const R_DOUBLE_OUT = 158, R_DOUBLE_IN = 125;
+        const R_TRIPLE_OUT = 90, R_TRIPLE_IN = 50;
+        const R_BULL_OUT = 35, R_BULL_IN = 15;
+
+        function polar(angleDeg, r) {
+            const rad = (angleDeg - 90) * Math.PI / 180;
+            return [cx + r * Math.cos(rad), cy + r * Math.sin(rad)];
+        }
+
+        function arcPath(r1, r2, a1, a2) {
+            const [x1o, y1o] = polar(a1, r2);
+            const [x2o, y2o] = polar(a2, r2);
+            const [x1i, y1i] = polar(a1, r1);
+            const [x2i, y2i] = polar(a2, r1);
+            const large = (a2 - a1) > 180 ? 1 : 0;
+            return `M ${x1i.toFixed(3)} ${y1i.toFixed(3)} `
+                 + `L ${x1o.toFixed(3)} ${y1o.toFixed(3)} `
+                 + `A ${r2} ${r2} 0 ${large} 1 ${x2o.toFixed(3)} ${y2o.toFixed(3)} `
+                 + `L ${x2i.toFixed(3)} ${y2i.toFixed(3)} `
+                 + `A ${r1} ${r1} 0 ${large} 0 ${x1i.toFixed(3)} ${y1i.toFixed(3)} Z`;
+        }
+
+        const ns = "http://www.w3.org/2000/svg";
+        const svg = document.createElementNS(ns, "svg");
+        svg.setAttribute("viewBox", "0 0 320 320");
+        svg.setAttribute("width", "100%");
+        svg.setAttribute("height", "100%");
+        svg.style.display = "block";
+
+        const bg = document.createElementNS(ns, "circle");
+        bg.setAttribute("cx", cx); bg.setAttribute("cy", cy); bg.setAttribute("r", "160");
+        bg.setAttribute("fill", "#111");
+        svg.appendChild(bg);
+
+        const segAngle = 18.0, half = 9.0;
+
+        // Zones visuelles
+        dartOrder.forEach((val, i) => {
+            const centerA = i * segAngle;
+            const a1 = centerA - half, a2 = centerA + half;
+            const isEven = i % 2 === 0;
+            const colSimple = isEven ? "#1a1a1a" : "#FFFFCC";
+            const colRing = isEven ? "#267F00" : "#BB0000";
+
+            [
+                { r1: R_TRIPLE_OUT + 1, r2: R_DOUBLE_IN - 1, color: colSimple },
+                { r1: R_BULL_OUT + 1, r2: R_TRIPLE_IN - 1, color: colSimple },
+                { r1: R_TRIPLE_IN, r2: R_TRIPLE_OUT, color: colRing },
+                { r1: R_DOUBLE_IN, r2: R_DOUBLE_OUT, color: colRing },
+            ].forEach(z => {
+                const p = document.createElementNS(ns, "path");
+                p.setAttribute("d", arcPath(z.r1, z.r2, a1, a2));
+                p.setAttribute("fill", z.color);
+                svg.appendChild(p);
+            });
+
+            // Numéro
+            const [lx, ly] = polar(centerA, R_DOUBLE_IN + 16);
+            const txt = document.createElementNS(ns, "text");
+            txt.setAttribute("x", lx.toFixed(1));
+            txt.setAttribute("y", ly.toFixed(1));
+            txt.setAttribute("text-anchor", "middle");
+            txt.setAttribute("dominant-baseline", "middle");
+            txt.setAttribute("font-size", "18");
+            txt.setAttribute("font-weight", "900");
+            txt.setAttribute("fill", "white");
+            txt.style.pointerEvents = "none";
+            txt.textContent = val;
+            svg.appendChild(txt);
+        });
+
+        // Bull visuel
+        [{ r: R_BULL_OUT, fill: "#267F00" }, { r: R_BULL_IN, fill: "#BB0000" }].forEach(b => {
+            const c = document.createElementNS(ns, "circle");
+            c.setAttribute("cx", cx); c.setAttribute("cy", cy); c.setAttribute("r", b.r);
+            c.setAttribute("fill", b.fill);
+            svg.appendChild(c);
+        });
+
+        // Bordure
+        const border = document.createElementNS(ns, "circle");
+        border.setAttribute("cx", cx); border.setAttribute("cy", cy); border.setAttribute("r", "159");
+        border.setAttribute("fill", "none"); border.setAttribute("stroke", "#555"); border.setAttribute("stroke-width", "2");
+        svg.appendChild(border);
+
+        // Zones de clic transparentes
+        dartOrder.forEach((val, i) => {
+            const centerA = i * segAngle;
+            const a1 = centerA - half, a2 = centerA + half;
+
+            [
+                { r1: R_TRIPLE_OUT + 1, r2: R_DOUBLE_IN - 1, m: 1 },
+                { r1: R_BULL_OUT + 1, r2: R_TRIPLE_IN - 1, m: 1 },
+                { r1: R_TRIPLE_IN, r2: R_TRIPLE_OUT, m: 3 },
+                { r1: R_DOUBLE_IN, r2: R_DOUBLE_OUT, m: 2 },
+            ].forEach(z => {
+                const p = document.createElementNS(ns, "path");
+                p.setAttribute("d", arcPath(z.r1, z.r2, a1, a2));
+                p.setAttribute("fill", "transparent");
+                p.style.cursor = "pointer";
+                p.addEventListener("click", () => {
+                    p.setAttribute("fill", "rgba(243,156,18,0.8)");
+                    setTimeout(() => p.setAttribute("fill", "transparent"), 150);
+                    multiplier = z.m;
+                    addDart(val);
+                });
+                svg.appendChild(p);
+            });
+        });
+
+        // Bull cliquable
+        [{ r: R_BULL_OUT, val: 25 }, { r: R_BULL_IN, val: 50 }].forEach(b => {
+            const c = document.createElementNS(ns, "circle");
+            c.setAttribute("cx", cx); c.setAttribute("cy", cy); c.setAttribute("r", b.r);
+            c.setAttribute("fill", "transparent");
+            c.style.cursor = "pointer";
+            c.addEventListener("click", (e) => {
+                e.stopPropagation();
+                c.setAttribute("fill", "rgba(243,156,18,0.8)");
+                setTimeout(() => c.setAttribute("fill", "transparent"), 150);
+                addDart(b.val);
+            });
+            svg.appendChild(c);
+        });
+
+        container.appendChild(svg);
+    }
+
+    // --- FIN DE PARTIE ---
+    function showEnd() {
+        document.getElementById('game-screen').style.display = 'none';
+        document.getElementById('end-screen').style.display = 'flex';
+        const winner = players[currentPlayer];
+        document.getElementById('win-name').innerText = winner.name + " GAGNE !";
+        const mpr = ((21 / players[0].totalDarts) * 3).toFixed(2);
+        document.getElementById('win-stats').innerHTML = `
+            <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                <span>Ton MPR :</span><b>${mpr}</b>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                <span>Fléchettes :</span><b>${players[0].totalDarts}</b>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+                <span>Score IA :</span><b>${players[1].score} pts</b>
+            </div>
+        `;
+        if (winner.isIA || currentPseudo === "INVITÉ") {
+            document.getElementById('btn-save').style.display = 'none';
+        }
+    }
+
+    async function saveIA() {
+        const btn = document.getElementById('btn-save');
+        btn.disabled = true; btn.innerText = "...";
+        try {
+            const mpr = parseFloat(((21 / players[0].totalDarts) * 3).toFixed(2));
+            const ref = db.ref(`users/${currentPseudo}/games/ia_cricket`);
+            const snap = await ref.child('top').once('value');
+            let top = snap.val() || [];
+            top.push({ mpr, date: new Date().toLocaleDateString('fr-FR'), lvl: iaLevel });
+            top.sort((a, b) => b.mpr - a.mpr);
+            await ref.child('top').set(top.slice(0, 5));
+            await ref.child('stats/wins').transaction(c => (c || 0) + 1);
+            let pts = mpr >= 3.5 ? 5 : mpr >= 2.8 ? 3 : mpr >= 2.0 ? 2 : 1;
+            await ref.child('stats/points').transaction(c => (c || 0) + pts);
+            btn.innerText = "✅ ARCHIVÉ";
+            btn.style.background = "#2ecc71 !important";
+        } catch (e) {
+            btn.disabled = false;
+            btn.innerText = "ERREUR";
+        }
+    }
+
+    // --- MODAL ---
+    function openModal() { document.getElementById('quitModal').style.display = 'flex'; }
+    function closeModal() { document.getElementById('quitModal').style.display = 'none'; }
+    window.onclick = function(event) {
+        const modal = document.getElementById('quitModal');
+        if (event.target === modal) closeModal();
+    };
+</script>
+</body>
+</html>
