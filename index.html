@@ -383,14 +383,19 @@ window.onclick = function(event) {
     }
 }
 function quitApp() {
-    // Tentative de fermeture de la fenêtre
-    window.close();
-    
-    // Si la fenêtre est toujours ouverte (sécurité navigateur), 
-    // on redirige vers une page vide ou on sort de l'app
-    setTimeout(() => {
-        window.location.href = "about:blank";
-    }, 100);
+    if (window.require) {
+        // Mode Electron ✅
+        const { ipcRenderer } = window.require('electron');
+        ipcRenderer.send('quit-app');
+    } else {
+        // Mode navigateur/PWA
+        window.location.href = "/";
+    }
+}
+
+// Cacher le bouton install si on est dans Electron
+if (window.require) {
+    document.getElementById('btn-install').style.display = 'none';
 }
 </script>
 </body>
