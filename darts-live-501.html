@@ -7,6 +7,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <style>
         :root { 
             --bg: #0b0e14; --card: #161b22; --text: #f0f6fc;
@@ -220,50 +221,73 @@
             <h2 style="color:var(--accent); font-size:0.9rem; letter-spacing:2px;">DARTS CLUB LIVE PREMIUM</h2>
             <input type="text" id="pName" class="input-field" placeholder="TON PSEUDO..." autocomplete="off">
             <input type="number" id="qualifInput" class="input-field" placeholder="SCORE BULLE (ORDRE)">
+
+<div style="margin: 20px 0; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+    <label style="display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer;">
+        <input type="checkbox" id="camera-mode" style="width: 20px; height: 20px;">
+        <span style="font-size: 0.9rem; font-weight: bold;">MODE CAMÉRA SEULE</span>
+    </label>
+    <p style="font-size: 0.7rem; color: #888; margin-top: 8px;">(L'appareil filmera la cible sans participer au score)</p>
+</div>
+
             <div id="standGrid" class="stand-grid"></div>
         </div>
     </div>
 
-    <div id="game-screen">
-        <div class="score-section">
-            <div class="header-scores" id="gamePlayers"></div>
-            <div class="turn-announcer" id="turn-txt">...</div>
+ <div id="game-screen">
+    <div class="score-section">
+        <div class="header-scores" id="gamePlayers"></div>
+        <div class="turn-announcer" id="turn-txt">...</div>
+    </div>
+
+    <div class="input-info">
+        <div id="mode-toggle-zone">
+            <button class="btn-mode" id="btn-to-target" onclick="toggleInput('target')">🎯</button>
+            <button class="btn-mode" id="btn-to-kb" onclick="toggleInput('kb')" style="display:none;">⌨️</button>
+        </div>
+        <div class="dart-val" id="v0">--<small>-</small></div>
+        <div class="dart-val" id="v1">--<small>-</small></div>
+        <div class="dart-val" id="v2">--<small>-</small></div>
+        <button class="btn-valid-darts" id="btn-validate" onclick="finishTurn()" disabled>VALIDER</button>
+    </div>
+
+    <div id="dynamic-area" style="flex: 1; display: flex; flex-direction: column; overflow: hidden;">
+
+        <div id="video-frame" style="display: none; flex: 1; background: #000; position: relative; border-top: 4px solid var(--accent-orange);">
+            <video id="remote-video" autoplay playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
+            <div id="video-label" style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.8); color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 900; border: 1px solid var(--accent-orange); text-transform: uppercase;">
+                DIRECT • JOUEUR
+            </div>
         </div>
 
-        <div class="input-info">
-            <div id="mode-toggle-zone">
-                <button class="btn-mode" id="btn-to-target" onclick="toggleInput('target')">🎯</button>
-                <button class="btn-mode" id="btn-to-kb" onclick="toggleInput('kb')" style="display:none;">⌨️</button>
-            </div>
-            <div class="dart-val" id="v0">--<small>-</small></div>
-            <div class="dart-val" id="v1">--<small>-</small></div>
-            <div class="dart-val" id="v2">--<small>-</small></div>
-            <button class="btn-valid-darts" id="btn-validate" onclick="finishTurn()" disabled>VALIDER</button>
-        </div>
+        <div id="input-zone" style="display: flex; flex-direction: column; flex: 1;">
 
-        <!-- MODE CIBLE -->
-        <div id="target-frame">
-            <button class="btn-miss" onclick="addDart(0)">MISS<br>0</button>
-            <div id="dartboard-container"></div>
-            <button class="target-undo" onclick="undoLastDart()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 4v7a4 4 0 0 1-4 4H4"/><path d="m9 10-5 5 5 5"/></svg></button>
-        </div>
+            <!-- MODE CIBLE -->
+            <div id="target-frame">
+                <button class="btn-miss" onclick="addDart(0)">MISS<br>0</button>
+                <div id="dartboard-container"></div>
+                <button class="target-undo" onclick="undoLastDart()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 4v7a4 4 0 0 1-4 4H4"/><path d="m9 10-5 5 5 5"/></svg></button>
+            </div>
 
-        <!-- CLAVIER -->
-        <div class="keyboard" id="kb-frame">
-            <div class="mod-row">
-                <button class="btn-m active" id="m1" onclick="setMod(1)">SIMPLE</button>
-                <button class="btn-m" id="m2" onclick="setMod(2)">DOUBLE</button>
-                <button class="btn-m" id="m3" onclick="setMod(3)">TRIPLE</button>
+            <!-- CLAVIER -->
+            <div class="keyboard" id="kb-frame">
+                <div class="mod-row">
+                    <button class="btn-m active" id="m1" onclick="setMod(1)">SIMPLE</button>
+                    <button class="btn-m" id="m2" onclick="setMod(2)">DOUBLE</button>
+                    <button class="btn-m" id="m3" onclick="setMod(3)">TRIPLE</button>
+                </div>
+                <div id="pad" class="num-grid"></div>
+                <div class="special-row">
+                    <button class="sp-key" onclick="undoLastDart()" style="font-size:1.5rem;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 4v7a4 4 0 0 1-4 4H4"/><path d="m9 10-5 5 5 5"/></svg></button>
+                    <button class="sp-key" onclick="addDart(0)">Out<br>0</button>
+                    <button class="sp-key" onclick="addDart(25)">25</button>
+                    <button class="sp-key" onclick="addDart(50)">BULL</button>
+                </div>
             </div>
-            <div id="pad" class="num-grid"></div>
-            <div class="special-row">
-                <button class="sp-key" onclick="undoLastDart()" style="font-size:1.5rem;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 4v7a4 4 0 0 1-4 4H4"/><path d="m9 10-5 5 5 5"/></svg></button>
-                <button class="sp-key" onclick="addDart(0)">Out<br>0</button>
-                <button class="sp-key" onclick="addDart(25)">25</button>
-                <button class="sp-key" onclick="addDart(50)">BULL</button>
-            </div>
+
         </div>
     </div>
+</div>
 
     <div id="end-screen" class="overlay">
         <div class="top-bar" style="width: 100%; position: absolute; top: 0; left: 0;">
@@ -294,11 +318,92 @@
     const auth = firebase.auth();
 
     let roomName, myName, myId, myIndex = -1, lastProcessedTurn = -1;
+    let isCameraMode = false;
     let dartsInTurn = [], visualDarts = [], multiplier = 1, isBust = false;
     let scoreAtTurnStart = 501, localDisplayScore = 501;
     let gameState = { players: [], currentPlayer: 0, status: "open" };
     const STANDS = ["1 - LITTLER", "2 - HUMPHRIES", "3 - PRICE", "4 - VAN VEEN", "5 - VAN GERWEN", "6 - TRICOLE"];
     let svgBuilt = false;
+
+    // =============================================
+    // VARIABLES PEER/VIDEO
+    // =============================================
+    let peer;
+    let localStream;
+    let currentCall;
+
+    // =============================================
+    // SYSTÈME VIDÉO
+    // =============================================
+    function initVideoSystem(isCamMode, room) {
+        peer = new Peer();
+
+        peer.on('open', (id) => {
+            console.log('PeerJS ID:', id);
+            const updates = {};
+            if (isCamMode) {
+                updates[`rooms_501/${room}/players/${myId}/hasCamera`] = true;
+                updates[`rooms_501/${room}/players/${myId}/peerId`] = id;
+            } else {
+                updates[`rooms_501/${room}/hosts/tablette/peerId`] = id;
+            }
+            db.ref().update(updates);
+        });
+
+        peer.on('error', (err) => {
+            console.error('PeerJS erreur:', err);
+        });
+
+        // La Tablette : répondre automatiquement aux appels entrants
+        if (!isCamMode) {
+            peer.on('call', (call) => {
+                call.answer();
+                call.on('stream', (remoteStream) => {
+                    document.getElementById('remote-video').srcObject = remoteStream;
+                });
+                currentCall = call;
+            });
+        }
+    }
+
+    async function startCamera() {
+        try {
+            localStream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: "environment", width: 1280, height: 720 },
+                audio: false
+            });
+            return true;
+        } catch (err) {
+            console.error("Erreur caméra : ", err);
+            return false;
+        }
+    }
+
+    function initVideoFirebaseListener(room) {
+        db.ref(`rooms_501/${room}`).on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (!data || !data.players) return;
+            const pArray = Object.entries(data.players)
+                .map(([id, p]) => ({...p, id}))
+                .sort((a, b) => b.q - a.q)
+                .slice(0, 3);
+            const activePlayer = pArray[data.currentPlayer];
+            if (!activePlayer) return;
+
+            // Appel quand c'est mon tour
+            if (isCameraMode && activePlayer.name === myName) {
+                const tabletteId = data.hosts && data.hosts.tablette && data.hosts.tablette.peerId;
+                if (tabletteId && localStream && (!currentCall || !currentCall.open)) {
+                    currentCall = peer.call(tabletteId, localStream);
+                }
+            }
+            // Raccrochage quand mon tour est fini
+            if (isCameraMode && activePlayer.name !== myName && currentCall && currentCall.open) {
+                currentCall.close();
+                currentCall = null;
+            }
+        });
+    }
 
     window.onload = () => {
         const saved = localStorage.getItem('darts_pseudo');
@@ -485,11 +590,27 @@ p.addEventListener("click", () => {
         if(!myName) return alert("ENTRE TON PSEUDO");
         localStorage.setItem('darts_pseudo', myName);
         roomName = name;
+        isCameraMode = document.getElementById('camera-mode').checked;
+
         document.getElementById('room-display').innerText = "📡 501 LIVE : " + name;
         if(count === 0) db.ref(`rooms_501/${name}`).set({ status: "playing", currentPlayer: 0 });
         const playerRef = db.ref(`rooms_501/${name}/players`).push();
         myId = playerRef.key;
         playerRef.set({ name: myName, score: 501, q: parseInt(document.getElementById('qualifInput').value)||0, totalDarts: 0, totalPoints: 0 });
+
+        // Initialisation PeerJS (myId et roomName sont définis)
+        initVideoSystem(isCameraMode, name);
+
+        // Si mode caméra : on lance la capture puis le listener d'appel
+        if (isCameraMode) {
+            startCamera().then((ok) => {
+                if (ok) {
+                    initVideoFirebaseListener(name);
+                } else {
+                    console.warn("Caméra indisponible — mode vidéo désactivé");
+                }
+            });
+        }
 
         db.ref(`rooms_501/${name}`).on('value', snap => {
             const data = snap.val();
@@ -592,7 +713,11 @@ p.addEventListener("click", () => {
 
     function syncUI() {
         const container = document.getElementById('gamePlayers');
+        const videoFrame = document.getElementById('video-frame');
+        const inputZone = document.getElementById('input-zone');
         if(!container) return;
+
+        // 1. SCORES
         container.innerHTML = gameState.players.map((p, i) => {
             const isMe = (i === myIndex);
             const score = isMe ? localDisplayScore : p.score;
@@ -606,14 +731,35 @@ p.addEventListener("click", () => {
                 <div class="p-stats">MOY : ${avg}<br>FLECH : ${tF}</div>
             </div>`;
         }).join('');
+
+        // 2. BASCULE VIDÉO / SAISIE
+        const isMyTurn = (gameState.currentPlayer === myIndex);
         const activePlayer = gameState.players[gameState.currentPlayer];
-        if (activePlayer) document.getElementById('turn-txt').innerText = `À TOI ${activePlayer.name} !`;
+        const hasVideo = activePlayer && activePlayer.hasCamera;
+
+        if (isMyTurn) {
+            videoFrame.style.display = 'none';
+            inputZone.style.display = 'flex';
+            document.getElementById('turn-txt').innerText = `À TOI DE JOUER !`;
+        } else if (hasVideo) {
+            videoFrame.style.display = 'flex';
+            inputZone.style.display = 'none';
+            document.getElementById('turn-txt').innerText = `AU TOUR DE ${activePlayer.name}`;
+            document.getElementById('video-label').innerText = `LIVE - ${activePlayer.name}`;
+        } else {
+            videoFrame.style.display = 'none';
+            inputZone.style.display = 'flex';
+            document.getElementById('turn-txt').innerText = `À TOI ${activePlayer ? activePlayer.name : ''} !`;
+        }
+
+        // 3. FLÉCHETTES
         for(let i=0; i<3; i++) {
             const el = document.getElementById('v'+i);
             el.innerHTML = visualDarts[i] ? `${dartsInTurn[i]}<small>${visualDarts[i]}</small>` : `--<small>-</small>`;
         }
+
+        // 4. BOUTON VALIDER
         const btn = document.getElementById('btn-validate');
-        const isMyTurn = (gameState.currentPlayer == myIndex);
         btn.disabled = !(isMyTurn && (dartsInTurn.length === 3 || isBust || localDisplayScore === 0));
         if(!btn.disabled) btn.classList.add('ready'); else btn.classList.remove('ready');
     }
@@ -657,6 +803,9 @@ p.addEventListener("click", () => {
 
     async function resetStand() {
         if(confirm("Vider le stand et revenir au menu ?")) {
+            if (currentCall && currentCall.open) currentCall.close();
+            if (localStream) localStream.getTracks().forEach(t => t.stop());
+            if (peer) peer.destroy();
             await db.ref(`rooms_501/${roomName}`).remove();
             location.reload();
         }
@@ -670,7 +819,6 @@ function closeModal() {
     document.getElementById('quitModal').style.display = 'none';
 }
 
-// Fermer aussi si on clique à l'extérieur du cadre noir
 window.onclick = function(event) {
     let modal = document.getElementById('quitModal');
     if (event.target == modal) {
