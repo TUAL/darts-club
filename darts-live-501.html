@@ -53,44 +53,6 @@
         .p-column.active-0 { background: var(--accent-orange); border-color: #fff; opacity: 1; color: #000; }
         .p-column.active-1 { background: var(--accent-green);  border-color: #fff; opacity: 1; color: #000; }
         .p-column.active-2 { background: var(--accent-red);    border-color: #fff; opacity: 1; color: #000; }
-
-        /* --- CARTE VIDÉO dans les scores --- */
-        .p-column.has-live-video {
-            position: relative; overflow: hidden;
-            padding: 0; border-color: var(--accent-orange);
-        }
-        .p-column.has-live-video video {
-            position: absolute; inset: 0;
-            width: 100%; height: 100%; object-fit: cover;
-        }
-        .p-column.has-live-video .score-overlay {
-            position: relative; z-index: 2;
-            width: 100%; height: 100%;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: space-around;
-            padding: 10px 5px;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.6) 100%);
-            color: #fff;
-        }
-        .live-badge {
-            position: absolute; top: 6px; right: 6px; z-index: 3;
-            background: var(--accent-orange); color: #000;
-            font-size: 0.5rem; font-weight: 900; padding: 2px 6px;
-            border-radius: 10px; letter-spacing: 1px;
-        }
-
-        /* --- SÉLECTEUR DE MODE (setup) --- */
-        .mode-selector { display: flex; flex-direction: column; gap: 8px; margin: 15px 0; }
-        .mode-btn {
-            background: var(--card); border: 2px solid #30363d;
-            color: #fff; padding: 12px 15px; border-radius: 12px;
-            text-align: left; cursor: pointer; transition: 0.2s;
-            display: flex; align-items: center; gap: 12px;
-        }
-        .mode-btn.selected { border-color: var(--accent-orange); background: rgba(243,156,18,0.1); }
-        .mode-btn .mode-icon { font-size: 1.5rem; flex-shrink: 0; }
-        .mode-btn .mode-label { font-size: 0.8rem; font-weight: 900; text-transform: uppercase; }
-        .mode-btn .mode-desc { font-size: 0.6rem; color: #8b949e; margin-top: 2px; }
         .p-name   { font-size: 0.85rem; font-weight: 900; text-transform: uppercase; }
         .p-score  { font-size: 3rem; font-weight: 900; line-height: 0.70; margin: 5px 0; }
         .p-last-v { font-size: 0.65rem; font-weight: bold; margin-bottom: 5px; opacity: 0.9; }
@@ -228,6 +190,18 @@
 .btn-confirm { background: #333; color: white; }
 
 .btn-confirm:hover { transform: scale(1.05); background: #f39c12; }
+        /* --- SÉLECTEUR DE MODE (setup) --- */
+        .mode-selector { display: flex; flex-direction: column; gap: 8px; margin: 15px 0; }
+        .mode-btn { background: var(--card); border: 2px solid #30363d; color: #fff; padding: 12px 15px; border-radius: 12px; text-align: left; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 12px; }
+        .mode-btn.selected { border-color: var(--accent-orange); background: rgba(243,156,18,0.1); }
+        .mode-icon { font-size: 1.5rem; flex-shrink: 0; }
+        .mode-label { font-size: 0.8rem; font-weight: 900; text-transform: uppercase; display: block; }
+        .mode-desc  { font-size: 0.6rem; color: #8b949e; margin-top: 2px; display: block; }
+        /* --- CARTE VIDÉO dans les scores --- */
+        .p-column.has-live-video { position: relative; overflow: hidden; padding: 0; border-color: var(--accent-orange); }
+        .p-column.has-live-video video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+        .p-column.has-live-video .score-overlay { position: relative; z-index: 2; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: space-around; padding: 10px 5px; background: linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.65) 100%); color: #fff; }
+        .live-badge { position: absolute; top: 5px; right: 5px; z-index: 3; background: var(--accent-orange); color: #000; font-size: 0.5rem; font-weight: 900; padding: 2px 6px; border-radius: 10px; letter-spacing: 1px; }
     </style>
 </head>
 <body>
@@ -260,91 +234,78 @@
             <input type="text" id="pName" class="input-field" placeholder="TON PSEUDO..." autocomplete="off">
             <input type="number" id="qualifInput" class="input-field" placeholder="SCORE BULLE (ORDRE)">
 
-            <div class="mode-selector">
-                <div class="mode-btn selected" id="mode-btn-0" onclick="selectMode(0)">
-                    <span class="mode-icon">🎯</span>
-                    <div>
-                        <div class="mode-label">Joueur</div>
-                        <div class="mode-desc">Score uniquement, pas de caméra</div>
-                    </div>
-                </div>
-                <div class="mode-btn" id="mode-btn-1" onclick="selectMode(1)">
-                    <span class="mode-icon">📡</span>
-                    <div>
-                        <div class="mode-label">Joueur + Cam (2 appareils)</div>
-                        <div class="mode-desc">Un téléphone filme, une tablette reçoit le flux</div>
-                    </div>
-                </div>
-                <div class="mode-btn" id="mode-btn-2" onclick="selectMode(2)">
-                    <span class="mode-icon">📸</span>
-                    <div>
-                        <div class="mode-label">Joueur + Cam (1 appareil)</div>
-                        <div class="mode-desc">Même appareil : tu joues et filmes la cible</div>
-                    </div>
-                </div>
-            </div>
 
+<div class="mode-selector">
+    <div class="mode-btn selected" id="mode-btn-0" onclick="selectMode(0)">
+        <span class="mode-icon">🎯</span>
+        <div><span class="mode-label">Joueur</span><span class="mode-desc">Score uniquement, pas de caméra</span></div>
+    </div>
+    <div class="mode-btn" id="mode-btn-1" onclick="selectMode(1)">
+        <span class="mode-icon">📡</span>
+        <div><span class="mode-label">Joueur + Cam (2 appareils)</span><span class="mode-desc">Un téléphone filme, une tablette reçoit le flux</span></div>
+    </div>
+    <div class="mode-btn" id="mode-btn-2" onclick="selectMode(2)">
+        <span class="mode-icon">📸</span>
+        <div><span class="mode-label">Joueur + Cam (1 appareil)</span><span class="mode-desc">Même appareil : tu joues et filmes la cible</span></div>
+    </div>
+</div>
             <div id="standGrid" class="stand-grid"></div>
         </div>
     </div>
 
-    <div id="game-screen">
-        <div class="score-section">
-            <div class="header-scores" id="gamePlayers"></div>
-            <!-- Vidéo locale cachée, utilisée comme source pour la carte du joueur actif -->
-            <video id="local-video" autoplay playsinline muted style="display:none; position:absolute; width:1px; height:1px;"></video>
-            <div class="turn-announcer" id="turn-txt">...</div>
-        </div>
-
-        <div class="input-info">
-            <div id="mode-toggle-zone">
-                <button class="btn-mode" id="btn-to-target" onclick="toggleInput('target')">🎯</button>
-                <button class="btn-mode" id="btn-to-kb" onclick="toggleInput('kb')" style="display:none;">⌨️</button>
-            </div>
-            <div class="dart-val" id="v0">--<small>-</small></div>
-            <div class="dart-val" id="v1">--<small>-</small></div>
-            <div class="dart-val" id="v2">--<small>-</small></div>
-            <button class="btn-valid-darts" id="btn-validate" onclick="finishTurn()" disabled>VALIDER</button>
-        </div>
-
-        <div id="dynamic-area" style="flex: 1; display: flex; flex-direction: column; overflow: hidden;">
-
-            <!-- FLUX VIDÉO DISTANT (modes 0 et 1 : s'affiche à la place du clavier quand ce n'est pas mon tour) -->
-            <div id="video-frame" style="display: none; flex: 1; background: #000; position: relative; border-top: 4px solid var(--accent-orange);">
-                <video id="remote-video" autoplay playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
-                <div id="video-label" style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.8); color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 900; border: 1px solid var(--accent-orange); text-transform: uppercase;">
-                    DIRECT • JOUEUR
-                </div>
-            </div>
-
-            <div id="input-zone" style="display: flex; flex-direction: column; flex: 1;">
-
-                <!-- MODE CIBLE -->
-                <div id="target-frame">
-                    <button class="btn-miss" onclick="addDart(0)">MISS<br>0</button>
-                    <div id="dartboard-container"></div>
-                    <button class="target-undo" onclick="undoLastDart()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 4v7a4 4 0 0 1-4 4H4"/><path d="m9 10-5 5 5 5"/></svg></button>
-                </div>
-
-                <!-- CLAVIER -->
-                <div class="keyboard" id="kb-frame">
-                    <div class="mod-row">
-                        <button class="btn-m active" id="m1" onclick="setMod(1)">SIMPLE</button>
-                        <button class="btn-m" id="m2" onclick="setMod(2)">DOUBLE</button>
-                        <button class="btn-m" id="m3" onclick="setMod(3)">TRIPLE</button>
-                    </div>
-                    <div id="pad" class="num-grid"></div>
-                    <div class="special-row">
-                        <button class="sp-key" onclick="undoLastDart()" style="font-size:1.5rem;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 4v7a4 4 0 0 1-4 4H4"/><path d="m9 10-5 5 5 5"/></svg></button>
-                        <button class="sp-key" onclick="addDart(0)">Out<br>0</button>
-                        <button class="sp-key" onclick="addDart(25)">25</button>
-                        <button class="sp-key" onclick="addDart(50)">BULL</button>
-                    </div>
-                </div>
-
-            </div>
-        </div>
+ <div id="game-screen">
+    <div class="score-section">
+        <div class="header-scores" id="gamePlayers"></div>
+        <video id="local-video" autoplay playsinline muted style="display:none;position:absolute;width:1px;height:1px;"></video>
+        <div class="turn-announcer" id="turn-txt">...</div>
     </div>
+
+    <div class="input-info">
+        <div id="mode-toggle-zone">
+            <button class="btn-mode" id="btn-to-target" onclick="toggleInput('target')">🎯</button>
+            <button class="btn-mode" id="btn-to-kb" onclick="toggleInput('kb')" style="display:none;">⌨️</button>
+        </div>
+        <div class="dart-val" id="v0">--<small>-</small></div>
+        <div class="dart-val" id="v1">--<small>-</small></div>
+        <div class="dart-val" id="v2">--<small>-</small></div>
+        <button class="btn-valid-darts" id="btn-validate" onclick="finishTurn()" disabled>VALIDER</button>
+    </div>
+
+    <div id="dynamic-area" style="flex: 1; display: flex; flex-direction: column; overflow: hidden;">
+
+        <div id="video-frame" style="display: none; flex: 1; background: #000; position: relative; border-top: 4px solid var(--accent-orange);">
+            <video id="remote-video" autoplay playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
+            <div id="video-label" style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.8); color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 900; border: 1px solid var(--accent-orange); text-transform: uppercase;">
+                DIRECT • JOUEUR
+            </div>
+        </div>
+
+        <div id="input-zone" style="display: flex; flex-direction: column; flex: 1;">
+            
+            <div id="target-frame">
+                <button class="btn-miss" onclick="addDart(0)">MISS<br>0</button>
+                <div id="dartboard-container"></div>
+                <button class="target-undo" onclick="undoLastDart()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 4v7a4 4 0 0 1-4 4H4"/><path d="m9 10-5 5 5 5"/></svg></button>
+            </div>
+
+            <div class="keyboard" id="kb-frame">
+                <div class="mod-row">
+                    <button class="btn-m active" id="m1" onclick="setMod(1)">SIMPLE</button>
+                    <button class="btn-m" id="m2" onclick="setMod(2)">DOUBLE</button>
+                    <button class="btn-m" id="m3" onclick="setMod(3)">TRIPLE</button>
+                </div>
+                <div id="pad" class="num-grid"></div>
+                <div class="special-row">
+                    <button class="sp-key" onclick="undoLastDart()" style="font-size:1.5rem;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 4v7a4 4 0 0 1-4 4H4"/><path d="m9 10-5 5 5 5"/></svg></button>
+                    <button class="sp-key" onclick="addDart(0)">Out<br>0</button>
+                    <button class="sp-key" onclick="addDart(25)">25</button>
+                    <button class="sp-key" onclick="addDart(50)">BULL</button>
+                </div>
+            </div>
+
+        </div> 
+    </div> 
+</div> 
 
     <div id="end-screen" class="overlay">
         <div class="top-bar" style="width: 100%; position: absolute; top: 0; left: 0;">
@@ -361,6 +322,9 @@
     </div>
 
 <script>
+    // =============================================
+    // FIREBASE INIT — en premier, avant tout le reste
+    // =============================================
     const firebaseConfig = {
         apiKey: "AIzaSyCSeggBmTOXR_XyspjuAsbhMfncp9MYUBA",
         authDomain: "dartsclub-1aab9.firebaseapp.com",
@@ -374,10 +338,17 @@
     const db = firebase.database();
     const auth = firebase.auth();
 
+    // =============================================
+    // VARIABLES GLOBALES
+    // =============================================
     let roomName, myName, myId, myIndex = -1, lastProcessedTurn = -1;
-
-    // MODE 0 = joueur simple | MODE 1 = joueur + cam 2 appareils | MODE 2 = joueur + cam 1 appareil
+    // MODE 0=joueur simple | MODE 1=joueur+cam 2 appareils | MODE 2=joueur+cam 1 appareil
     let playerMode = 0;
+
+    function selectMode(m) {
+        playerMode = m;
+        document.querySelectorAll('.mode-btn').forEach((b, i) => b.classList.toggle('selected', i === m));
+    }
 
     let dartsInTurn = [], visualDarts = [], multiplier = 1, isBust = false;
     let scoreAtTurnStart = 501, localDisplayScore = 501;
@@ -393,44 +364,28 @@
     let currentCall;
 
     // =============================================
-    // SÉLECTEUR DE MODE (setup)
-    // =============================================
-    function selectMode(m) {
-        playerMode = m;
-        document.querySelectorAll('.mode-btn').forEach((b, i) => {
-            b.classList.toggle('selected', i === m);
-        });
-    }
-
-    // =============================================
-    // SYSTÈME VIDÉO
+    // SYSTÈME VIDÉO — corrigé : un seul peer.on('open')
     // =============================================
     function initVideoSystem(room) {
         peer = new Peer();
-
         peer.on('open', (id) => {
             console.log('PeerJS ID:', id);
             const updates = {};
             if (playerMode === 1) {
-                // Mode 2 appareils : ce téléphone filme, il s'annonce avec hasCamera
                 updates[`rooms_501/${room}/players/${myId}/hasCamera`] = true;
                 updates[`rooms_501/${room}/players/${myId}/peerId`] = id;
             } else if (playerMode === 0) {
-                // Mode joueur simple : il est aussi la tablette réceptrice
                 updates[`rooms_501/${room}/hosts/tablette/peerId`] = id;
             }
-            // Mode 2 (1 appareil) : pas besoin d'enregistrer de peerId dans Firebase
             db.ref().update(updates);
         });
-
-        peer.on('error', (err) => console.error('PeerJS erreur:', err));
-
-        // Mode 0 (tablette/joueur simple) : répondre aux appels entrants du mode 1
+        peer.on('error', (err) => { console.error('PeerJS erreur:', err); });
+        // Mode 0 (tablette/joueur simple) : reçoit le flux et l'affiche dans video-frame
         if (playerMode === 0) {
             peer.on('call', (call) => {
                 call.answer();
                 call.on('stream', (remoteStream) => {
-                    // On stocke le stream pour l'injecter dans la carte du joueur actif
+                    document.getElementById('remote-video').srcObject = remoteStream;
                     window._remoteStream = remoteStream;
                     syncUI();
                 });
@@ -441,14 +396,11 @@
 
     async function startCamera() {
         try {
-            localStream = await navigator.mediaDevices.getUserMedia({
+            const constraints = {
                 video: { facingMode: "environment", width: 1280, height: 720 },
                 audio: false
-            });
-            // Mode 2 (1 appareil) : on branche la vidéo locale sur l'élément caché
-            if (playerMode === 2) {
-                document.getElementById('local-video').srcObject = localStream;
-            }
+            };
+            localStream = await navigator.mediaDevices.getUserMedia(constraints);
             return true;
         } catch (err) {
             console.error("Erreur caméra : ", err);
@@ -456,30 +408,40 @@
         }
     }
 
-    // Mode 1 (2 appareils) : logique d'appel/raccrochage selon le tour
+    // FIX : l'écouteur Firebase pour la logique d'appel est maintenant
+    // intégré dans joinStand() — après initialisation de db et des variables
     function initVideoFirebaseListener(room) {
         db.ref(`rooms_501/${room}`).on('value', (snapshot) => {
             const data = snapshot.val();
             if (!data || !data.players) return;
+
             const pArray = Object.entries(data.players)
                 .map(([id, p]) => ({...p, id}))
                 .sort((a, b) => b.q - a.q)
                 .slice(0, 3);
+
             const activePlayer = pArray[data.currentPlayer];
             if (!activePlayer) return;
 
-            if (activePlayer.name === myName) {
+            // LOGIQUE TÉLÉPHONE-CAMÉRA : j'appelle quand c'est mon tour
+            if (playerMode === 1 && activePlayer.name === myName) {
                 const tabletteId = data.hosts && data.hosts.tablette && data.hosts.tablette.peerId;
                 if (tabletteId && localStream && (!currentCall || !currentCall.open)) {
                     currentCall = peer.call(tabletteId, localStream);
                 }
-            } else if (currentCall && currentCall.open) {
+            }
+
+            // LOGIQUE RACCROCHAGE : si mon tour est fini et l'appel est ouvert
+            if (playerMode === 1 && activePlayer.name !== myName && currentCall && currentCall.open) {
                 currentCall.close();
                 currentCall = null;
             }
         });
     }
 
+    // =============================================
+    // INIT
+    // =============================================
     window.onload = () => {
         const saved = localStorage.getItem('darts_pseudo');
         if(saved) document.getElementById('pName').value = saved;
@@ -521,52 +483,72 @@
             const rad = (angleDeg - 90) * Math.PI / 180;
             return [cx + r * Math.cos(rad), cy + r * Math.sin(rad)];
         }
+
         function arcPath(r1, r2, a1, a2) {
-            const [x1o, y1o] = polar(a1, r2), [x2o, y2o] = polar(a2, r2);
-            const [x1i, y1i] = polar(a1, r1), [x2i, y2i] = polar(a2, r1);
+            const [x1o, y1o] = polar(a1, r2);
+            const [x2o, y2o] = polar(a2, r2);
+            const [x1i, y1i] = polar(a1, r1);
+            const [x2i, y2i] = polar(a2, r1);
             const large = (a2 - a1) > 180 ? 1 : 0;
-            return `M ${x1i.toFixed(3)} ${y1i.toFixed(3)} L ${x1o.toFixed(3)} ${y1o.toFixed(3)} A ${r2} ${r2} 0 ${large} 1 ${x2o.toFixed(3)} ${y2o.toFixed(3)} L ${x2i.toFixed(3)} ${y2i.toFixed(3)} A ${r1} ${r1} 0 ${large} 0 ${x1i.toFixed(3)} ${y1i.toFixed(3)} Z`;
+            return `M ${x1i.toFixed(3)} ${y1i.toFixed(3)} `
+                 + `L ${x1o.toFixed(3)} ${y1o.toFixed(3)} `
+                 + `A ${r2} ${r2} 0 ${large} 1 ${x2o.toFixed(3)} ${y2o.toFixed(3)} `
+                 + `L ${x2i.toFixed(3)} ${y2i.toFixed(3)} `
+                 + `A ${r1} ${r1} 0 ${large} 0 ${x1i.toFixed(3)} ${y1i.toFixed(3)} Z`;
         }
 
         const ns = "http://www.w3.org/2000/svg";
         const svg = document.createElementNS(ns, "svg");
         svg.setAttribute("viewBox", "0 0 320 320");
-        svg.setAttribute("width", "100%"); svg.setAttribute("height", "100%");
+        svg.setAttribute("width", "100%");
+        svg.setAttribute("height", "100%");
         svg.style.display = "block";
 
         const bg = document.createElementNS(ns, "circle");
         bg.setAttribute("cx", cx); bg.setAttribute("cy", cy); bg.setAttribute("r", "160");
-        bg.setAttribute("fill", "#111"); svg.appendChild(bg);
+        bg.setAttribute("fill", "#111");
+        svg.appendChild(bg);
 
         const segAngle = 18.0, half = 9.0;
+
         dartOrder.forEach((val, i) => {
-            const centerA = i * segAngle, a1 = centerA - half, a2 = centerA + half;
+            const centerA = i * segAngle;
+            const a1 = centerA - half, a2 = centerA + half;
             const isEven = i % 2 === 0;
             const colSimple = isEven ? "#1a1a1a" : "#FFFFCC";
             const colRing   = isEven ? "#267F00" : "#BB0000";
+
             [
-                { r1: R_TRIPLE_OUT+1, r2: R_DOUBLE_IN-1, color: colSimple },
-                { r1: R_BULL_OUT+1,   r2: R_TRIPLE_IN-1, color: colSimple },
-                { r1: R_TRIPLE_IN,    r2: R_TRIPLE_OUT,   color: colRing },
-                { r1: R_DOUBLE_IN,    r2: R_DOUBLE_OUT,   color: colRing },
+                { r1: R_TRIPLE_OUT + 1, r2: R_DOUBLE_IN - 1, color: colSimple },
+                { r1: R_BULL_OUT + 1,   r2: R_TRIPLE_IN - 1, color: colSimple },
+                { r1: R_TRIPLE_IN,      r2: R_TRIPLE_OUT,     color: colRing },
+                { r1: R_DOUBLE_IN,      r2: R_DOUBLE_OUT,     color: colRing },
             ].forEach(z => {
                 const p = document.createElementNS(ns, "path");
                 p.setAttribute("d", arcPath(z.r1, z.r2, a1, a2));
-                p.setAttribute("fill", z.color); svg.appendChild(p);
+                p.setAttribute("fill", z.color);
+                svg.appendChild(p);
             });
+
             const [lx, ly] = polar(centerA, R_DOUBLE_IN + 16);
             const txt = document.createElementNS(ns, "text");
-            txt.setAttribute("x", lx.toFixed(1)); txt.setAttribute("y", ly.toFixed(1));
-            txt.setAttribute("text-anchor", "middle"); txt.setAttribute("dominant-baseline", "middle");
-            txt.setAttribute("font-size", "18"); txt.setAttribute("font-weight", "900");
-            txt.setAttribute("fill", "white"); txt.style.pointerEvents = "none";
-            txt.textContent = val; svg.appendChild(txt);
+            txt.setAttribute("x", lx.toFixed(1));
+            txt.setAttribute("y", ly.toFixed(1));
+            txt.setAttribute("text-anchor", "middle");
+            txt.setAttribute("dominant-baseline", "middle");
+            txt.setAttribute("font-size", "18");
+            txt.setAttribute("font-weight", "900");
+            txt.setAttribute("fill", "white");
+            txt.style.pointerEvents = "none";
+            txt.textContent = val;
+            svg.appendChild(txt);
         });
 
         [{ r: R_BULL_OUT, fill: "#267F00" }, { r: R_BULL_IN, fill: "#BB0000" }].forEach(b => {
             const c = document.createElementNS(ns, "circle");
             c.setAttribute("cx", cx); c.setAttribute("cy", cy); c.setAttribute("r", b.r);
-            c.setAttribute("fill", b.fill); svg.appendChild(c);
+            c.setAttribute("fill", b.fill);
+            svg.appendChild(c);
         });
 
         const border = document.createElementNS(ns, "circle");
@@ -575,20 +557,24 @@
         svg.appendChild(border);
 
         dartOrder.forEach((val, i) => {
-            const centerA = i * segAngle, a1 = centerA - half, a2 = centerA + half;
+            const centerA = i * segAngle;
+            const a1 = centerA - half, a2 = centerA + half;
+
             [
-                { r1: R_TRIPLE_OUT+1, r2: R_DOUBLE_IN-1, m: 1 },
-                { r1: R_BULL_OUT+1,   r2: R_TRIPLE_IN-1, m: 1 },
-                { r1: R_TRIPLE_IN,    r2: R_TRIPLE_OUT,   m: 3 },
-                { r1: R_DOUBLE_IN,    r2: R_DOUBLE_OUT,   m: 2 },
+                { r1: R_TRIPLE_OUT + 1, r2: R_DOUBLE_IN - 1, m: 1 },
+                { r1: R_BULL_OUT + 1,   r2: R_TRIPLE_IN - 1, m: 1 },
+                { r1: R_TRIPLE_IN,      r2: R_TRIPLE_OUT,     m: 3 },
+                { r1: R_DOUBLE_IN,      r2: R_DOUBLE_OUT,     m: 2 },
             ].forEach(z => {
                 const p = document.createElementNS(ns, "path");
                 p.setAttribute("d", arcPath(z.r1, z.r2, a1, a2));
-                p.setAttribute("fill", "transparent"); p.style.cursor = "pointer";
+                p.setAttribute("fill", "transparent");
+                p.style.cursor = "pointer";
                 p.addEventListener("click", () => {
                     p.setAttribute("fill", "rgba(243,156,18,0.8)");
                     setTimeout(() => p.setAttribute("fill", "transparent"), 150);
-                    multiplier = z.m; addDart(val);
+                    multiplier = z.m;
+                    addDart(val);
                 });
                 svg.appendChild(p);
             });
@@ -597,7 +583,8 @@
         [{ r: R_BULL_OUT, val: 25 }, { r: R_BULL_IN, val: 50 }].forEach(b => {
             const c = document.createElementNS(ns, "circle");
             c.setAttribute("cx", cx); c.setAttribute("cy", cy); c.setAttribute("r", b.r);
-            c.setAttribute("fill", "transparent"); c.style.cursor = "pointer";
+            c.setAttribute("fill", "transparent");
+            c.style.cursor = "pointer";
             c.addEventListener("click", (e) => {
                 e.stopPropagation();
                 c.setAttribute("fill", "rgba(243,156,18,0.8)");
@@ -637,35 +624,26 @@
         if(!myName) return alert("ENTRE TON PSEUDO");
         localStorage.setItem('darts_pseudo', myName);
         roomName = name;
+        // playerMode déjà défini via selectMode()
 
         document.getElementById('room-display').innerText = "📡 501 LIVE : " + name;
         if(count === 0) db.ref(`rooms_501/${name}`).set({ status: "playing", currentPlayer: 0 });
         const playerRef = db.ref(`rooms_501/${name}/players`).push();
         myId = playerRef.key;
+        playerRef.set({ name: myName, score: 501, q: parseInt(document.getElementById('qualifInput').value)||0, totalDarts: 0, totalPoints: 0 });
 
-        // On enregistre le mode caméra dans Firebase si besoin
-        const playerData = {
-            name: myName,
-            score: 501,
-            q: parseInt(document.getElementById('qualifInput').value)||0,
-            totalDarts: 0,
-            totalPoints: 0,
-            // Mode 1 : hasCamera annoncé, mode 2 : hasLocalCam pour les autres joueurs
-            ...(playerMode === 1 && { hasCamera: true }),
-            ...(playerMode === 2 && { hasLocalCam: true })
-        };
-        playerRef.set(playerData);
+        // FIX : on initialise PeerJS maintenant que myId et roomName sont définis
+        if (playerMode === 0 || playerMode === 1) initVideoSystem(name);
 
-        // Init PeerJS pour modes 0 et 1
-        if (playerMode === 0 || playerMode === 1) {
-            initVideoSystem(name);
-        }
-
-        // Démarrage caméra pour modes 1 et 2
+        // FIX : si mode caméra, on démarre la capture avant de brancher le listener Firebase
         if (playerMode === 1 || playerMode === 2) {
             startCamera().then((ok) => {
-                if (ok && playerMode === 1) initVideoFirebaseListener(name);
-                if (!ok) console.warn("Caméra indisponible");
+                if (ok) {
+                    if (playerMode === 2) document.getElementById('local-video').srcObject = localStream;
+                    if (playerMode === 1) initVideoFirebaseListener(name);
+                } else {
+                    console.warn("Caméra indisponible — mode vidéo désactivé");
+                }
             });
         }
 
@@ -721,13 +699,17 @@
         if (gameState.currentPlayer != myIndex || dartsInTurn.length >= 3 || isBust || localDisplayScore === 0) return;
         let m = (val === 50 || val === 25 || val === 0) ? 1 : multiplier;
         let pts = val * m;
+
         if (localDisplayScore - pts < 0 || localDisplayScore - pts === 1 || (localDisplayScore - pts === 0 && m !== 2 && val !== 50)) {
-            isBust = true; localDisplayScore = scoreAtTurnStart;
-            visualDarts.push("BUST"); dartsInTurn.push(0);
+            isBust = true;
+            localDisplayScore = scoreAtTurnStart;
+            visualDarts.push("BUST");
+            dartsInTurn.push(0);
         } else {
             localDisplayScore -= pts;
             let label = (val === 50) ? "BULL" : (val === 25) ? "B25" : (val === 0) ? "Out" : (m === 3 ? "T" : m === 2 ? "D" : "S") + val;
-            visualDarts.push(label); dartsInTurn.push(pts);
+            visualDarts.push(label);
+            dartsInTurn.push(pts);
         }
         setMod(1);
         syncUI();
@@ -747,7 +729,8 @@
         const finalScore = isBust ? scoreAtTurnStart : localDisplayScore;
         const ptsTurn = isBust ? 0 : dartsInTurn.reduce((a, b) => a + b, 0);
         db.ref(`rooms_501/${roomName}/players/${myId}`).update({
-            score: finalScore, beforeTurnScore: scoreAtTurnStart,
+            score: finalScore,
+            beforeTurnScore: scoreAtTurnStart,
             totalDarts: p.totalDarts + dartsInTurn.length,
             totalPoints: p.totalPoints + ptsTurn,
             lastTurn: isBust ? "BUST" : visualDarts.join(" | ")
@@ -768,54 +751,46 @@
     // =============================================
     function syncUI() {
         const container = document.getElementById('gamePlayers');
+        const videoFrame = document.getElementById('video-frame');
+        const inputZone  = document.getElementById('input-zone');
         if(!container) return;
 
-        const isMyTurn = (gameState.currentPlayer === myIndex);
+        const isMyTurn    = (gameState.currentPlayer === myIndex);
         const activePlayer = gameState.players[gameState.currentPlayer];
 
-        // Détermine la source vidéo selon le mode
-        // Mode 2 (1 appareil) : localStream sur la carte du joueur actif
-        // Mode 0 (récepteur)  : window._remoteStream reçu via PeerJS
+        // Source vidéo selon le mode
         const videoStream = playerMode === 2 ? localStream
                           : playerMode === 0 ? (window._remoteStream || null)
                           : null;
 
-        // --- BASCULE video-frame / input-zone (modes 0 et 1) ---
-        const videoFrame = document.getElementById('video-frame');
-        const inputZone  = document.getElementById('input-zone');
-        if (videoFrame && inputZone) {
-            // Mode 0 : affiche le flux reçu à la place du clavier quand ce n'est pas mon tour et qu'un joueur a une caméra
-            const showRemoteVideo = (playerMode === 0) && !isMyTurn && activePlayer && activePlayer.hasCamera && window._remoteStream;
-            if (showRemoteVideo) {
-                videoFrame.style.display = 'flex';
-                inputZone.style.display  = 'none';
-                document.getElementById('remote-video').srcObject = window._remoteStream;
-                if (activePlayer) document.getElementById('video-label').innerText = `LIVE - ${activePlayer.name}`;
-            } else {
-                videoFrame.style.display = 'none';
-                inputZone.style.display  = 'flex';
-            }
+        // 1. BASCULE video-frame / input-zone
+        // Mode 0 : affiche le flux reçu à la place du clavier quand ce n'est pas mon tour
+        const showRemoteVideo = (playerMode === 0) && !isMyTurn && activePlayer && activePlayer.hasCamera && window._remoteStream;
+        if (showRemoteVideo) {
+            videoFrame.style.display = 'flex';
+            inputZone.style.display  = 'none';
+            document.getElementById('video-label').innerText = `LIVE - ${activePlayer.name}`;
+        } else {
+            videoFrame.style.display = 'none';
+            inputZone.style.display  = 'flex';
         }
 
-        // --- CARTES SCORES ---
+        // 2. SCORES — avec carte vidéo si mode 2 (mon tour) ou mode 0 (adversaire avec caméra)
         container.innerHTML = gameState.players.map((p, i) => {
-            const isMe = (i === myIndex);
-            const score = isMe ? localDisplayScore : p.score;
+            const isMe   = (i === myIndex);
+            const isActive = (i === gameState.currentPlayer);
+            const score  = isMe ? localDisplayScore : p.score;
             const tF = p.totalDarts + (isMe ? dartsInTurn.length : 0);
             const tP = p.totalPoints + (isMe ? (scoreAtTurnStart - localDisplayScore) : 0);
             const avg = tF > 0 ? ((tP / tF) * 3).toFixed(1) : "0.0";
-            const isActive = (i === gameState.currentPlayer);
 
-            // Affiche la vidéo dans la carte si :
-            // - mode 2 (1 appareil) : carte du joueur local actif
-            // - mode 0 (récepteur)  : carte du joueur distant avec hasCamera
             const showVideo = videoStream && (
                 (playerMode === 2 && isMe && isActive) ||
                 (playerMode === 0 && isActive && p.hasCamera)
             );
 
             if (showVideo) {
-                return `<div class="p-column ${isActive ? 'active-'+i : ''} has-live-video" id="card-${i}">
+                return `<div class="p-column ${isActive ? 'active-'+i : ''} has-live-video" id="vid-card-${i}">
                     <div class="live-badge">● LIVE</div>
                     <div class="score-overlay">
                         <div class="p-name">${p.name}</div>
@@ -825,7 +800,6 @@
                     </div>
                 </div>`;
             }
-
             return `<div class="p-column ${isActive ? 'active-'+i : ''}">
                 <div class="p-name">${p.name}</div>
                 <div class="p-score">${score}</div>
@@ -834,42 +808,42 @@
             </div>`;
         }).join('');
 
-        // Injection de la vidéo dans la carte après rendu
+        // Injection vidéo dans la carte après rendu DOM
         if (videoStream) {
             gameState.players.forEach((p, i) => {
                 const isActive = (i === gameState.currentPlayer);
-                const isMe = (i === myIndex);
-                const card = document.getElementById('card-'+i);
+                const isMe     = (i === myIndex);
+                const card     = document.getElementById('vid-card-'+i);
                 if (!card) return;
-                const needsVideo = (playerMode === 2 && isMe && isActive) ||
-                                   (playerMode === 0 && isActive && p.hasCamera);
-                if (needsVideo) {
-                    const vid = document.createElement('video');
-                    vid.autoplay = true; vid.playsInline = true; vid.muted = (playerMode === 2);
-                    vid.srcObject = videoStream;
-                    card.insertBefore(vid, card.firstChild);
-                }
+                const vid = document.createElement('video');
+                vid.autoplay = true; vid.playsInline = true; vid.muted = (playerMode === 2);
+                vid.srcObject = videoStream;
+                card.insertBefore(vid, card.firstChild);
             });
         }
 
-        // Tour annonceur
+        // 3. TURN TEXT
         if (activePlayer) {
             document.getElementById('turn-txt').innerText = isMyTurn
                 ? `À TOI DE JOUER !`
                 : `AU TOUR DE ${activePlayer.name}`;
         }
 
-        // Fléchettes
+        // 4. FLÉCHETTES
         for(let i=0; i<3; i++) {
             const el = document.getElementById('v'+i);
             el.innerHTML = visualDarts[i] ? `${dartsInTurn[i]}<small>${visualDarts[i]}</small>` : `--<small>-</small>`;
         }
 
-        // Bouton valider
+        // 5. BOUTON VALIDER
         const btn = document.getElementById('btn-validate');
         btn.disabled = !(isMyTurn && (dartsInTurn.length === 3 || isBust || localDisplayScore === 0));
         if(!btn.disabled) btn.classList.add('ready'); else btn.classList.remove('ready');
     }
+
+    // =============================================
+    // VICTOIRE & SAVE
+    // =============================================
     function showVictoryUI(winner) {
         document.getElementById('game-screen').style.display = 'none';
         document.getElementById('end-screen').style.display = 'flex';
@@ -902,13 +876,14 @@
             btn.innerText = "✅ ARCHIVÉ";
             btn.style.background = "#2ecc71";
             setTimeout(() => resetStand(), 1500);
-        } catch(e) {
+        } catch(e) { 
             console.error(e); btn.disabled = false; btn.innerText = "ERREUR";
         }
     }
 
     async function resetStand() {
         if(confirm("Vider le stand et revenir au menu ?")) {
+            // FIX : on nettoie PeerJS proprement avant de recharger
             if (currentCall && currentCall.open) currentCall.close();
             if (localStream) localStream.getTracks().forEach(t => t.stop());
             if (peer) peer.destroy();
@@ -917,14 +892,22 @@
         }
     }
 
+    // =============================================
+    // MODALE QUITTER
+    // =============================================
     function openModal() {
         document.getElementById('quitModal').style.display = 'flex';
     }
+
     function closeModal() {
         document.getElementById('quitModal').style.display = 'none';
     }
+
     window.onclick = function(event) {
-        if (event.target == document.getElementById('quitModal')) closeModal();
+        let modal = document.getElementById('quitModal');
+        if (event.target == modal) {
+            closeModal();
+        }
     }
 </script>
 </body>
