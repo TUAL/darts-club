@@ -459,7 +459,7 @@ function syncUI() {
     const isMyTurn = (gameState.currentPlayer === myIndex);
     const activePlayer = gameState.players[gameState.currentPlayer];
     
-    // Distinction des flux
+    // Récupération des flux
     const myStream = localStream; 
     const opponentStream = window._remoteStream;
     
@@ -468,16 +468,22 @@ function syncUI() {
     const tgtFrame   = document.getElementById('target-frame');
     const remoteVid  = document.getElementById('remote-video');
 
-    // --- 1. GESTION ZONE BASSE (VIDEO ADVERSE OU SAISIE) ---
+    // --- 1. GESTION DE LA VIDÉO ADVERSE (ZONE BASSE) ---
     if (!isMyTurn) {
+        // On affiche le cadre vidéo
         videoFrame.style.display = 'block';
         kbFrame.style.display    = 'none';
         tgtFrame.style.display   = 'none';
         
-        if (opponentStream && remoteVid && remoteVid.srcObject !== opponentStream) {
-            remoteVid.srcObject = opponentStream;
+        // CRUCIAL : On force l'assignation du flux vidéo s'il existe
+        if (opponentStream && remoteVid) {
+            if (remoteVid.srcObject !== opponentStream) {
+                remoteVid.srcObject = opponentStream;
+                remoteVid.play().catch(e => console.log("Lecture auto bloquée:", e));
+            }
         }
     } else {
+        // C'est mon tour : on cache la vidéo pour jouer
         videoFrame.style.display = 'none';
         const isTargetMode = (document.getElementById('btn-to-kb').style.display === 'block');
         if (isTargetMode) {
@@ -503,13 +509,36 @@ function syncUI() {
         const tP=p.totalPoints+(isMe?(scoreAtTurnStart-localDisplayScore):0);
         const avg=tF>0?((tP/tF)*3).toFixed(1):"0.0";
         
-        if (isActive && ((isMe && playerMode >= 1) || (!isMe && p.hasCamera))) {
+        // On affiche le badge LIVE si le joueur actif filme
+        const hasCam = (isMe && playerMode >= 1) || (!isMe && p.hasCamera);
+        if (isActive && hasCam) {
             return '<div class="p-column active-'+i+' has-live-video" id="vcrd-'+i+'"><div class="live-badge">● LIVE</div><div class="score-overlay"><div class="p-name">'+p.name+'</div><div class="p-score">'+score+'</div><div class="p-last-v">'+(p.lastTurn||"---")+'</div><div class="p-stats">AVG: '+avg+'</div></div></div>';
         }
         return '<div class="p-column '+(isActive?'active-'+i:'')+'"><div class="p-name">'+p.name+'</div><div class="p-score">'+score+'</div><div class="p-last-v">'+(p.lastTurn||"---")+'</div><div class="p-stats">AVG: '+avg+'</div></div>';
     }).join('');
 
-    // --- 4. FLÉCHETTES DU TOUR (ZONE MILIEU) ---
+    // --- 4. INJECTION DANS LES MINI-VIDÉOS DES SCORES ---
+    gameState.players.forEach((p, i) => {
+        const isActive = (i === gameState.currentPlayer);
+        const isMe = (i === myIndex);
+        const card = document.getElementById('vcrd-' + i);
+        if (!card) return;
+
+        let vid = card.querySelector('video');
+        if (!vid) {
+            vid = document.createElement('video');
+            vid.autoplay = true;
+            vid.playsInline = true;
+            card.insertBefore(vid, card.firstChild);
+        }
+        
+        const streamToUse = isMe ? myStream : opponentStream;
+        if (streamToUse && vid.srcObject !== streamToUse) {
+            vid.srcObject = streamToUse;
+        }
+    });
+
+    // --- 5. INTERFACE DE LANCER ---
     for(let i=0; i<3; i++) {
         const el=document.getElementById('v'+i);
         if(el) {
@@ -517,13 +546,13 @@ function syncUI() {
         }
     }
 
-    // --- 5. BOUTON VALIDER ---
     const btn = document.getElementById('btn-validate');
     if(btn) {
         btn.disabled = !(isMyTurn && (dartsInTurn.length === 3 || isBust || localDisplayScore === 0));
         if(!btn.disabled) btn.classList.add('ready'); else btn.classList.remove('ready');
     }
 }
+
 
 
 
