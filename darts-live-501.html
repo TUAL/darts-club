@@ -145,31 +145,32 @@
             <div class="dart-val" id="v2">--<small>-</small></div>
             <button class="btn-valid-darts" id="btn-validate" onclick="finishTurn()" disabled>VALIDER</button>
         </div>
-        <div id="dynamic-area" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
-            <div id="video-frame" style="display:none;flex:1;background:#000;position:relative;border-top:4px solid var(--accent-orange);">
-                <video id="remote-video" autoplay playsinline style="width:100%;height:100%;object-fit:cover;"></video>
-                <div id="video-label" style="position:absolute;top:10px;left:10px;background:rgba(0,0,0,0.8);color:#fff;padding:4px 12px;border-radius:20px;font-size:0.7rem;font-weight:900;border:1px solid var(--accent-orange);text-transform:uppercase;">DIRECT • JOUEUR</div>
+        <!-- video-frame : hauteur fixe 55dvh, remplace clavier/cible quand adversaire filme (mode 0) -->
+        <div id="video-frame" style="display:none;height:55dvh;background:#000;position:relative;border-top:4px solid var(--accent-orange);">
+            <video id="remote-video" autoplay playsinline style="width:100%;height:100%;object-fit:cover;"></video>
+            <div id="video-label" style="position:absolute;top:10px;left:10px;background:rgba(0,0,0,0.8);color:#fff;padding:4px 12px;border-radius:20px;font-size:0.7rem;font-weight:900;border:1px solid var(--accent-orange);text-transform:uppercase;">DIRECT • JOUEUR</div>
+        </div>
+
+        <!-- MODE CIBLE -->
+        <div id="target-frame">
+            <button class="btn-miss" onclick="addDart(0)">MISS<br>0</button>
+            <div id="dartboard-container"></div>
+            <button class="target-undo" onclick="undoLastDart()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 4v7a4 4 0 0 1-4 4H4"/><path d="m9 10-5 5 5 5"/></svg></button>
+        </div>
+
+        <!-- CLAVIER -->
+        <div class="keyboard" id="kb-frame">
+            <div class="mod-row">
+                <button class="btn-m active" id="m1" onclick="setMod(1)">SIMPLE</button>
+                <button class="btn-m" id="m2" onclick="setMod(2)">DOUBLE</button>
+                <button class="btn-m" id="m3" onclick="setMod(3)">TRIPLE</button>
             </div>
-            <div id="input-zone" style="display:flex;flex-direction:column;flex:1;">
-                <div id="target-frame">
-                    <button class="btn-miss" onclick="addDart(0)">MISS<br>0</button>
-                    <div id="dartboard-container"></div>
-                    <button class="target-undo" onclick="undoLastDart()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 4v7a4 4 0 0 1-4 4H4"/><path d="m9 10-5 5 5 5"/></svg></button>
-                </div>
-                <div class="keyboard" id="kb-frame">
-                    <div class="mod-row">
-                        <button class="btn-m active" id="m1" onclick="setMod(1)">SIMPLE</button>
-                        <button class="btn-m" id="m2" onclick="setMod(2)">DOUBLE</button>
-                        <button class="btn-m" id="m3" onclick="setMod(3)">TRIPLE</button>
-                    </div>
-                    <div id="pad" class="num-grid"></div>
-                    <div class="special-row">
-                        <button class="sp-key" onclick="undoLastDart()" style="font-size:1.5rem;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 4v7a4 4 0 0 1-4 4H4"/><path d="m9 10-5 5 5 5"/></svg></button>
-                        <button class="sp-key" onclick="addDart(0)">Out<br>0</button>
-                        <button class="sp-key" onclick="addDart(25)">25</button>
-                        <button class="sp-key" onclick="addDart(50)">BULL</button>
-                    </div>
-                </div>
+            <div id="pad" class="num-grid"></div>
+            <div class="special-row">
+                <button class="sp-key" onclick="undoLastDart()" style="font-size:1.5rem;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 4v7a4 4 0 0 1-4 4H4"/><path d="m9 10-5 5 5 5"/></svg></button>
+                <button class="sp-key" onclick="addDart(0)">Out<br>0</button>
+                <button class="sp-key" onclick="addDart(25)">25</button>
+                <button class="sp-key" onclick="addDart(50)">BULL</button>
             </div>
         </div>
     </div>
@@ -455,13 +456,20 @@
         const activePlayer = gameState.players[gameState.currentPlayer];
         const videoStream = (playerMode === 2) ? localStream : (playerMode === 0) ? window._remoteStream : null;
         const videoFrame = document.getElementById('video-frame');
-        const inputZone  = document.getElementById('input-zone');
-        const showRemoteVideo = (playerMode === 0) && !isMyTurn && activePlayer && activePlayer.hasCamera && window._remoteStream;
+        const kbFrame    = document.getElementById('kb-frame');
+        const tgtFrame   = document.getElementById('target-frame');
+        // Mode 0 : affiche video-frame à la place du clavier quand un adversaire avec caméra joue
+        const showRemoteVideo = (playerMode === 0) && !isMyTurn && window._remoteStream;
         if (showRemoteVideo) {
-            videoFrame.style.display = 'flex'; inputZone.style.display = 'none';
-            document.getElementById('video-label').innerText = "LIVE - " + activePlayer.name;
+            videoFrame.style.display = 'block';
+            kbFrame.style.display    = 'none';
+            tgtFrame.style.display   = 'none';
+            document.getElementById('video-label').innerText = "LIVE - " + (activePlayer ? activePlayer.name : '');
         } else {
-            videoFrame.style.display = 'none'; inputZone.style.display = 'flex';
+            videoFrame.style.display = 'none';
+            // Remettre le clavier (target-frame géré par toggleInput)
+            kbFrame.style.display    = 'flex';
+            tgtFrame.style.display   = 'none';
         }
         container.innerHTML = gameState.players.map((p, i) => {
             const isMe=(i===myIndex), isActive=(i===gameState.currentPlayer);
