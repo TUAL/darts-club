@@ -450,6 +450,8 @@
         });
     }
 
+
+
 function syncUI() {
     const container = document.getElementById('gamePlayers');
     if(!container) return;
@@ -457,35 +459,26 @@ function syncUI() {
     const isMyTurn = (gameState.currentPlayer === myIndex);
     const activePlayer = gameState.players[gameState.currentPlayer];
     
-    // On récupère le flux vidéo (soit distant, soit local si on est en mode 2)
-    const videoStream = (playerMode === 2) ? localStream : (playerMode === 0) ? window._remoteStream : null;
+    // Distinction des flux
+    const myStream = localStream; 
+    const opponentStream = window._remoteStream;
     
     const videoFrame = document.getElementById('video-frame');
     const kbFrame    = document.getElementById('kb-frame');
     const tgtFrame   = document.getElementById('target-frame');
+    const remoteVid  = document.getElementById('remote-video');
 
-    // --- LOGIQUE DE SUPERPOSITION DU CADRE BAS ---
+    // --- 1. GESTION ZONE BASSE (VIDEO ADVERSE OU SAISIE) ---
     if (!isMyTurn) {
-        // Si ce n'est pas mon tour : on affiche la vidéo et on cache tout le reste
         videoFrame.style.display = 'block';
         kbFrame.style.display    = 'none';
         tgtFrame.style.display   = 'none';
         
-        const videoLabel = document.getElementById('video-label');
-        if (videoLabel && activePlayer) {
-            videoLabel.innerText = "DIRECT • " + activePlayer.name;
-        }
-        
-        // On s'assure que le flux est bien injecté dans la balise video
-        const remoteVid = document.getElementById('remote-video');
-        if (remoteVid && videoStream && remoteVid.srcObject !== videoStream) {
-            remoteVid.srcObject = videoStream;
+        if (opponentStream && remoteVid && remoteVid.srcObject !== opponentStream) {
+            remoteVid.srcObject = opponentStream;
         }
     } else {
-        // Si c'est mon tour : on cache la vidéo et on restaure l'outil de saisie actif
         videoFrame.style.display = 'none';
-        
-        // On vérifie quel mode (Cible ou Clavier) était affiché via l'état des boutons de switch
         const isTargetMode = (document.getElementById('btn-to-kb').style.display === 'block');
         if (isTargetMode) {
             tgtFrame.style.display = 'flex';
@@ -496,7 +489,13 @@ function syncUI() {
         }
     }
 
-    // --- GESTION DES COLONNES DE SCORE (HAUT) ---
+    // --- 2. MISE À JOUR DU TEXTE DE TOUR ---
+    const turnTxtEl = document.getElementById('turn-txt');
+    if (turnTxtEl && activePlayer) {
+        turnTxtEl.innerText = isMyTurn ? "À TOI DE JOUER !" : "AU TOUR DE " + activePlayer.name.toUpperCase();
+    }
+
+    // --- 3. AFFICHAGE DES SCORES (HAUT) ---
     container.innerHTML = gameState.players.map((p, i) => {
         const isMe=(i===myIndex), isActive=(i===gameState.currentPlayer);
         const score=isMe?localDisplayScore:p.score;
@@ -504,44 +503,28 @@ function syncUI() {
         const tP=p.totalPoints+(isMe?(scoreAtTurnStart-localDisplayScore):0);
         const avg=tF>0?((tP/tF)*3).toFixed(1):"0.0";
         
-        // Mini vidéo dans le bandeau de score
-        const showVideo=videoStream&&((playerMode===2&&isMe&&isActive)||(playerMode===0&&isActive&&p.hasCamera));
-        
-        if (showVideo) {
-            return '<div class="p-column '+(isActive?'active-'+i:'')+' has-live-video" id="vcrd-'+i+'"><div class="live-badge">● LIVE</div><div class="score-overlay"><div class="p-name">'+p.name+'</div><div class="p-score">'+score+'</div><div class="p-last-v">'+(p.lastTurn||"---")+'</div><div class="p-stats">MOY : '+avg+'<br>FLECH : '+tF+'</div></div></div>';
+        if (isActive && ((isMe && playerMode >= 1) || (!isMe && p.hasCamera))) {
+            return '<div class="p-column active-'+i+' has-live-video" id="vcrd-'+i+'"><div class="live-badge">● LIVE</div><div class="score-overlay"><div class="p-name">'+p.name+'</div><div class="p-score">'+score+'</div><div class="p-last-v">'+(p.lastTurn||"---")+'</div><div class="p-stats">AVG: '+avg+'</div></div></div>';
         }
-        return '<div class="p-column '+(isActive?'active-'+i:'')+'"><div class="p-name">'+p.name+'</div><div class="p-score">'+score+'</div><div class="p-last-v">'+(p.lastTurn||"---")+'</div><div class="p-stats">MOY : '+avg+'<br>FLECH : '+tF+'</div></div>';
+        return '<div class="p-column '+(isActive?'active-'+i:'')+'"><div class="p-name">'+p.name+'</div><div class="p-score">'+score+'</div><div class="p-last-v">'+(p.lastTurn||"---")+'</div><div class="p-stats">AVG: '+avg+'</div></div>';
     }).join('');
 
-    // Injection des mini-flux vidéo dans les colonnes
-    if (videoStream) {
-        gameState.players.forEach((p,i) => {
-            const isActive=(i===gameState.currentPlayer);
-            const card=document.getElementById('vcrd-'+i);
-            if (!card) return;
-            
-            // On vérifie si une vidéo existe déjà pour ne pas la recréer en boucle
-            if (!card.querySelector('video')) {
-                const vid=document.createElement('video');
-                vid.autoplay=true; vid.playsInline=true; vid.muted=(playerMode===2);
-                vid.srcObject=videoStream;
-                card.insertBefore(vid, card.firstChild);
-            }
-        });
-    }
-
-    // Mise à jour des textes et des fléchettes en cours
-    if (activePlayer) document.getElementById('turn-txt').innerText = isMyTurn ? "À TOI DE JOUER !" : "AU TOUR DE "+activePlayer.name;
-    
+    // --- 4. FLÉCHETTES DU TOUR (ZONE MILIEU) ---
     for(let i=0; i<3; i++) {
         const el=document.getElementById('v'+i);
-        el.innerHTML=visualDarts[i]?dartsInTurn[i]+'<small>'+visualDarts[i]+'</small>'+'':'--<small>-</small>';
+        if(el) {
+            el.innerHTML = visualDarts[i] ? dartsInTurn[i]+'<small>'+visualDarts[i]+'</small>' : '--<small>-</small>';
+        }
     }
-    
-    const btn=document.getElementById('btn-validate');
-    btn.disabled=!(isMyTurn&&(dartsInTurn.length===3||isBust||localDisplayScore===0));
-    if(!btn.disabled) btn.classList.add('ready'); else btn.classList.remove('ready');
+
+    // --- 5. BOUTON VALIDER ---
+    const btn = document.getElementById('btn-validate');
+    if(btn) {
+        btn.disabled = !(isMyTurn && (dartsInTurn.length === 3 || isBust || localDisplayScore === 0));
+        if(!btn.disabled) btn.classList.add('ready'); else btn.classList.remove('ready');
+    }
 }
+
 
 
     function showVictoryUI(winner) {
