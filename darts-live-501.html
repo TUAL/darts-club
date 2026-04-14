@@ -502,40 +502,65 @@ function syncUI() {
     }
 
     // --- 3. AFFICHAGE DES SCORES (HAUT) ---
-    container.innerHTML = gameState.players.map((p, i) => {
-        const isMe=(i===myIndex), isActive=(i===gameState.currentPlayer);
-        const score=isMe?localDisplayScore:p.score;
-        const tF=p.totalDarts+(isMe?dartsInTurn.length:0);
-        const tP=p.totalPoints+(isMe?(scoreAtTurnStart-localDisplayScore):0);
-        const avg=tF>0?((tP/tF)*3).toFixed(1):"0.0";
-        
-        // On affiche le badge LIVE si le joueur actif filme
-        const hasCam = (isMe && playerMode >= 1) || (!isMe && p.hasCamera);
-        if (isActive && hasCam) {
-            return '<div class="p-column active-'+i+' has-live-video" id="vcrd-'+i+'"><div class="live-badge">● LIVE</div><div class="score-overlay"><div class="p-name">'+p.name+'</div><div class="p-score">'+score+'</div><div class="p-last-v">'+(p.lastTurn||"---")+'</div><div class="p-stats">AVG: '+avg+'</div></div></div>';
-        }
-        return '<div class="p-column '+(isActive?'active-'+i:'')+'"><div class="p-name">'+p.name+'</div><div class="p-score">'+score+'</div><div class="p-last-v">'+(p.lastTurn||"---")+'</div><div class="p-stats">AVG: '+avg+'</div></div>';
-    }).join('');
-
-    // --- 4. INJECTION DANS LES MINI-VIDÉOS DES SCORES ---
+    // On reconstruit uniquement les cartes qui n'ont PAS de vidéo active,
+    // pour éviter de détruire les éléments <video> déjà injectés.
     gameState.players.forEach((p, i) => {
-        const isActive = (i === gameState.currentPlayer);
-        const isMe = (i === myIndex);
-        const card = document.getElementById('vcrd-' + i);
-        if (!card) return;
-
-        let vid = card.querySelector('video');
-        if (!vid) {
-            vid = document.createElement('video');
-            vid.autoplay = true;
-            vid.playsInline = true;
-            card.insertBefore(vid, card.firstChild);
-        }
-        
+        const isMe = (i === myIndex), isActive = (i === gameState.currentPlayer);
+        const score = isMe ? localDisplayScore : p.score;
+        const tF = p.totalDarts + (isMe ? dartsInTurn.length : 0);
+        const tP = p.totalPoints + (isMe ? (scoreAtTurnStart - localDisplayScore) : 0);
+        const avg = tF > 0 ? ((tP / tF) * 3).toFixed(1) : "0.0";
+        const hasCam = (isMe && playerMode >= 1) || (!isMe && p.hasCamera);
         const streamToUse = isMe ? myStream : opponentStream;
-        if (streamToUse && vid.srcObject !== streamToUse) {
-            vid.srcObject = streamToUse;
+        const showLive = isActive && hasCam;
+
+        let card = document.getElementById('vcrd-' + i);
+
+        if (showLive) {
+            // Créer la carte si elle n'existe pas ou si elle n'est pas en mode live
+            if (!card || !card.classList.contains('has-live-video')) {
+                const div = document.createElement('div');
+                div.className = 'p-column active-' + i + ' has-live-video';
+                div.id = 'vcrd-' + i;
+                div.innerHTML = '<div class="live-badge">● LIVE</div><div class="score-overlay"><div class="p-name">'+p.name+'</div><div class="p-score">'+score+'</div><div class="p-last-v">'+(p.lastTurn||"---")+'</div><div class="p-stats">AVG: '+avg+'</div></div>';
+                if (card) container.replaceChild(div, card);
+                else container.appendChild(div);
+                card = div;
+            } else {
+                // Mettre à jour uniquement le texte dans le overlay
+                const overlay = card.querySelector('.score-overlay');
+                if (overlay) overlay.innerHTML = '<div class="p-name">'+p.name+'</div><div class="p-score">'+score+'</div><div class="p-last-v">'+(p.lastTurn||"---")+'</div><div class="p-stats">AVG: '+avg+'</div>';
+            }
+            // Injecter ou mettre à jour la vidéo
+            let vid = card.querySelector('video');
+            if (!vid) {
+                vid = document.createElement('video');
+                vid.autoplay = true; vid.playsInline = true; vid.muted = isMe;
+                card.insertBefore(vid, card.firstChild);
+            }
+            if (streamToUse && vid.srcObject !== streamToUse) {
+                vid.srcObject = streamToUse;
+                vid.play().catch(e => console.log("Lecture vidéo bloquée:", e));
+            }
+        } else {
+            // Carte sans vidéo : reconstruire seulement si elle était en mode live
+            if (!card || card.classList.contains('has-live-video')) {
+                const div = document.createElement('div');
+                div.className = 'p-column ' + (isActive ? 'active-' + i : '');
+                div.id = 'vcrd-' + i;
+                div.innerHTML = '<div class="p-name">'+p.name+'</div><div class="p-score">'+score+'</div><div class="p-last-v">'+(p.lastTurn||"---")+'</div><div class="p-stats">AVG: '+avg+'</div>';
+                if (card) container.replaceChild(div, card);
+                else container.appendChild(div);
+            } else {
+                // Juste mettre à jour le texte
+                card.className = 'p-column ' + (isActive ? 'active-' + i : '');
+                card.innerHTML = '<div class="p-name">'+p.name+'</div><div class="p-score">'+score+'</div><div class="p-last-v">'+(p.lastTurn||"---")+'</div><div class="p-stats">AVG: '+avg+'</div>';
+            }
         }
+    });
+    // Supprimer les cartes en trop si le nombre de joueurs a diminué
+    Array.from(container.children).forEach((child, i) => {
+        if (i >= gameState.players.length) container.removeChild(child);
     });
 
     // --- 5. INTERFACE DE LANCER ---
