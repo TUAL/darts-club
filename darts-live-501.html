@@ -531,9 +531,9 @@ function syncUI() {
         const tF = p.totalDarts + (isMe ? dartsInTurn.length : 0);
         const tP = p.totalPoints + (isMe ? (scoreAtTurnStart - localDisplayScore) : 0);
         const avg = tF > 0 ? ((tP / tF) * 3).toFixed(1) : "0.0";
-        const hasCam = (isMe && playerMode >= 1) || (!isMe && p.hasCamera);
-        const streamToUse = isMe ? myStream : opponentStream;
-        const showLive = isActive && hasCam;
+        const hasCam = isMe && playerMode >= 1;
+        const streamToUse = myStream;
+        const showLive = isActive && isMe && hasCam;
 
         let card = document.getElementById('vcrd-' + i);
 
