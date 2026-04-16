@@ -399,10 +399,6 @@
             showMode1Popup(name, count);
             return;
         }
-        if (playerMode === 2) {
-            showRolePopup(name, count);
-            return;
-        }
         _doJoinStand(name, count);
     }
 
@@ -536,32 +532,6 @@
             document.getElementById('game-screen').style.display = 'flex';
             syncUI();
         });
-    }
-
-    // --- MODE 2 : popup choix caméra ou scores (1 appareil) ---
-    function showRolePopup(name, count) {
-        const overlay = document.createElement('div');
-        overlay.id = 'role-popup';
-        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;';
-        overlay.innerHTML = `
-            <div style="background:#1a1a1a;border:2px solid var(--accent-orange);border-radius:16px;padding:30px 24px;max-width:320px;width:90%;text-align:center;">
-                <div style="font-size:1.5rem;margin-bottom:8px;">📸</div>
-                <div style="font-weight:900;font-size:1rem;color:#fff;margin-bottom:6px;text-transform:uppercase;">1 appareil — ton rôle ?</div>
-                <div style="font-size:0.75rem;color:#8b949e;margin-bottom:24px;">Même appareil : tu joues et filmes</div>
-                <button onclick="chooseRole('cam','${name}',${count})" style="width:100%;background:var(--accent-orange);color:#000;font-weight:900;font-size:0.9rem;border:none;border-radius:10px;padding:14px;margin-bottom:12px;cursor:pointer;text-transform:uppercase;">
-                    🎥 Je filme la cible
-                </button>
-                <button onclick="chooseRole('score','${name}',${count})" style="width:100%;background:#2a2a2a;color:#fff;font-weight:900;font-size:0.9rem;border:2px solid #444;border-radius:10px;padding:14px;cursor:pointer;text-transform:uppercase;">
-                    ⌨️ Je tape les scores
-                </button>
-            </div>`;
-        document.body.appendChild(overlay);
-    }
-
-    function chooseRole(role, name, count) {
-        document.getElementById('role-popup')?.remove();
-        if (role === 'score') playerMode = 0;
-        _doJoinStand(name, count);
     }
 
     function _doJoinStand(name, count) {
