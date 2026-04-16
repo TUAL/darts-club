@@ -145,9 +145,9 @@
             <div class="dart-val" id="v2">--<small>-</small></div>
             <button class="btn-valid-darts" id="btn-validate" onclick="finishTurn()" disabled>VALIDER</button>
         </div>
-        <!-- video-frame : même hauteur que clavier/cible dans game-screen (90dvh - 45dvh - 75px) -->
-        <div id="video-frame" style="display:none;height:min(55dvh, 100vw);flex-shrink:0;background:#000;position:relative;border-top:4px solid var(--accent-orange);overflow:hidden;">
-            <video id="remote-video" autoplay playsinline style="width:100%;height:100%;object-fit:contain;background:#000;"></video>
+        <!-- video-frame : hauteur fixe 55dvh, remplace clavier/cible quand adversaire filme (mode 0) -->
+        <div id="video-frame" style="display:none;height:calc(100dvh - 50px - 45dvh - 75px);flex-shrink:0;background:#000;position:relative;border-top:4px solid var(--accent-orange);overflow:hidden;">
+            <video id="remote-video" autoplay playsinline style="width:100%;height:100%;object-fit:cover;"></video>
             <div id="video-label" style="position:absolute;top:10px;left:10px;background:rgba(0,0,0,0.8);color:#fff;padding:4px 12px;border-radius:20px;font-size:0.7rem;font-weight:900;border:1px solid var(--accent-orange);text-transform:uppercase;">DIRECT • JOUEUR</div>
         </div>
 
@@ -228,12 +228,14 @@
             } else if (playerMode === 0) {
                 updates["rooms_501/"+room+"/hosts/tablette/peerId"] = id;
             } else if (playerMode === 2) {
+                // Mode 3 (1 appareil) : on publie son peerId sur son propre nœud joueur
                 updates["rooms_501/"+room+"/players/"+myId+"/hasCamera"] = true;
                 updates["rooms_501/"+room+"/players/"+myId+"/peerId"] = id;
             }
             db.ref().update(updates);
         });
         peer.on('error', (err) => console.error('PeerJS erreur:', err));
+        // Modes 0 et 2 : on écoute les appels entrants (on reçoit la vidéo adverse)
         if (playerMode === 0 || playerMode === 2) {
             peer.on('call', (call) => {
                 call.answer();
@@ -265,7 +267,9 @@
             const pArray = Object.entries(data.players).map(([id, p]) => ({...p, id})).sort((a, b) => b.q - a.q).slice(0, 3);
             const activePlayer = pArray[data.currentPlayer];
             if (!activePlayer) return;
+
             if (playerMode === 2) {
+                // Mode 3 : quand c'est MON tour, j'appelle tous les adversaires qui ont un peerId
                 if (activePlayer.id === myId) {
                     pArray.forEach(p => {
                         if (p.id !== myId && p.peerId && localStream && (!currentCall || !currentCall.open)) {
@@ -277,6 +281,7 @@
                     currentCall = null;
                 }
             } else {
+                // Mode 1 original : appel vers la tablette hôte
                 if (activePlayer.name === myName) {
                     const tabletteId = data.hosts && data.hosts.tablette && data.hosts.tablette.peerId;
                     if (tabletteId && localStream && (!currentCall || !currentCall.open)) {
@@ -518,54 +523,66 @@ function syncUI() {
     }
 
     // --- 3. AFFICHAGE DES SCORES (HAUT) ---
+    // On reconstruit uniquement les cartes qui n'ont PAS de vidéo active,
+    // pour éviter de détruire les éléments <video> déjà injectés.
     gameState.players.forEach((p, i) => {
         const isMe = (i === myIndex), isActive = (i === gameState.currentPlayer);
         const score = isMe ? localDisplayScore : p.score;
         const tF = p.totalDarts + (isMe ? dartsInTurn.length : 0);
         const tP = p.totalPoints + (isMe ? (scoreAtTurnStart - localDisplayScore) : 0);
         const avg = tF > 0 ? ((tP / tF) * 3).toFixed(1) : "0.0";
-        const showLive = isActive && isMe && playerMode >= 1;
+        const hasCam = isMe && playerMode >= 1;
+        const streamToUse = myStream;
+        const showLive = isActive && isMe && hasCam;
 
         let card = document.getElementById('vcrd-' + i);
 
         if (showLive) {
+            // Créer la carte si elle n'existe pas ou si elle n'est pas en mode live
             if (!card || !card.classList.contains('has-live-video')) {
                 const div = document.createElement('div');
                 div.className = 'p-column active-' + i + ' has-live-video';
                 div.id = 'vcrd-' + i;
                 div.innerHTML = '<div class="live-badge">● LIVE</div><div class="score-overlay"><div class="p-name">'+p.name+'</div><div class="p-score">'+score+'</div><div class="p-last-v">'+(p.lastTurn||"---")+'</div><div class="p-stats">AVG: '+avg+'</div></div>';
-                if (card) container.replaceChild(div, card); else container.appendChild(div);
+                if (card) container.replaceChild(div, card);
+                else container.appendChild(div);
                 card = div;
             } else {
+                // Mettre à jour uniquement le texte dans le overlay
                 const overlay = card.querySelector('.score-overlay');
                 if (overlay) overlay.innerHTML = '<div class="p-name">'+p.name+'</div><div class="p-score">'+score+'</div><div class="p-last-v">'+(p.lastTurn||"---")+'</div><div class="p-stats">AVG: '+avg+'</div>';
             }
+            // Injecter ou mettre à jour la vidéo
             let vid = card.querySelector('video');
             if (!vid) {
                 vid = document.createElement('video');
-                vid.autoplay = true; vid.playsInline = true; vid.muted = true;
+                vid.autoplay = true; vid.playsInline = true; vid.muted = isMe;
                 card.insertBefore(vid, card.firstChild);
             }
-            if (myStream && vid.srcObject !== myStream) {
-                vid.srcObject = myStream;
-                vid.play().catch(() => {});
+            if (streamToUse && vid.srcObject !== streamToUse) {
+                vid.srcObject = streamToUse;
+                vid.play().catch(e => console.log("Lecture vidéo bloquée:", e));
             }
         } else {
+            // Carte sans vidéo : reconstruire seulement si elle était en mode live
             if (!card || card.classList.contains('has-live-video')) {
                 const div = document.createElement('div');
                 div.className = 'p-column ' + (isActive ? 'active-' + i : '');
                 div.id = 'vcrd-' + i;
                 div.innerHTML = '<div class="p-name">'+p.name+'</div><div class="p-score">'+score+'</div><div class="p-last-v">'+(p.lastTurn||"---")+'</div><div class="p-stats">AVG: '+avg+'</div>';
-                if (card) container.replaceChild(div, card); else container.appendChild(div);
+                if (card) container.replaceChild(div, card);
+                else container.appendChild(div);
             } else {
+                // Juste mettre à jour le texte
                 card.className = 'p-column ' + (isActive ? 'active-' + i : '');
                 card.innerHTML = '<div class="p-name">'+p.name+'</div><div class="p-score">'+score+'</div><div class="p-last-v">'+(p.lastTurn||"---")+'</div><div class="p-stats">AVG: '+avg+'</div>';
             }
         }
     });
-    Array.from(container.children).forEach((child, i) => { if (i >= gameState.players.length) container.removeChild(child); });
-
-    // --- 4. INJECTION DANS LES MINI-VIDÉOS DES SCORES --- (géré dans section 3)
+    // Supprimer les cartes en trop si le nombre de joueurs a diminué
+    Array.from(container.children).forEach((child, i) => {
+        if (i >= gameState.players.length) container.removeChild(child);
+    });
 
     // --- 5. INTERFACE DE LANCER ---
     for(let i=0; i<3; i++) {
