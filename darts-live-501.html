@@ -118,7 +118,7 @@
                 </div>
                 <div class="mode-btn" id="mode-btn-1" onclick="selectMode(1)">
                     <span class="mode-icon">📡</span>
-                    <div><span class="mode-label">Joueur + Cam (2 appareils)</span><span class="mode-desc">Un téléphone filme, une tablette reçoit</span></div>
+                    <div><span class="mode-label">Joueur + Cam (2 appareils)</span><span class="mode-desc">Appareil caméra + appareil scores</span></div>
                 </div>
                 <div class="mode-btn" id="mode-btn-2" onclick="selectMode(2)">
                     <span class="mode-icon">📸</span>
@@ -127,6 +127,15 @@
             </div>
             <div id="standGrid" class="stand-grid"></div>
         </div>
+    </div>
+
+    <!-- ÉCRAN CAMÉRA SEULE (mode 1, rôle caméra) -->
+    <div id="cam-screen" style="display:none;height:100dvh;flex-direction:column;background:#000;align-items:center;justify-content:center;gap:20px;">
+        <div style="color:var(--accent-orange);font-size:3rem;">🎥</div>
+        <div style="color:#fff;font-weight:900;font-size:1rem;text-transform:uppercase;letter-spacing:2px;">Caméra active</div>
+        <div id="cam-status" style="color:#8b949e;font-size:0.75rem;text-transform:uppercase;letter-spacing:1px;">En attente de connexion...</div>
+        <video id="cam-preview" autoplay playsinline muted style="width:85%;max-width:320px;border-radius:12px;border:2px solid var(--accent-orange);margin-top:10px;"></video>
+        <div style="color:#444;font-size:0.65rem;margin-top:10px;">L'autre appareil doit se connecter avec le même pseudo en mode scores</div>
     </div>
 
     <div id="game-screen">
@@ -259,6 +268,17 @@
     }
 
     function initVideoFirebaseListener(room) {
+        // Mode 1 caméra : surveille liveSession pour appeler l'appareil scores quand il est prêt
+        if (playerMode === 1) {
+            db.ref('users/' + myName + '/liveSession/scorePeerId').on('value', snap => {
+                const scorePeerId = snap.val();
+                if (scorePeerId && localStream && (!currentCall || !currentCall.open)) {
+                    currentCall = peer.call(scorePeerId, localStream);
+                }
+            });
+            return;
+        }
+
         db.ref("rooms_501/"+room).on('value', (snapshot) => {
             const data = snapshot.val();
             if (!data || !data.players) return;
@@ -375,6 +395,10 @@
         if(!myName) return alert("ENTRE TON PSEUDO");
         localStorage.setItem('darts_pseudo', myName);
 
+        if (playerMode === 1) {
+            showMode1Popup(name, count);
+            return;
+        }
         if (playerMode === 2) {
             showRolePopup(name, count);
             return;
@@ -382,50 +406,116 @@
         _doJoinStand(name, count);
     }
 
-    function showRolePopup(name, count) {
+    // --- MODE 1 : popup choix caméra ou scores ---
+    function showMode1Popup(name, count) {
         const overlay = document.createElement('div');
         overlay.id = 'role-popup';
         overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;';
         overlay.innerHTML = `
-            <div style="background:#1a1a1a;border:2px solid var(--accent-orange);border-radius:16px;padding:30px 24px;max-width:320px;width:90%;text-align:center;">
-                <div style="font-size:1.5rem;margin-bottom:8px;">📸</div>
-                <div style="font-weight:900;font-size:1rem;color:#fff;margin-bottom:6px;text-transform:uppercase;">Ton rôle dans ce stand</div>
-                <div style="font-size:0.75rem;color:#8b949e;margin-bottom:24px;">Mode 1 appareil — que fais-tu ?</div>
-                <button onclick="chooseRole('cam','${name}',${count})" style="width:100%;background:var(--accent-orange);color:#000;font-weight:900;font-size:0.9rem;border:none;border-radius:10px;padding:14px;margin-bottom:12px;cursor:pointer;text-transform:uppercase;">
-                    🎥 Je filme la cible
+            <div style="background:#1a1a1a;border:2px solid var(--accent);border-radius:16px;padding:30px 24px;max-width:320px;width:90%;text-align:center;">
+                <div style="font-size:1.5rem;margin-bottom:8px;">📡</div>
+                <div style="font-weight:900;font-size:1rem;color:#fff;margin-bottom:6px;text-transform:uppercase;">2 appareils — ton rôle ?</div>
+                <div style="font-size:0.75rem;color:#8b949e;margin-bottom:24px;">Les deux appareils doivent avoir le même pseudo</div>
+                <button onclick="chooseMode1Role('cam','${name}',${count})" style="width:100%;background:var(--accent-orange);color:#000;font-weight:900;font-size:0.9rem;border:none;border-radius:10px;padding:14px;margin-bottom:12px;cursor:pointer;text-transform:uppercase;">
+                    🎥 Cet appareil filme
                 </button>
-                <button onclick="chooseRole('score','${name}',${count})" style="width:100%;background:#2a2a2a;color:#fff;font-weight:900;font-size:0.9rem;border:2px solid #444;border-radius:10px;padding:14px;cursor:pointer;text-transform:uppercase;">
-                    ⌨️ Je tape les scores
+                <button onclick="chooseMode1Role('score','${name}',${count})" style="width:100%;background:#2a2a2a;color:#fff;font-weight:900;font-size:0.9rem;border:2px solid #444;border-radius:10px;padding:14px;cursor:pointer;text-transform:uppercase;">
+                    ⌨️ Cet appareil marque les scores
                 </button>
             </div>`;
         document.body.appendChild(overlay);
     }
 
-    function chooseRole(role, name, count) {
-        const popup = document.getElementById('role-popup');
-        if (popup) popup.remove();
-        if (role === 'score') playerMode = 0;
-        // role === 'cam' garde playerMode = 2
-        _doJoinStand(name, count);
+    function chooseMode1Role(role, name, count) {
+        document.getElementById('role-popup')?.remove();
+        if (role === 'cam') {
+            startCameraOnly(name, count);
+        } else {
+            connectScoreToCamera(name, count);
+        }
     }
 
-    function _doJoinStand(name, count) {
-        if (count >= 3) return alert("CE STAND EST COMPLET (MAX 3 JOUEURS)");
-        myName = document.getElementById('pName').value.trim().toUpperCase();
-        if(!myName) return alert("ENTRE TON PSEUDO");
-        localStorage.setItem('darts_pseudo', myName);
-        roomName = name;
-        document.getElementById('room-display').innerText = "📡 501 LIVE : " + name;
-        if(count === 0) db.ref("rooms_501/"+name).set({ status: "playing", currentPlayer: 0 });
-        const playerRef = db.ref("rooms_501/"+name+"/players").push();
-        myId = playerRef.key;
-        playerRef.set({ name: myName, score: 501, q: parseInt(document.getElementById('qualifInput').value)||0, totalDarts: 0, totalPoints: 0 });
-        if (playerMode === 0 || playerMode === 1 || playerMode === 2) initVideoSystem(name);
-        if (playerMode === 1 || playerMode === 2) {
-            startCamera().then((ok) => {
-                if (ok && (playerMode === 1 || playerMode === 2)) initVideoFirebaseListener(name);
+    // Appareil caméra : démarre cam, publie peerId, attend l'autre appareil
+    function startCameraOnly(name, count) {
+        document.getElementById('setup-screen').style.display = 'none';
+        document.getElementById('cam-screen').style.display = 'flex';
+
+        // Nettoie l'ancienne session
+        db.ref('users/' + myName + '/liveSession').remove();
+
+        startCamera().then(ok => {
+            if (!ok) { document.getElementById('cam-status').innerText = '❌ Caméra inaccessible'; return; }
+            document.getElementById('cam-preview').srcObject = localStream;
+
+            // Rejoint le stand comme joueur et publie son myId dans liveSession
+            roomName = name;
+            if(count === 0) db.ref("rooms_501/"+name).set({ status: "playing", currentPlayer: 0 });
+            const playerRef = db.ref("rooms_501/"+name+"/players").push();
+            myId = playerRef.key;
+            playerRef.set({ name: myName, score: 501, q: parseInt(document.getElementById('qualifInput').value)||0, totalDarts: 0, totalPoints: 0 });
+
+            // Init PeerJS et publie peerId + playerId dans liveSession
+            peer = new Peer();
+            peer.on('open', (id) => {
+                db.ref('users/' + myName + '/liveSession').set({ peerId: id, playerId: myId, room: name, ts: Date.now() });
+                db.ref("rooms_501/"+name+"/players/"+myId+"/hasCamera").set(true);
+                db.ref("rooms_501/"+name+"/players/"+myId+"/peerId").set(id);
+                document.getElementById('cam-status').innerText = '✅ Prêt — en attente de l\'autre appareil';
+                // Démarre l'écoute pour appeler l'appareil scores dès qu'il se connecte
+                initVideoFirebaseListener(name);
             });
-        }
+            peer.on('error', err => console.error('PeerJS cam erreur:', err));
+        });
+    }
+
+    // Appareil scores : lit liveSession du pseudo, récupère myId et peerId caméra
+    function connectScoreToCamera(name, count) {
+        document.getElementById('role-popup')?.remove();
+
+        const sessionRef = db.ref('users/' + myName + '/liveSession');
+        let attempts = 0;
+
+        // Init PeerJS maintenant pour avoir son peerId prêt
+        peer = new Peer();
+        peer.on('open', (scorePeerId) => {
+            // Publie son peerId dans liveSession pour que la caméra puisse l'appeler
+            sessionRef.update({ scorePeerId: scorePeerId });
+
+            // Écoute les appels entrants de l'appareil caméra
+            peer.on('call', (call) => {
+                call.answer();
+                call.on('stream', remoteStream => {
+                    window._remoteStream = remoteStream;
+                    document.getElementById('remote-video').srcObject = remoteStream;
+                    syncUI();
+                });
+                currentCall = call;
+            });
+        });
+        peer.on('error', err => console.error('PeerJS score erreur:', err));
+
+        // Attend que la session caméra soit publiée (max 30s)
+        const poll = setInterval(() => {
+            attempts++;
+            sessionRef.once('value').then(snap => {
+                const session = snap.val();
+                if (session && session.peerId && session.playerId && session.room === name) {
+                    clearInterval(poll);
+                    myId = session.playerId;
+                    playerMode = 10; // mode spécial : scores uniquement
+                    roomName = name;
+                    document.getElementById('room-display').innerText = "📡 501 LIVE : " + name;
+                    _listenRoom(name);
+                } else if (attempts >= 30) {
+                    clearInterval(poll);
+                    alert("L'appareil caméra n'est pas connecté. Lance d'abord l'appareil caméra.");
+                }
+            });
+        }, 1000);
+    }
+
+    // Écoute Firebase du stand (partagée entre _doJoinStand et connectScoreToCamera)
+    function _listenRoom(name) {
         db.ref("rooms_501/"+name).on('value', snap => {
             const data = snap.val();
             if(!data || !data.players) return;
@@ -437,14 +527,57 @@
                 dartsInTurn = []; visualDarts = []; isBust = false;
                 lastProcessedTurn = data.currentPlayer;
                 if (gameState.currentPlayer === myIndex) {
-                    scoreAtTurnStart = gameState.players[myIndex].score;
+                    scoreAtTurnStart = gameState.players[myIndex]?.score || 501;
                     localDisplayScore = scoreAtTurnStart;
                 }
             }
             document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('cam-screen').style.display = 'none';
             document.getElementById('game-screen').style.display = 'flex';
             syncUI();
         });
+    }
+
+    // --- MODE 2 : popup choix caméra ou scores (1 appareil) ---
+    function showRolePopup(name, count) {
+        const overlay = document.createElement('div');
+        overlay.id = 'role-popup';
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;';
+        overlay.innerHTML = `
+            <div style="background:#1a1a1a;border:2px solid var(--accent-orange);border-radius:16px;padding:30px 24px;max-width:320px;width:90%;text-align:center;">
+                <div style="font-size:1.5rem;margin-bottom:8px;">📸</div>
+                <div style="font-weight:900;font-size:1rem;color:#fff;margin-bottom:6px;text-transform:uppercase;">1 appareil — ton rôle ?</div>
+                <div style="font-size:0.75rem;color:#8b949e;margin-bottom:24px;">Même appareil : tu joues et filmes</div>
+                <button onclick="chooseRole('cam','${name}',${count})" style="width:100%;background:var(--accent-orange);color:#000;font-weight:900;font-size:0.9rem;border:none;border-radius:10px;padding:14px;margin-bottom:12px;cursor:pointer;text-transform:uppercase;">
+                    🎥 Je filme la cible
+                </button>
+                <button onclick="chooseRole('score','${name}',${count})" style="width:100%;background:#2a2a2a;color:#fff;font-weight:900;font-size:0.9rem;border:2px solid #444;border-radius:10px;padding:14px;cursor:pointer;text-transform:uppercase;">
+                    ⌨️ Je tape les scores
+                </button>
+            </div>`;
+        document.body.appendChild(overlay);
+    }
+
+    function chooseRole(role, name, count) {
+        document.getElementById('role-popup')?.remove();
+        if (role === 'score') playerMode = 0;
+        _doJoinStand(name, count);
+    }
+
+    function _doJoinStand(name, count) {
+        roomName = name;
+        document.getElementById('room-display').innerText = "📡 501 LIVE : " + name;
+        if(count === 0) db.ref("rooms_501/"+name).set({ status: "playing", currentPlayer: 0 });
+        const playerRef = db.ref("rooms_501/"+name+"/players").push();
+        myId = playerRef.key;
+        playerRef.set({ name: myName, score: 501, q: parseInt(document.getElementById('qualifInput').value)||0, totalDarts: 0, totalPoints: 0 });
+        if (playerMode === 0 || playerMode === 2) initVideoSystem(name);
+        if (playerMode === 2) {
+            startCamera().then((ok) => {
+                if (ok) initVideoFirebaseListener(name);
+            });
+        }
+        _listenRoom(name);
     }
 
     function renderPad() {
