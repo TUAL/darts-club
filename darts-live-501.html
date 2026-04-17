@@ -641,10 +641,15 @@ function syncUI() {
     const tgtFrame   = document.getElementById('target-frame');
     const remoteVid  = document.getElementById('remote-video');
     
-    // Mise à jour du nom dans le label vidéo
 const nameLabel = document.getElementById('video-label-name');
 if (nameLabel && activePlayer) {
-    nameLabel.innerText = activePlayer.name.toUpperCase();
+    // Si le joueur n'a pas de caméra (Mode 0), on affiche le message spécifique
+    if (!activePlayer.hasCamera) {
+        nameLabel.innerText = "PAS DE DIRECT";
+    } else {
+        // Sinon, on affiche son pseudo normalement
+        nameLabel.innerText = activePlayer.name.toUpperCase();
+    }
 }
 
     // --- 1. GESTION DE LA VIDÉO ADVERSE (ZONE BASSE) ---
