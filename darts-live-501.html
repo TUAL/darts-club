@@ -157,7 +157,8 @@
         <!-- video-frame : même hauteur que clavier/cible dans game-screen (90dvh - 45dvh - 75px) -->
         <div id="video-frame" style="display:none;height:min(55dvh, 100vw);flex-shrink:0;background:#000;position:relative;border-top:4px solid var(--accent-orange);overflow:hidden;">
             <video id="remote-video" autoplay playsinline style="width:100%;height:100%;object-fit:contain;background:#000;"></video>
-            <div id="video-label" style="position:absolute;top:10px;left:10px;background:rgba(0,0,0,0.8);color:#fff;padding:4px 12px;border-radius:20px;font-size:0.7rem;font-weight:900;border:1px solid var(--accent-orange);text-transform:uppercase;">DIRECT • JOUEUR</div>
+            <div id="video-label" style="position:absolute;top:10px;left:10px;background:rgba(0,0,0,0.8);color:#fff;padding:4px 12px;border-radius:20px;font-size:0.7rem;font-weight:900;border:1px solid var(--accent-orange);text-transform:uppercase;">DIRECT • <span id="video-label-name">JOUEUR</span>
+            </div>
         </div>
 
         <!-- MODE CIBLE -->
@@ -639,6 +640,12 @@ function syncUI() {
     const kbFrame    = document.getElementById('kb-frame');
     const tgtFrame   = document.getElementById('target-frame');
     const remoteVid  = document.getElementById('remote-video');
+    
+    // Mise à jour du nom dans le label vidéo
+const nameLabel = document.getElementById('video-label-name');
+if (nameLabel && activePlayer) {
+    nameLabel.innerText = activePlayer.name.toUpperCase();
+}
 
     // --- 1. GESTION DE LA VIDÉO ADVERSE (ZONE BASSE) ---
     if (!isMyTurn) {
