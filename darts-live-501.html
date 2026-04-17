@@ -641,19 +641,28 @@ function syncUI() {
     const remoteVid  = document.getElementById('remote-video');
 
     // --- 1. GESTION DE LA VIDÉO ADVERSE (ZONE BASSE) ---
-    if (!isMyTurn) {
-        // On affiche le cadre vidéo
+    const activePlayer = gameState.players[gameState.currentPlayer];
+    const activeHasCam = activePlayer && (activePlayer.hasCamera || false);
+    const showVideo = !isMyTurn && activeHasCam && playerMode !== 0;
+
+    if (showVideo) {
         videoFrame.style.display = 'block';
         kbFrame.style.display    = 'none';
         tgtFrame.style.display   = 'none';
-        
-        // CRUCIAL : On force l'assignation du flux vidéo s'il existe
+        // Mise à jour du label avec le pseudo du joueur actif
+        const label = document.getElementById('video-label');
+        if (label && activePlayer) label.innerText = 'DIRECT • ' + activePlayer.name;
         if (opponentStream && remoteVid) {
             if (remoteVid.srcObject !== opponentStream) {
                 remoteVid.srcObject = opponentStream;
                 remoteVid.play().catch(e => console.log("Lecture auto bloquée:", e));
             }
         }
+    } else if (!isMyTurn) {
+        // Pas mon tour, pas de vidéo (mode 0) : on cache tout
+        videoFrame.style.display = 'none';
+        kbFrame.style.display    = 'none';
+        tgtFrame.style.display   = 'none';
     } else {
         // C'est mon tour : on cache la vidéo pour jouer
         videoFrame.style.display = 'none';
