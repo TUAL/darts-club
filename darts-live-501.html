@@ -229,23 +229,19 @@
 
     function initVideoSystem(room) {
         peer = new Peer();
-
-peer.on('open', (id) => {
-    const updates = {};
-    if (playerMode === 1) {
-        updates["rooms_501/"+room+"/players/"+myId+"/hasCamera"] = true;
-        updates["rooms_501/"+room+"/players/"+myId+"/peerId"] = id;
-    } else if (playerMode === 0) {
-        // CRUCIAL : Le joueur Mode 0 doit aussi publier son peerId pour être appelé
-        updates["rooms_501/"+room+"/players/"+myId+"/peerId"] = id; 
-        // Note : On ne met pas hasCamera à true ici
-    } else if (playerMode === 2) {
-        updates["rooms_501/"+room+"/players/"+myId+"/hasCamera"] = true;
-        updates["rooms_501/"+room+"/players/"+myId+"/peerId"] = id;
-    }
-    db.ref().update(updates);
-});
-
+        peer.on('open', (id) => {
+            const updates = {};
+            if (playerMode === 1) {
+                updates["rooms_501/"+room+"/players/"+myId+"/hasCamera"] = true;
+                updates["rooms_501/"+room+"/players/"+myId+"/peerId"] = id;
+            } else if (playerMode === 0) {
+                updates["rooms_501/"+room+"/hosts/tablette/peerId"] = id;
+            } else if (playerMode === 2) {
+                updates["rooms_501/"+room+"/players/"+myId+"/hasCamera"] = true;
+                updates["rooms_501/"+room+"/players/"+myId+"/peerId"] = id;
+            }
+            db.ref().update(updates);
+        });
         peer.on('error', (err) => console.error('PeerJS erreur:', err));
         if (playerMode === 0 || playerMode === 2) {
             peer.on('call', (call) => {
@@ -259,11 +255,6 @@ peer.on('open', (id) => {
             });
         }
     }
-
-
-
-
-
 
     async function startCamera() {
         try {
@@ -285,6 +276,13 @@ peer.on('open', (id) => {
                     currentCall = peer.call(scorePeerId, localStream);
                 }
             });
+            // Appelle aussi le mode 0 (tablette) si présent
+            db.ref("rooms_501/"+room+"/hosts/tablette/peerId").on('value', snap => {
+                const tabletteId = snap.val();
+                if (tabletteId && localStream) {
+                    peer.call(tabletteId, localStream);
+                }
+            });
             return;
         }
 
@@ -292,38 +290,21 @@ peer.on('open', (id) => {
             const data = snapshot.val();
             if (!data || !data.players) return;
             const pArray = Object.entries(data.players).map(([id, p]) => ({...p, id})).sort((a, b) => b.q - a.q).slice(0, 3);
-
-    const myData = data.players[myId];
-
-    // SI J'AI UNE CAMÉRA (Mode 2 ou Mode 1-Cam)
-    if (playerMode === 2 || playerMode === 1) {
-        pArray.forEach(p => {
-            // J'appelle tous les autres joueurs qui ont un peerId et qui n'ont pas de caméra
-            // (ou simplement tous les autres pour être sûr)
-            if (p.id !== myId && p.peerId && localStream && (!currentCall || !currentCall.open)) {
-                currentCall = peer.call(p.peerId, localStream);
-            }
-        });
-    }
-});
-            
-            
-            
-            
-            
-            
-            
-            
-            
             const activePlayer = pArray[data.currentPlayer];
             if (!activePlayer) return;
             if (playerMode === 2) {
                 if (activePlayer.id === myId) {
+                    // Appelle tous les autres joueurs avec cam
                     pArray.forEach(p => {
                         if (p.id !== myId && p.peerId && localStream && (!currentCall || !currentCall.open)) {
                             currentCall = peer.call(p.peerId, localStream);
                         }
                     });
+                    // Appelle aussi le joueur mode 0 (tablette) s'il est connecté
+                    const tabletteId = data.hosts && data.hosts.tablette && data.hosts.tablette.peerId;
+                    if (tabletteId && localStream && (!currentCall || !currentCall.open)) {
+                        currentCall = peer.call(tabletteId, localStream);
+                    }
                 } else if (currentCall && currentCall.open) {
                     currentCall.close();
                     currentCall = null;
@@ -643,25 +624,11 @@ peer.on('open', (id) => {
 
 
 
-
 function syncUI() {
     const container = document.getElementById('gamePlayers');
     if(!container) return;
     
     const isMyTurn = (gameState.currentPlayer === myIndex);
-    const remoteVid = document.getElementById('remote-video');
-    const videoFrame = document.getElementById('video-frame');
-
-    // Gestion de la visibilité de la zone vidéo
-    if (window._remoteStream) {
-        if (!isMyTurn) {
-            videoFrame.style.display = 'block';
-            if (remoteVid.srcObject !== window._remoteStream) {
-                remoteVid.srcObject = window._remoteStream;
-                remoteVid.play().catch(e => console.log("Erreur play:", e));
-            }
-        }
-    }
     const activePlayer = gameState.players[gameState.currentPlayer];
     
     // Récupération des flux
