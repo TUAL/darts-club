@@ -130,12 +130,11 @@
     </div>
 
     <!-- ÉCRAN CAMÉRA SEULE (mode 1, rôle caméra) -->
-    <div id="cam-screen" style="display:none;height:100dvh;flex-direction:column;background:#000;align-items:center;justify-content:center;gap:20px;">
+    <div id="cam-screen" style="display:none;height:80dvh;flex-direction:column;background:#000;align-items:center;justify-content:center;gap:20px;">
         <div style="color:var(--accent-orange);font-size:3rem;">🎥</div>
         <div style="color:#fff;font-weight:900;font-size:1rem;text-transform:uppercase;letter-spacing:2px;">Caméra active</div>
-        <div id="cam-status" style="color:#8b949e;font-size:0.75rem;text-transform:uppercase;letter-spacing:1px;">En attente de connexion...</div>
+        <div id="cam-status" style="color:#8b949e;font-size:0.75rem;text-transform:uppercase;letter-spacing:1px;white-space: pre-line;text-align: center;">En attente de connexion...</div>
         <video id="cam-preview" autoplay playsinline muted style="width:85%;max-width:320px;border-radius:12px;border:2px solid var(--accent-orange);margin-top:10px;"></video>
-        <div style="color:#444;font-size:0.65rem;margin-top:10px;">L'autre appareil doit se connecter avec le même pseudo en mode scores</div>
     </div>
 
     <div id="game-screen">
@@ -470,7 +469,7 @@
                 db.ref('users/' + myName + '/liveSession').set({ peerId: id, playerId: myId, room: name, ts: Date.now() });
                 db.ref("rooms_501/"+name+"/players/"+myId+"/hasCamera").set(true);
                 db.ref("rooms_501/"+name+"/players/"+myId+"/peerId").set(id);
-                document.getElementById('cam-status').innerText = '✅ Prêt — en attente de l\'autre appareil';
+                document.getElementById('cam-status').innerText = '✅ Prêt — en attente de l\'autre appareil \ndoit se connecter avec le même pseudo \nen mode scores';
                 // Démarre l'écoute pour appeler l'appareil scores dès qu'il se connecte
                 initVideoFirebaseListener(name);
             });
