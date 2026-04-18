@@ -242,23 +242,23 @@
             db.ref().update(updates);
         });
         peer.on('error', (err) => console.error('PeerJS erreur:', err));
-        // Modes 0 et 2 : écoute les appels entrants (flux des caméras mode 1 ou mode 2 adverses)
-        if (playerMode === 0 || playerMode === 2) {
-            peer.on('call', (call) => {
-                call.answer();
-                call.on('stream', (remoteStream) => {
-                    window._remoteStream = remoteStream;
-                    const remoteVid = document.getElementById('remote-video');
-                    if (remoteVid) {
-                        remoteVid.srcObject = remoteStream;
-                        remoteVid.play().catch(() => {});
-                    }
-                    syncUI();
-                });
-                call.on('close', () => { window._remoteStream = null; syncUI(); });
-                currentCall = call;
+        // Tous les modes écoutent les appels entrants (mode 1 inclus : reçoit le flux de l'adversaire mode 2)
+        peer.on('call', (call) => {
+            call.answer();
+            call.on('stream', (remoteStream) => {
+                window._remoteStream = remoteStream;
+                const remoteVid = document.getElementById('remote-video');
+                if (remoteVid) {
+                    remoteVid.srcObject = remoteStream;
+                    remoteVid.play().catch(() => {});
+                }
+                const videoFrame = document.getElementById('video-frame');
+                if (videoFrame) videoFrame.style.display = 'block';
+                syncUI();
             });
-        }
+            call.on('close', () => { window._remoteStream = null; syncUI(); });
+            currentCall = call;
+        });
     }
 
     async function startCamera() {
@@ -491,6 +491,20 @@
                 document.getElementById('cam-status').innerText = '✅ Prêt — en attente de l\'autre appareil \ndoit se connecter avec le même pseudo \nen mode scores';
                 // Démarre l'écoute pour appeler l'appareil scores dès qu'il se connecte
                 initVideoFirebaseListener(name);
+            });
+            // Reçoit aussi les appels entrants (flux de l'adversaire mode 2 quand c'est son tour)
+            peer.on('call', (call) => {
+                call.answer();
+                call.on('stream', (remoteStream) => {
+                    window._remoteStream = remoteStream;
+                    const remoteVid = document.getElementById('remote-video');
+                    if (remoteVid) { remoteVid.srcObject = remoteStream; remoteVid.play().catch(() => {}); }
+                    const videoFrame = document.getElementById('video-frame');
+                    if (videoFrame) videoFrame.style.display = 'block';
+                    syncUI();
+                });
+                call.on('close', () => { window._remoteStream = null; syncUI(); });
+                currentCall = call;
             });
             peer.on('error', err => console.error('PeerJS cam erreur:', err));
         });
