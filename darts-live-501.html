@@ -352,9 +352,12 @@
             if (!activePlayer) return;
             if (playerMode === 2) {
                 if (activePlayer.id === myId) {
-                    // Appelle tous les autres joueurs avec peerId
+                    // Appelle tous les autres joueurs avec peerId ET leur scorePeerId (appareil scores)
                     pArray.forEach(p => {
-                        if (p.id !== myId && p.peerId) callPeer(p.peerId, p.name);
+                        if (p.id !== myId) {
+                            if (p.peerId) callPeer(p.peerId, p.name);
+                            if (p.scorePeerId) callPeer(p.scorePeerId, p.name + '-scores');
+                        }
                     });
                     // Appelle aussi le joueur mode 0 (tablette) s'il est connecté
                     const tabletteId = data.hosts && data.hosts.tablette && data.hosts.tablette.peerId;
@@ -591,6 +594,8 @@
                     myId = session.playerId;
                     playerMode = 10; // mode spécial : scores uniquement
                     roomName = name;
+                    // Publie le scorePeerId dans rooms_501 pour que les adversaires mode 2 puissent l'appeler
+                    db.ref("rooms_501/"+name+"/players/"+myId+"/scorePeerId").set(scorePeerId);
                     document.getElementById('room-display').innerText = "📡 501 LIVE : " + name;
                     _listenRoom(name);
                 } else if (attempts >= 30) {
