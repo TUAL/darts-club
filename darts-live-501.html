@@ -130,11 +130,21 @@
     </div>
 
     <!-- ÉCRAN CAMÉRA SEULE (mode 1, rôle caméra) -->
-    <div id="cam-screen" style="display:none;height:80dvh;flex-direction:column;background:#000;align-items:center;justify-content:center;gap:20px;">
-        <div style="color:var(--accent-orange);font-size:3rem;">🎥</div>
-        <div style="color:#fff;font-weight:900;font-size:1rem;text-transform:uppercase;letter-spacing:2px;">Caméra active</div>
-        <div id="cam-status" style="color:#8b949e;font-size:0.75rem;text-transform:uppercase;letter-spacing:1px;white-space: pre-line;text-align: center;">En attente de connexion...</div>
-        <video id="cam-preview" autoplay playsinline muted style="width:85%;max-width:320px;border-radius:12px;border:2px solid var(--accent-orange);margin-top:10px;"></video>
+    <div id="cam-screen" style="display:none;height:80dvh;flex-direction:column;background:#000;">
+        <!-- Zone adversaire (grande, visible quand c'est son tour) -->
+        <div id="cam-opponent-zone" style="display:none;flex:1;position:relative;background:#000;">
+            <video id="cam-remote-video" autoplay playsinline style="width:100%;height:100%;object-fit:contain;background:#000;"></video>
+            <div style="position:absolute;top:10px;left:10px;background:rgba(0,0,0,0.8);color:#fff;padding:4px 12px;border-radius:20px;font-size:0.7rem;font-weight:900;border:1px solid var(--accent-orange);text-transform:uppercase;" id="cam-opponent-label">ADVERSAIRE • DIRECT</div>
+            <!-- Miniature de sa propre cam en incrustation -->
+            <video id="cam-preview-pip" autoplay playsinline muted style="position:absolute;bottom:10px;right:10px;width:90px;height:120px;object-fit:cover;border-radius:8px;border:2px solid #fff;background:#111;"></video>
+        </div>
+        <!-- Zone propre caméra (grande, visible quand c'est son tour à lui) -->
+        <div id="cam-self-zone" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:15px;background:#000;">
+            <div style="color:var(--accent-orange);font-size:3rem;">🎥</div>
+            <div style="color:#fff;font-weight:900;font-size:1rem;text-transform:uppercase;letter-spacing:2px;">Caméra active</div>
+            <div id="cam-status" style="color:#8b949e;font-size:0.75rem;text-transform:uppercase;letter-spacing:1px;white-space:pre-line;text-align:center;">En attente de connexion...</div>
+            <video id="cam-preview" autoplay playsinline muted style="width:85%;max-width:320px;border-radius:12px;border:2px solid var(--accent-orange);margin-top:10px;"></video>
+        </div>
     </div>
 
     <div id="game-screen">
@@ -283,6 +293,28 @@
         _activeCalls[targetPeerId] = call;
         call.on('close', () => { delete _activeCalls[targetPeerId]; });
         call.on('error', () => { delete _activeCalls[targetPeerId]; });
+    }
+
+    // Bascule l'affichage du cam-screen selon le tour (mode 1 uniquement)
+    function syncCamScreen() {
+        if (playerMode !== 1) return;
+        const isMyTurn = (gameState.currentPlayer === myIndex);
+        const selfZone = document.getElementById('cam-self-zone');
+        const opponentZone = document.getElementById('cam-opponent-zone');
+        if (!selfZone || !opponentZone) return;
+        if (!isMyTurn && window._camRemoteStream) {
+            // Tour de l'adversaire : affiche sa vidéo en grand
+            selfZone.style.display = 'none';
+            opponentZone.style.display = 'flex';
+            // Met à jour le label avec le nom du joueur actif
+            const activePlayer = gameState.players && gameState.players[gameState.currentPlayer];
+            const label = document.getElementById('cam-opponent-label');
+            if (label && activePlayer) label.innerText = (activePlayer.name || 'Adversaire').toUpperCase() + ' • DIRECT';
+        } else {
+            // Mon tour (ou pas encore de flux adverse)
+            selfZone.style.display = 'flex';
+            opponentZone.style.display = 'none';
+        }
     }
 
     function initVideoFirebaseListener(room) {
@@ -492,18 +524,19 @@
                 // Démarre l'écoute pour appeler l'appareil scores dès qu'il se connecte
                 initVideoFirebaseListener(name);
             });
-            // Reçoit aussi les appels entrants (flux de l'adversaire mode 2 quand c'est son tour)
+            // Reçoit les appels entrants de l'adversaire mode 2 (quand c'est son tour)
             peer.on('call', (call) => {
                 call.answer();
                 call.on('stream', (remoteStream) => {
-                    window._remoteStream = remoteStream;
-                    const remoteVid = document.getElementById('remote-video');
-                    if (remoteVid) { remoteVid.srcObject = remoteStream; remoteVid.play().catch(() => {}); }
-                    const videoFrame = document.getElementById('video-frame');
-                    if (videoFrame) videoFrame.style.display = 'block';
-                    syncUI();
+                    window._camRemoteStream = remoteStream;
+                    const camRemoteVid = document.getElementById('cam-remote-video');
+                    if (camRemoteVid) { camRemoteVid.srcObject = remoteStream; camRemoteVid.play().catch(() => {}); }
+                    // Copie aussi dans cam-preview-pip (miniature)
+                    const pip = document.getElementById('cam-preview-pip');
+                    if (pip) pip.srcObject = localStream; // la pip montre notre propre cam
+                    syncCamScreen();
                 });
-                call.on('close', () => { window._remoteStream = null; syncUI(); });
+                call.on('close', () => { window._camRemoteStream = null; syncCamScreen(); });
                 currentCall = call;
             });
             peer.on('error', err => console.error('PeerJS cam erreur:', err));
@@ -670,6 +703,7 @@
 
 
 function syncUI() {
+    syncCamScreen();
     const container = document.getElementById('gamePlayers');
     if(!container) return;
     
