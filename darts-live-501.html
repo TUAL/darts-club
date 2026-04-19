@@ -305,19 +305,26 @@
     }
 
     function initVideoFirebaseListener(room) {
-        // Mode 1 caméra : surveille liveSession pour appeler l'appareil scores quand il est prêt
+        // Mode 1 caméra : appelle l'appareil scores + tous les adversaires présents dans la room
         if (playerMode === 1) {
-            // Appelle l'appareil scores du même joueur
+            // Appelle l'appareil scores du même joueur dès qu'il est prêt
             db.ref('users/' + myName + '/liveSession/scorePeerId').on('value', snap => {
                 const scorePeerId = snap.val();
                 if (scorePeerId && localStream) callPeer(scorePeerId, 'score-device');
+            });
+            // Surveille tous les joueurs de la room et appelle ceux qui ont un peerId (mode 0 ou 2)
+            db.ref("rooms_501/"+room+"/players").on('value', snap => {
+                const players = snap.val();
+                if (!players) return;
+                Object.entries(players).forEach(([pid, p]) => {
+                    if (pid !== myId && p.peerId) callPeer(p.peerId, p.name);
+                });
             });
             // Appelle aussi le mode 0 (tablette) si présent
             db.ref("rooms_501/"+room+"/hosts/tablette/peerId").on('value', snap => {
                 const tabletteId = snap.val();
                 if (tabletteId && localStream) callPeer(tabletteId, 'tablette');
             });
-            // La caméra n'appelle PAS les adversaires : c'est eux qui appellent l'appareil scores
             return;
         }
 
