@@ -295,26 +295,13 @@
         call.on('error', () => { delete _activeCalls[targetPeerId]; });
     }
 
-    // Bascule l'affichage du cam-screen selon le tour (mode 1 uniquement)
+    // L'appareil caméra (mode 1) affiche TOUJOURS sa propre caméra, rien d'autre
     function syncCamScreen() {
         if (playerMode !== 1) return;
-        const isMyTurn = (gameState.currentPlayer === myIndex);
         const selfZone = document.getElementById('cam-self-zone');
         const opponentZone = document.getElementById('cam-opponent-zone');
-        if (!selfZone || !opponentZone) return;
-        if (!isMyTurn && window._camRemoteStream) {
-            // Tour de l'adversaire : affiche sa vidéo en grand
-            selfZone.style.display = 'none';
-            opponentZone.style.display = 'flex';
-            // Met à jour le label avec le nom du joueur actif
-            const activePlayer = gameState.players && gameState.players[gameState.currentPlayer];
-            const label = document.getElementById('cam-opponent-label');
-            if (label && activePlayer) label.innerText = (activePlayer.name || 'Adversaire').toUpperCase() + ' • DIRECT';
-        } else {
-            // Mon tour (ou pas encore de flux adverse)
-            selfZone.style.display = 'flex';
-            opponentZone.style.display = 'none';
-        }
+        if (selfZone) selfZone.style.display = 'flex';
+        if (opponentZone) opponentZone.style.display = 'none';
     }
 
     function initVideoFirebaseListener(room) {
@@ -330,17 +317,7 @@
                 const tabletteId = snap.val();
                 if (tabletteId && localStream) callPeer(tabletteId, 'tablette');
             });
-            // Appelle les adversaires (mode 0 ou 2) : ils écoutent les appels entrants
-            db.ref("rooms_501/"+room+"/players").on('value', snap => {
-                const players = snap.val();
-                if (!players) return;
-                Object.entries(players).forEach(([pid, p]) => {
-                    // Appelle tout joueur qui a un peerId ET qui n'est pas nous-mêmes
-                    if (pid !== myId && p.peerId) {
-                        callPeer(p.peerId, p.name);
-                    }
-                });
-            });
+            // La caméra n'appelle PAS les adversaires : c'est eux qui appellent l'appareil scores
             return;
         }
 
@@ -527,21 +504,7 @@
                 // Démarre l'écoute pour appeler l'appareil scores dès qu'il se connecte
                 initVideoFirebaseListener(name);
             });
-            // Reçoit les appels entrants de l'adversaire mode 2 (quand c'est son tour)
-            peer.on('call', (call) => {
-                call.answer();
-                call.on('stream', (remoteStream) => {
-                    window._camRemoteStream = remoteStream;
-                    const camRemoteVid = document.getElementById('cam-remote-video');
-                    if (camRemoteVid) { camRemoteVid.srcObject = remoteStream; camRemoteVid.play().catch(() => {}); }
-                    // Copie aussi dans cam-preview-pip (miniature)
-                    const pip = document.getElementById('cam-preview-pip');
-                    if (pip) pip.srcObject = localStream; // la pip montre notre propre cam
-                    syncCamScreen();
-                });
-                call.on('close', () => { window._camRemoteStream = null; syncCamScreen(); });
-                currentCall = call;
-            });
+            // L'appareil caméra ne reçoit rien : il filme et envoie uniquement
             peer.on('error', err => console.error('PeerJS cam erreur:', err));
         });
     }
@@ -553,18 +516,21 @@
         const sessionRef = db.ref('users/' + myName + '/liveSession');
         let attempts = 0;
 
+        // Variable accessible par le poll ET le callback open
+        let myScorePeerId = null;
+
         // Init PeerJS maintenant pour avoir son peerId prêt
         peer = new Peer();
         peer.on('open', (scorePeerId) => {
+            myScorePeerId = scorePeerId;
             // Publie son peerId dans liveSession pour que la caméra puisse l'appeler
             sessionRef.update({ scorePeerId: scorePeerId });
 
-            // Écoute les appels entrants de l'appareil caméra
+            // Écoute les appels entrants (caméra mode 1 ET adversaire mode 2)
             peer.on('call', (call) => {
                 call.answer();
                 call.on('stream', remoteStream => {
                     window._remoteStream = remoteStream;
-                    // Affiche immédiatement le flux dans la zone vidéo
                     const remoteVid = document.getElementById('remote-video');
                     if (remoteVid) {
                         remoteVid.srcObject = remoteStream;
@@ -584,18 +550,18 @@
         });
         peer.on('error', err => console.error('PeerJS score erreur:', err));
 
-        // Attend que la session caméra soit publiée (max 30s)
+        // Attend que la session caméra soit publiée ET que le peerId local soit prêt
         const poll = setInterval(() => {
             attempts++;
             sessionRef.once('value').then(snap => {
                 const session = snap.val();
-                if (session && session.peerId && session.playerId && session.room === name) {
+                if (session && session.peerId && session.playerId && session.room === name && myScorePeerId) {
                     clearInterval(poll);
                     myId = session.playerId;
-                    playerMode = 10; // mode spécial : scores uniquement
+                    playerMode = 10;
                     roomName = name;
                     // Publie le scorePeerId dans rooms_501 pour que les adversaires mode 2 puissent l'appeler
-                    db.ref("rooms_501/"+name+"/players/"+myId+"/scorePeerId").set(scorePeerId);
+                    db.ref("rooms_501/"+name+"/players/"+myId+"/scorePeerId").set(myScorePeerId);
                     document.getElementById('room-display').innerText = "📡 501 LIVE : " + name;
                     _listenRoom(name);
                 } else if (attempts >= 30) {
