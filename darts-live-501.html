@@ -164,19 +164,14 @@
         </div>
         <!-- video-frame : même hauteur que clavier/cible dans game-screen (90dvh - 45dvh - 75px) -->
 <div id="video-frame" style="display:none; 
-     height: 55dvh; 
+     height: 45dvh; 
      flex-shrink: 0; 
      background: #000; 
      position: relative; 
-     border: 2px solid var(--accent-orange); 
-     border-radius: 12px; 
-     overflow: hidden; 
-     margin: 2px;">
+     overflow: hidden; ">
     
     <video id="remote-video" 
-           autoplay playsinline 
-           style="width: 100%; height: 100%; object-fit: cover; background: #000;">
-    </video>
+             autoplay playsinline muted style="height: 40dvh;aspect-ratio: 1 / 1;object-fit: cover;border-radius: 12px;border: 2px solid var(--accent-orange);margin-top: 10px;"></video>
     
     <div id="video-label" style="position:absolute; top:10px; left:10px; background:rgba(0,0,0,0.8); color:#fff; padding:4px 12px; border-radius:20px; font-size:0.7rem; font-weight:900; border:1px solid var(--accent-orange); text-transform:uppercase;">
         DIRECT • JOUEUR
