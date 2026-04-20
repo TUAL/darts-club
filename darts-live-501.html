@@ -143,7 +143,15 @@
             <div style="color:var(--accent-orange);font-size:3rem;">🎥</div>
             <div style="color:#fff;font-weight:900;font-size:1rem;text-transform:uppercase;letter-spacing:2px;">Caméra active</div>
             <div id="cam-status" style="color:#8b949e;font-size:0.75rem;text-transform:uppercase;letter-spacing:1px;white-space:pre-line;text-align:center;">En attente de connexion...</div>
-            <video id="cam-preview" autoplay playsinline muted style="width:85%;max-width:320px;border-radius:12px;border:2px solid var(--accent-orange);margin-top:10px;"></video>
+<video id="cam-preview" 
+       autoplay playsinline muted 
+       style="width: 85%; 
+              aspect-ratio: 1 / 1; 
+              object-fit: cover; 
+              border-radius: 12px; 
+              border: 2px solid var(--accent-orange); 
+              margin-top: 10px;">
+</video>
         </div>
     </div>
 
