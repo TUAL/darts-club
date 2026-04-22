@@ -270,8 +270,6 @@
                     remoteVid.srcObject = remoteStream;
                     remoteVid.play().catch(() => {});
                 }
-                const videoFrame = document.getElementById('video-frame');
-                if (videoFrame) videoFrame.style.display = 'block';
                 syncUI();
             });
             call.on('close', () => { window._remoteStream = null; syncUI(); });
@@ -719,12 +717,9 @@ if (videoLabel && activePlayer) {
 
     // --- 1. GESTION DE LA VIDÉO ADVERSE / ZONE DE SAISIE ---
     if (!isMyTurn) {
-        // Pas mon tour : vidéo adverse occupe tout l'espace restant
         if (videoFrame)  videoFrame.style.display = 'flex';
         if (kbFrame)     kbFrame.style.display    = 'none';
         if (tgtFrame)    tgtFrame.style.display   = 'none';
-
-        // Assignation du flux vidéo adverse
         if (opponentStream && remoteVid) {
             if (remoteVid.srcObject !== opponentStream) {
                 remoteVid.srcObject = opponentStream;
@@ -732,9 +727,7 @@ if (videoLabel && activePlayer) {
             }
         }
     } else {
-        // Mon tour : on cache la vidéo, on affiche cible ou clavier
         if (videoFrame)  videoFrame.style.display = 'none';
-
         const isTargetMode = (document.getElementById('btn-to-kb') &&
                               document.getElementById('btn-to-kb').style.display === 'block');
         if (isTargetMode) {
