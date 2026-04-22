@@ -35,7 +35,7 @@
         .top-bar { height: 50px; background: #1a1a1a; display: flex; align-items: center; padding: 0 15px; flex-shrink: 0; border-bottom: 1px solid #333; }
         .back-icon { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 1px solid #444; border-radius: 4px; cursor: pointer; }
         .top-title { flex: 1; text-align: center; font-size: 0.75rem; font-weight: 900; letter-spacing: 1px; color: #ccc; }
-        .score-section { height: 45dvh; display: flex; flex-direction: column; background: var(--bg-dark); padding: 10px 0; }
+        .score-section { height: 30dvh; display: flex; flex-direction: column; background: var(--bg-dark); padding: 10px 0; }
         .header-scores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0 10px; flex: 1; }
         .p-column { background: #1a1a1a; border: 3px solid #333; border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: space-around; padding: 10px 5px; opacity: 0.4; transition: 0.3s; color: #fff; }
         .p-column.active-0 { background: var(--accent-orange); border-color: #fff; opacity: 1; color: #000; }
@@ -58,7 +58,7 @@
         #mode-toggle-zone { display: flex; align-items: center; justify-content: center; min-width: 50px; height: 100%; }
         .btn-mode { width: 45px; height: 45px; border-radius: 8px; border: 1px solid #333; background: #21262d; cursor: pointer; font-size: 1.3rem; }
         .btn-mode:active { background: #30363d; transform: scale(0.95); }
-        .keyboard { height: 55dvh; background: #1a1a1a; display: flex; flex-direction: column; padding: 2px; border-top: 4px solid var(--mode-color); transition: border-color 0.2s; }
+        .keyboard { flex: 1; min-height: 0; background: #1a1a1a; display: flex; flex-direction: column; padding: 2px; border-top: 4px solid var(--mode-color); transition: border-color 0.2s; }
         .mod-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: #333; }
         .btn-m { background: #1a1a1a; color: #888; padding: 15px; border: none; font-weight: 900; font-size: 0.9rem; }
         #m1.active { color: #fff; border-bottom: 4px solid var(--accent); }
@@ -70,7 +70,7 @@
         .key small { font-size: 0.75rem; color: #555; font-weight: 900; display: block; min-height: 1.2em; }
         .special-row { display: grid; grid-template-columns: 1fr 1.2fr 1.2fr 1.2fr; height: 70px; gap: 1px; background: #333; }
         .sp-key { background: #121916; color: white; border: none; font-weight: bold; font-size: 0.8rem; }
-        #target-frame { display: none; height: 55dvh; background: #000; position: relative; flex-direction: column; align-items: center; justify-content: center; }
+        #target-frame { display: none; flex: 1; min-height: 0; background: #000; position: relative; flex-direction: column; align-items: center; justify-content: center; }
         #dartboard-container { position: relative; width: min(45dvh, 90vw); height: min(45dvh, 90vw); max-width: 500px; max-height: 500px; }
         .btn-miss { position: absolute; bottom: 5px; right: 5px; width: 50px; height: 50px; background: #161b22; color: #fff; border: 1px solid #30363d; border-radius: 15px; font-weight: 900; z-index: 12; }
         .target-undo { position: absolute; bottom: 5px; left: 5px; width: 50px; height: 50px; background: #30363d; color: #fff; border: 1px solid #30363d; border-radius: 15px; font-size: 1.5rem; z-index: 12; }
@@ -146,23 +146,16 @@
             <video id="cam-preview" autoplay playsinline muted style="width: 85%;aspect-ratio: 1 / 1;object-fit: cover;border-radius: 12px;border: 2px solid var(--accent-orange);margin-top: 10px;"></video>
         </div>
     </div>
-<div id="game-screen">
-    <div class="score-section">
-        <div class="header-scores" id="gamePlayers"></div>
-        <video id="local-video" autoplay playsinline muted style="display:none;position:absolute;width:1px;height:1px;"></video>
-        <div class="turn-announcer" id="turn-txt">...</div>
-    </div>
-
-    <div id="interactive-area" style="flex:1; display:flex; flex-direction:column; background:#000;">
-        
-        <div id="video-frame" style="display:none; flex:1; position:relative; overflow:hidden;">
-            <video id="remote-video" autoplay playsinline muted style="width:100%; height:100%; object-fit:cover;"></video>
-            <div id="video-label" style="position:absolute; top:10px; left:10px; background:rgba(0,0,0,0.8); color:#fff; padding:4px 12px; border-radius:20px; font-size:0.7rem; font-weight:900; border:1px solid var(--accent-orange); text-transform:uppercase;">
-                DIRECT • JOUEUR
-            </div>
+    <div id="game-screen">
+        <div class="score-section">
+            <div class="header-scores" id="gamePlayers"></div>
+            <video id="local-video" autoplay playsinline muted style="display:none;position:absolute;width:1px;height:1px;"></video>
+            <div class="turn-announcer" id="turn-txt">...</div>
         </div>
+        <!-- ZONE INTERACTIVE : occupe tout l'espace restant sous .score-section -->
+        <div id="interactive-zone" style="flex:1; display:flex; flex-direction:column; overflow:hidden; min-height:0;">
 
-        <div id="active-input-zone" style="display:flex; flex-direction:column; flex:1;">
+            <!-- Barre de saisie fléchettes (toujours visible sauf vidéo adverse) -->
             <div class="input-info">
                 <div id="mode-toggle-zone">
                     <button class="btn-mode" id="btn-to-target" onclick="toggleInput('target')">🎯</button>
@@ -173,22 +166,41 @@
                 <div class="dart-val" id="v2">--<small>-</small></div>
                 <button class="btn-valid-darts" id="btn-validate" onclick="finishTurn()" disabled>VALIDER</button>
             </div>
-            
-            <div id="target-frame" style="display:none; flex:1; align-items:center; justify-content:center;">
+
+            <!-- VIDEO ADVERSE : remplace cible/clavier quand ce n'est pas mon tour -->
+            <div id="video-frame" style="display:none; flex:1; min-height:0; background:#000; position:relative; overflow:hidden;">
+                <video id="remote-video" autoplay playsinline
+                       style="width:100%; height:100%; object-fit:cover; display:block;"></video>
+                <div id="video-label" style="position:absolute; top:10px; left:10px; background:rgba(0,0,0,0.8); color:#fff; padding:4px 12px; border-radius:20px; font-size:0.7rem; font-weight:900; border:1px solid var(--accent-orange); text-transform:uppercase;">
+                    DIRECT • JOUEUR
+                </div>
+            </div>
+
+            <!-- MODE CIBLE -->
+            <div id="target-frame">
                 <button class="btn-miss" onclick="addDart(0)">MISS<br>0</button>
                 <div id="dartboard-container"></div>
-                <button class="target-undo" onclick="undoLastDart()">↩️</button>
+                <button class="target-undo" onclick="undoLastDart()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 4v7a4 4 0 0 1-4 4H4"/><path d="m9 10-5 5 5 5"/></svg></button>
             </div>
 
-            <div class="keyboard" id="kb-frame" style="display:flex; flex:1;">
-                <div class="mod-row">...</div>
+            <!-- CLAVIER -->
+            <div class="keyboard" id="kb-frame">
+                <div class="mod-row">
+                    <button class="btn-m active" id="m1" onclick="setMod(1)">SIMPLE</button>
+                    <button class="btn-m" id="m2" onclick="setMod(2)">DOUBLE</button>
+                    <button class="btn-m" id="m3" onclick="setMod(3)">TRIPLE</button>
+                </div>
                 <div id="pad" class="num-grid"></div>
-                <div class="special-row">...</div>
+                <div class="special-row">
+                    <button class="sp-key" onclick="undoLastDart()" style="font-size:1.5rem;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 4v7a4 4 0 0 1-4 4H4"/><path d="m9 10-5 5 5 5"/></svg></button>
+                    <button class="sp-key" onclick="addDart(0)">Out<br>0</button>
+                    <button class="sp-key" onclick="addDart(25)">25</button>
+                    <button class="sp-key" onclick="addDart(50)">BULL</button>
+                </div>
             </div>
-        </div>
-    </div>
-</div>
 
+        </div><!-- /interactive-zone -->
+    </div>
 
     <div id="end-screen" class="overlay">
         <div class="top-bar" style="width:100%;position:absolute;top:0;left:0;">
@@ -674,43 +686,47 @@
         });
     }
 
+
+
 function syncUI() {
     syncCamScreen();
     const container = document.getElementById('gamePlayers');
-    if (!container) return;
-
-    const isMyTurn    = (gameState.currentPlayer === myIndex);
+    if(!container) return;
+    
+    const isMyTurn = (gameState.currentPlayer === myIndex);
     const activePlayer = gameState.players[gameState.currentPlayer];
-
+    
     // Récupération des flux
-    const myStream       = localStream;
+    const myStream = localStream; 
     const opponentStream = window._remoteStream;
-
-    const videoFrame  = document.getElementById('video-frame');
-    const inputZone   = document.getElementById('active-input-zone');
-    const kbFrame     = document.getElementById('kb-frame');
-    const tgtFrame    = document.getElementById('target-frame');
-    const remoteVid   = document.getElementById('remote-video');
-
-    // --- 1. BADGE VIDÉO (label du direct) ---
-    const videoLabel = document.getElementById('video-label');
-    if (videoLabel && activePlayer) {
-        if (activePlayer.hasCamera) {
-            videoLabel.innerText = "DIRECT • " + activePlayer.name.toUpperCase();
-            videoLabel.style.borderColor = "var(--accent-orange)";
-        } else {
-            videoLabel.innerText = "PAS DE DIRECT • " + activePlayer.name.toUpperCase();
-            videoLabel.style.borderColor = "#444";
-        }
+    
+    const videoFrame = document.getElementById('video-frame');
+    const kbFrame    = document.getElementById('kb-frame');
+    const tgtFrame   = document.getElementById('target-frame');
+    const remoteVid  = document.getElementById('remote-video');
+    
+const videoLabel = document.getElementById('video-label');
+if (videoLabel && activePlayer) {
+    if (activePlayer.hasCamera) {
+        // Cas avec caméra : on affiche le badge de direct et le pseudo
+        videoLabel.innerText = "DIRECT • " + activePlayer.name.toUpperCase();
+        videoLabel.style.borderColor = "var(--accent-orange)"; // On garde la bordure orange
+    } else {
+        // Cas sans caméra : on remplace tout le texte
+        videoLabel.innerText = "PAS DE DIRECT • " + activePlayer.name.toUpperCase();
+        videoLabel.style.borderColor = "#444";
     }
+}
 
-    // --- 2. BASCULEMENT VIDÉO / ZONE DE SAISIE ---
+
+    // --- 1. GESTION DE LA VIDÉO ADVERSE / ZONE DE SAISIE ---
     if (!isMyTurn) {
-        // Mode passif : on affiche la vidéo adverse en plein écran de la zone interactive
-        if (videoFrame)  videoFrame.style.display  = 'block';
-        if (inputZone)   inputZone.style.display    = 'none';
+        // Pas mon tour : vidéo adverse occupe tout l'espace restant
+        if (videoFrame)  videoFrame.style.display = 'flex';
+        if (kbFrame)     kbFrame.style.display    = 'none';
+        if (tgtFrame)    tgtFrame.style.display   = 'none';
 
-        // Assignation du flux distant
+        // Assignation du flux vidéo adverse
         if (opponentStream && remoteVid) {
             if (remoteVid.srcObject !== opponentStream) {
                 remoteVid.srcObject = opponentStream;
@@ -718,11 +734,9 @@ function syncUI() {
             }
         }
     } else {
-        // Mode actif : on cache la vidéo et on montre les outils de saisie
-        if (videoFrame)  videoFrame.style.display  = 'none';
-        if (inputZone)   inputZone.style.display    = 'flex';
+        // Mon tour : on cache la vidéo, on affiche cible ou clavier
+        if (videoFrame)  videoFrame.style.display = 'none';
 
-        // Conserver le mode de saisie actif (cible vs clavier)
         const isTargetMode = (document.getElementById('btn-to-kb') &&
                               document.getElementById('btn-to-kb').style.display === 'block');
         if (isTargetMode) {
@@ -734,52 +748,35 @@ function syncUI() {
         }
     }
 
-    // --- 3. TEXTE D'ANNONCE DE TOUR ---
+    // --- 2. MISE À JOUR DU TEXTE DE TOUR ---
     const turnTxtEl = document.getElementById('turn-txt');
     if (turnTxtEl && activePlayer) {
-        turnTxtEl.innerText = isMyTurn
-            ? "À TOI DE JOUER !"
-            : "AU TOUR DE " + activePlayer.name.toUpperCase();
+        turnTxtEl.innerText = isMyTurn ? "À TOI DE JOUER !" : "AU TOUR DE " + activePlayer.name.toUpperCase();
     }
 
-    // --- 4. CARTES SCORES JOUEURS ---
+    // --- 3. AFFICHAGE DES SCORES (HAUT) ---
     gameState.players.forEach((p, i) => {
-        const isMe     = (i === myIndex);
-        const isActive = (i === gameState.currentPlayer);
+        const isMe = (i === myIndex), isActive = (i === gameState.currentPlayer);
         const score = isMe ? localDisplayScore : p.score;
-        const tF    = p.totalDarts  + (isMe ? dartsInTurn.length : 0);
-        const tP    = p.totalPoints + (isMe ? (scoreAtTurnStart - localDisplayScore) : 0);
-        const avg   = tF > 0 ? ((tP / tF) * 3).toFixed(1) : "0.0";
+        const tF = p.totalDarts + (isMe ? dartsInTurn.length : 0);
+        const tP = p.totalPoints + (isMe ? (scoreAtTurnStart - localDisplayScore) : 0);
+        const avg = tF > 0 ? ((tP / tF) * 3).toFixed(1) : "0.0";
         const showLive = isActive && isMe && playerMode >= 1;
 
         let card = document.getElementById('vcrd-' + i);
 
         if (showLive) {
-            // Carte avec incrustation vidéo LIVE
             if (!card || !card.classList.contains('has-live-video')) {
                 const div = document.createElement('div');
                 div.className = 'p-column active-' + i + ' has-live-video';
                 div.id = 'vcrd-' + i;
-                div.innerHTML =
-                    '<div class="live-badge">● LIVE</div>' +
-                    '<div class="score-overlay">' +
-                        '<div class="p-name">' + p.name + '</div>' +
-                        '<div class="p-score">' + score + '</div>' +
-                        '<div class="p-last-v">' + (p.lastTurn || "---") + '</div>' +
-                        '<div class="p-stats">AVG: ' + avg + '</div>' +
-                    '</div>';
-                if (card) container.replaceChild(div, card);
-                else      container.appendChild(div);
+                div.innerHTML = '<div class="live-badge">● LIVE</div><div class="score-overlay"><div class="p-name">'+p.name+'</div><div class="p-score">'+score+'</div><div class="p-last-v">'+(p.lastTurn||"---")+'</div><div class="p-stats">AVG: '+avg+'</div></div>';
+                if (card) container.replaceChild(div, card); else container.appendChild(div);
                 card = div;
             } else {
                 const overlay = card.querySelector('.score-overlay');
-                if (overlay) overlay.innerHTML =
-                    '<div class="p-name">' + p.name + '</div>' +
-                    '<div class="p-score">' + score + '</div>' +
-                    '<div class="p-last-v">' + (p.lastTurn || "---") + '</div>' +
-                    '<div class="p-stats">AVG: ' + avg + '</div>';
+                if (overlay) overlay.innerHTML = '<div class="p-name">'+p.name+'</div><div class="p-score">'+score+'</div><div class="p-last-v">'+(p.lastTurn||"---")+'</div><div class="p-stats">AVG: '+avg+'</div>';
             }
-            // Incruster la vidéo locale dans la carte
             let vid = card.querySelector('video');
             if (!vid) {
                 vid = document.createElement('video');
@@ -791,49 +788,34 @@ function syncUI() {
                 vid.play().catch(() => {});
             }
         } else {
-            // Carte standard (sans vidéo)
             if (!card || card.classList.contains('has-live-video')) {
                 const div = document.createElement('div');
                 div.className = 'p-column ' + (isActive ? 'active-' + i : '');
                 div.id = 'vcrd-' + i;
-                div.innerHTML =
-                    '<div class="p-name">' + p.name + '</div>' +
-                    '<div class="p-score">' + score + '</div>' +
-                    '<div class="p-last-v">' + (p.lastTurn || "---") + '</div>' +
-                    '<div class="p-stats">AVG: ' + avg + '</div>';
-                if (card) container.replaceChild(div, card);
-                else      container.appendChild(div);
+                div.innerHTML = '<div class="p-name">'+p.name+'</div><div class="p-score">'+score+'</div><div class="p-last-v">'+(p.lastTurn||"---")+'</div><div class="p-stats">AVG: '+avg+'</div>';
+                if (card) container.replaceChild(div, card); else container.appendChild(div);
             } else {
                 card.className = 'p-column ' + (isActive ? 'active-' + i : '');
-                card.innerHTML =
-                    '<div class="p-name">' + p.name + '</div>' +
-                    '<div class="p-score">' + score + '</div>' +
-                    '<div class="p-last-v">' + (p.lastTurn || "---") + '</div>' +
-                    '<div class="p-stats">AVG: ' + avg + '</div>';
+                card.innerHTML = '<div class="p-name">'+p.name+'</div><div class="p-score">'+score+'</div><div class="p-last-v">'+(p.lastTurn||"---")+'</div><div class="p-stats">AVG: '+avg+'</div>';
             }
         }
     });
-    // Supprime les cartes en trop si moins de joueurs
-    Array.from(container.children).forEach((child, i) => {
-        if (i >= gameState.players.length) container.removeChild(child);
-    });
+    Array.from(container.children).forEach((child, i) => { if (i >= gameState.players.length) container.removeChild(child); });
 
-    // --- 5. INTERFACE DE LANCER (fléchettes) ---
-    for (let i = 0; i < 3; i++) {
-        const el = document.getElementById('v' + i);
-        if (el) {
-            el.innerHTML = visualDarts[i]
-                ? dartsInTurn[i] + '<small>' + visualDarts[i] + '</small>'
-                : '--<small>-</small>';
+    // --- 4. INJECTION DANS LES MINI-VIDÉOS DES SCORES --- (géré dans section 3)
+
+    // --- 5. INTERFACE DE LANCER ---
+    for(let i=0; i<3; i++) {
+        const el=document.getElementById('v'+i);
+        if(el) {
+            el.innerHTML = visualDarts[i] ? dartsInTurn[i]+'<small>'+visualDarts[i]+'</small>' : '--<small>-</small>';
         }
     }
 
-    // --- 6. BOUTON VALIDER ---
     const btn = document.getElementById('btn-validate');
-    if (btn) {
+    if(btn) {
         btn.disabled = !(isMyTurn && (dartsInTurn.length === 3 || isBust || localDisplayScore === 0));
-        if (!btn.disabled) btn.classList.add('ready');
-        else               btn.classList.remove('ready');
+        if(!btn.disabled) btn.classList.add('ready'); else btn.classList.remove('ready');
     }
 }
 
