@@ -155,7 +155,7 @@
         <!-- ZONE INTERACTIVE : occupe tout l'espace restant sous .score-section -->
         <div id="interactive-zone" style="flex:1; display:flex; flex-direction:column; overflow:hidden; min-height:0;">
 
-            <!-- Barre de saisie fléchettes (toujours visible sauf vidéo adverse) -->
+            <!-- Barre de saisie fléchettes (toujours visible) -->
             <div class="input-info">
                 <div id="mode-toggle-zone">
                     <button class="btn-mode" id="btn-to-target" onclick="toggleInput('target')">🎯</button>
@@ -551,8 +551,6 @@
                         remoteVid.srcObject = remoteStream;
                         remoteVid.play().catch(() => {});
                     }
-                    const videoFrame = document.getElementById('video-frame');
-                    if (videoFrame) videoFrame.style.display = 'block';
                     syncUI();
                 });
                 call.on('close', () => {
