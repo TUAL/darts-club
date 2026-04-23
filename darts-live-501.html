@@ -86,7 +86,46 @@
         .btn-cancel { background: #333; color: white; }
         .btn-confirm { background: #333; color: white; }
         .btn-confirm:hover { transform: scale(1.05); background: #f39c12; }
-    </style>
+        
+/* Style unifié pour la zone vidéo adverse */
+/* Le conteneur doit forcer le centrage de ses enfants */
+#video-frame {
+    display: flex;        /* Active le flexbox */
+    justify-content: center; /* Centre horizontalement */
+    align-items: center;     /* Centre verticalement */
+    flex: 1;
+    min-height: 0;
+    background: #000;
+    position: relative;
+    overflow: hidden;
+}
+
+/* La vidéo suit le flux du parent */
+#remote-video {
+    height: 85%;          /* Garde votre hauteur souhaitée */
+    aspect-ratio: 1 / 1;  /* Maintient le format carré */
+    object-fit: cover;
+    border-radius: 12px;
+    border: 2px solid var(--accent-orange);
+    display: block;
+    /* Plus besoin de marges complexes grâce au Flexbox du parent */
+}
+
+#video-label {
+    position: absolute; 
+    top: 20px; /* Ajusté avec le padding */
+    left: 20px; 
+    background: rgba(0,0,0,0.8); 
+    color: #fff; 
+    padding: 4px 12px; 
+    border-radius: 20px; 
+    font-size: 0.7rem; 
+    font-weight: 900; 
+    border: 1px solid var(--accent-orange); 
+    text-transform: uppercase;
+    z-index: 10;
+}
+</style>
 </head>
 <body>
     <div class="top-bar">
@@ -168,13 +207,13 @@
             </div>
 
             <!-- VIDEO ADVERSE : remplace cible/clavier quand ce n'est pas mon tour -->
-            <div id="video-frame" style="display:none; flex:1; min-height:0; background:#000; position:relative; overflow:hidden;">
-                <video id="remote-video" autoplay playsinline
-                       style="width:100%; height:100%; object-fit:cover; display:block;"></video>
-                <div id="video-label" style="position:absolute; top:10px; left:10px; background:rgba(0,0,0,0.8); color:#fff; padding:4px 12px; border-radius:20px; font-size:0.7rem; font-weight:900; border:1px solid var(--accent-orange); text-transform:uppercase;">
-                    DIRECT • JOUEUR
-                </div>
-            </div>
+<div id="video-frame">
+    <video id="remote-video" autoplay playsinline></video>
+    
+    <div id="video-label">
+        DIRECT • JOUEUR
+    </div>
+</div>
 
             <!-- MODE CIBLE -->
             <div id="target-frame">
