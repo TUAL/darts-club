@@ -266,10 +266,14 @@
             call.on('stream', (remoteStream) => {
                 window._remoteStream = remoteStream;
                 const remoteVid = document.getElementById('remote-video');
+                const videoFrame = document.getElementById('video-frame');
                 if (remoteVid) {
                     remoteVid.srcObject = remoteStream;
                     remoteVid.play().catch(() => {});
                 }
+                if (videoFrame) videoFrame.style.display = 'flex';
+                if (document.getElementById('kb-frame'))     document.getElementById('kb-frame').style.display  = 'none';
+                if (document.getElementById('target-frame')) document.getElementById('target-frame').style.display = 'none';
                 syncUI();
             });
             call.on('close', () => { window._remoteStream = null; syncUI(); });
@@ -545,10 +549,14 @@
                 call.on('stream', remoteStream => {
                     window._remoteStream = remoteStream;
                     const remoteVid = document.getElementById('remote-video');
+                    const videoFrame = document.getElementById('video-frame');
                     if (remoteVid) {
                         remoteVid.srcObject = remoteStream;
                         remoteVid.play().catch(() => {});
                     }
+                    if (videoFrame) videoFrame.style.display = 'flex';
+                    if (document.getElementById('kb-frame'))     document.getElementById('kb-frame').style.display  = 'none';
+                    if (document.getElementById('target-frame')) document.getElementById('target-frame').style.display = 'none';
                     syncUI();
                 });
                 call.on('close', () => {
