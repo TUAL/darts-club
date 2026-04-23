@@ -270,8 +270,6 @@
                     remoteVid.srcObject = remoteStream;
                     remoteVid.play().catch(() => {});
                 }
-                const videoFrame = document.getElementById('video-frame');
-                if (videoFrame) videoFrame.style.display = 'block';
                 syncUI();
             });
             call.on('close', () => { window._remoteStream = null; syncUI(); });
@@ -551,8 +549,6 @@
                         remoteVid.srcObject = remoteStream;
                         remoteVid.play().catch(() => {});
                     }
-                    const videoFrame = document.getElementById('video-frame');
-                    if (videoFrame) videoFrame.style.display = 'block';
                     syncUI();
                 });
                 call.on('close', () => {
