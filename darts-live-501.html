@@ -893,6 +893,10 @@ if (videoLabel && activePlayer) {
             let pts = avg >= 85 ? 5 : avg >= 70 ? 3 : avg >= 55 ? 2 : 1;
             await ref.child('stats/points').transaction(c => (c || 0) + pts);
             btn.innerText = "✅ ARCHIVÉ"; btn.style.background = "#2ecc71";
+            // Coupe la caméra avant de réinitialiser
+            if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
+            const camPreview = document.getElementById('cam-preview');
+            if (camPreview && camPreview.srcObject) { camPreview.srcObject.getTracks().forEach(t => t.stop()); camPreview.srcObject = null; }
             setTimeout(() => resetStand(), 1500);
         } catch(e) { console.error(e); btn.disabled = false; btn.innerText = "ERREUR"; }
     }
@@ -900,8 +904,11 @@ if (videoLabel && activePlayer) {
     async function resetStand() {
         if(confirm("Vider le stand et revenir au menu ?")) {
             if (currentCall && currentCall.open) currentCall.close();
-            if (localStream) localStream.getTracks().forEach(t => t.stop());
+            if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
             if (peer) peer.destroy();
+            // Coupe la caméra de l'appareil cam-screen (mode 1 rôle caméra)
+            const camPreview = document.getElementById('cam-preview');
+            if (camPreview && camPreview.srcObject) { camPreview.srcObject.getTracks().forEach(t => t.stop()); camPreview.srcObject = null; }
             await db.ref("rooms_501/"+roomName).remove();
             location.reload();
         }
