@@ -514,7 +514,7 @@
                 <div style="font-size:0.75rem;color:#8b949e;margin-bottom:20px;">Les deux appareils doivent avoir le même pseudo</div>
 
                 <div style="font-size:0.7rem;color:var(--accent-orange);font-weight:900;text-transform:uppercase;margin-bottom:8px;letter-spacing:1px;">① Commencer par cet appareil</div>
-                <button onclick="chooseMode1Role('cam','${name}',${count})" style="width:100%;background:var(--accent-orange);color:#000;font-weight:900;font-size:0.9rem;border:none;border-radius:10px;padding:14px;margin-bottom:20px;cursor:pointer;text-transform:uppercase;">
+                <button id="btn-cam-role" style="width:100%;background:var(--accent-orange);color:#000;font-weight:900;font-size:0.9rem;border:none;border-radius:10px;padding:14px;margin-bottom:20px;cursor:pointer;text-transform:uppercase;">
                     🎥 Cet appareil filme
                 </button>
 
@@ -524,6 +524,16 @@
                 </button>
             </div>`;
         document.body.appendChild(overlay);
+
+        // Bouton caméra : désactivé immédiatement après le clic pour éviter le double enregistrement
+        document.getElementById('btn-cam-role').addEventListener('click', () => {
+            const btn = document.getElementById('btn-cam-role');
+            btn.disabled = true;
+            btn.style.opacity = '0.4';
+            btn.style.cursor = 'not-allowed';
+            btn.innerText = '🎥 Caméra en cours de démarrage...';
+            chooseMode1Role('cam', name, count);
+        });
 
         // Nettoie l'ancienne session UNIQUEMENT si elle appartient à un autre stand
         // ou si elle date de plus de 2 minutes (session périmée du même stand)
