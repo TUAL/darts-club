@@ -522,8 +522,18 @@
                 <button id="btn-score-role" disabled style="width:100%;background:#1a1a1a;color:#555;font-weight:900;font-size:0.9rem;border:2px solid #333;border-radius:10px;padding:14px;cursor:not-allowed;text-transform:uppercase;transition:all 0.3s;">
                     ⌨️ Cet appareil marque les scores<br><span id="score-btn-hint" style="font-size:0.65rem;font-weight:400;display:block;margin-top:4px;">En attente de l'appareil caméra...</span>
                 </button>
+                <button id="btn-cancel-role" style="width:100%;background:transparent;color:#555;font-weight:700;font-size:0.8rem;border:none;border-radius:10px;padding:12px;margin-top:12px;cursor:pointer;text-transform:uppercase;letter-spacing:1px;">
+                    ✕ Annuler
+                </button>
             </div>`;
         document.body.appendChild(overlay);
+
+        // Bouton annuler : ferme le popup et retourne au setup, sans toucher Firebase
+        document.getElementById('btn-cancel-role').addEventListener('click', () => {
+            const popup = document.getElementById('role-popup');
+            if (popup && popup._stopPoll) popup._stopPoll();
+            popup?.remove();
+        });
 
         // Bouton caméra : désactivé immédiatement après le clic pour éviter le double enregistrement
         document.getElementById('btn-cam-role').addEventListener('click', () => {
@@ -556,7 +566,7 @@
                         btnCam.disabled = true;
                         btnCam.style.opacity = '0.3';
                         btnCam.style.cursor = 'not-allowed';
-                        btnCam.innerText = '🎥 Caméra déjà active sur l\'autre appareil';
+                        btnCam.innerText = '🎥 Caméra déjà active sur l'autre appareil';
                     }
                     const btn = document.getElementById('btn-score-role');
                     const hint = document.getElementById('score-btn-hint');
