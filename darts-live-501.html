@@ -525,8 +525,14 @@
             </div>`;
         document.body.appendChild(overlay);
 
-        // Nettoie l'ancienne session pour éviter que le bouton scores soit actif dès l'ouverture
-        db.ref('users/' + myName + '/liveSession').remove();
+        // Nettoie l'ancienne session UNIQUEMENT si elle appartient à un autre stand
+        // ou si elle date de plus de 2 minutes (session périmée du même stand)
+        db.ref('users/' + myName + '/liveSession').once('value').then(snap => {
+            const session = snap.val();
+            if (session && (session.room !== name || (Date.now() - (session.ts || 0)) > 120000)) {
+                db.ref('users/' + myName + '/liveSession').remove();
+            }
+        });
 
         // Poll Firebase : dès que la caméra est prête pour ce pseudo, active le bouton scores
         let _poll = setInterval(() => {
