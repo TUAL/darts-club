@@ -562,6 +562,18 @@
             });
             // L'appareil caméra ne reçoit rien : il filme et envoie uniquement
             peer.on('error', err => console.error('PeerJS cam erreur:', err));
+
+            // Surveille la suppression du stand : dès qu'il est vidé, coupe la caméra et retourne au menu
+            db.ref("rooms_501/"+name).on('value', snap => {
+                if (!snap.exists()) {
+                    if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
+                    const camPreview = document.getElementById('cam-preview');
+                    if (camPreview && camPreview.srcObject) { camPreview.srcObject.getTracks().forEach(t => t.stop()); camPreview.srcObject = null; }
+                    if (peer) { peer.destroy(); }
+                    db.ref('users/' + myName + '/liveSession').remove();
+                    window.location.href = 'menu.html';
+                }
+            });
         });
     }
 
@@ -634,6 +646,14 @@
     function _listenRoom(name) {
         db.ref("rooms_501/"+name).on('value', snap => {
             const data = snap.val();
+            // Stand supprimé : libère les ressources et retourne au menu
+            if (!snap.exists()) {
+                if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
+                if (currentCall && currentCall.open) currentCall.close();
+                if (peer) { peer.destroy(); }
+                window.location.href = 'menu.html';
+                return;
+            }
             if(!data || !data.players) return;
             const pArray = Object.entries(data.players).map(([id, p]) => ({...p, id})).sort((a,b) => b.q - a.q).slice(0, 3);
             gameState = {...data, players: pArray};
