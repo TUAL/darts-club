@@ -525,6 +525,9 @@
             </div>`;
         document.body.appendChild(overlay);
 
+        // Nettoie l'ancienne session pour éviter que le bouton scores soit actif dès l'ouverture
+        db.ref('users/' + myName + '/liveSession').remove();
+
         // Poll Firebase : dès que la caméra est prête pour ce pseudo, active le bouton scores
         let _poll = setInterval(() => {
             db.ref('users/' + myName + '/liveSession').once('value').then(snap => {
