@@ -511,19 +511,47 @@
             <div style="background:#1a1a1a;border:2px solid var(--accent);border-radius:16px;padding:30px 24px;max-width:320px;width:90%;text-align:center;">
                 <div style="font-size:1.5rem;margin-bottom:8px;">📡</div>
                 <div style="font-weight:900;font-size:1rem;color:#fff;margin-bottom:6px;text-transform:uppercase;">2 appareils — ton rôle ?</div>
-                <div style="font-size:0.75rem;color:#8b949e;margin-bottom:24px;">Les deux appareils doivent avoir le même pseudo</div>
-                <button onclick="chooseMode1Role('cam','${name}',${count})" style="width:100%;background:var(--accent-orange);color:#000;font-weight:900;font-size:0.9rem;border:none;border-radius:10px;padding:14px;margin-bottom:12px;cursor:pointer;text-transform:uppercase;">
+                <div style="font-size:0.75rem;color:#8b949e;margin-bottom:20px;">Les deux appareils doivent avoir le même pseudo</div>
+
+                <div style="font-size:0.7rem;color:var(--accent-orange);font-weight:900;text-transform:uppercase;margin-bottom:8px;letter-spacing:1px;">① Commencer par cet appareil</div>
+                <button onclick="chooseMode1Role('cam','${name}',${count})" style="width:100%;background:var(--accent-orange);color:#000;font-weight:900;font-size:0.9rem;border:none;border-radius:10px;padding:14px;margin-bottom:20px;cursor:pointer;text-transform:uppercase;">
                     🎥 Cet appareil filme
                 </button>
-                <button onclick="chooseMode1Role('score','${name}',${count})" style="width:100%;background:#2a2a2a;color:#fff;font-weight:900;font-size:0.9rem;border:2px solid #444;border-radius:10px;padding:14px;cursor:pointer;text-transform:uppercase;">
-                    ⌨️ Cet appareil marque les scores
+
+                <div style="font-size:0.7rem;color:#8b949e;font-weight:900;text-transform:uppercase;margin-bottom:8px;letter-spacing:1px;" id="score-btn-label">② Ensuite sur l'autre appareil</div>
+                <button id="btn-score-role" disabled style="width:100%;background:#1a1a1a;color:#555;font-weight:900;font-size:0.9rem;border:2px solid #333;border-radius:10px;padding:14px;cursor:not-allowed;text-transform:uppercase;transition:all 0.3s;">
+                    ⌨️ Cet appareil marque les scores<br><span id="score-btn-hint" style="font-size:0.65rem;font-weight:400;display:block;margin-top:4px;">En attente de l'appareil caméra...</span>
                 </button>
             </div>`;
         document.body.appendChild(overlay);
+
+        // Poll Firebase : dès que la caméra est prête pour ce pseudo, active le bouton scores
+        let _poll = setInterval(() => {
+            db.ref('users/' + myName + '/liveSession').once('value').then(snap => {
+                const session = snap.val();
+                if (session && session.peerId && session.room === name) {
+                    clearInterval(_poll);
+                    const btn = document.getElementById('btn-score-role');
+                    const hint = document.getElementById('score-btn-hint');
+                    const label = document.getElementById('score-btn-label');
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.style.cssText = 'width:100%;background:#2a2a2a;color:#fff;font-weight:900;font-size:0.9rem;border:2px solid var(--accent);border-radius:10px;padding:14px;cursor:pointer;text-transform:uppercase;transition:all 0.3s;';
+                        btn.onclick = () => chooseMode1Role('score', name, count);
+                    }
+                    if (hint) { hint.innerText = '✅ Caméra prête — appuie pour continuer'; hint.style.color = '#2ecc71'; }
+                    if (label) { label.innerText = '② Maintenant sur cet appareil'; label.style.color = '#2ecc71'; }
+                }
+            });
+        }, 1500);
+
+        overlay._stopPoll = () => clearInterval(_poll);
     }
 
     function chooseMode1Role(role, name, count) {
-        document.getElementById('role-popup')?.remove();
+        const popup = document.getElementById('role-popup');
+        if (popup && popup._stopPoll) popup._stopPoll();
+        popup?.remove();
         if (role === 'cam') {
             startCameraOnly(name, count);
         } else {
