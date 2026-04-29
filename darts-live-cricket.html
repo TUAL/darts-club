@@ -7,6 +7,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <style>
         :root { 
             --bg: #0b0e14; --card: #161b22; --text: #f0f6fc;
@@ -863,8 +864,7 @@
     // Écoute Firebase du stand (partagée entre _doJoinStand et connectScoreToCamera)
     function _listenRoom(name) {
         db.ref("rooms_cricket/"+name).on('value', snap => {
-            const data = snap.val();
-            // Stand supprimé : libère les ressources et retourne au menu
+            // Stand supprimé
             if (!snap.exists()) {
                 if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
                 if (currentCall && currentCall.open) currentCall.close();
@@ -872,21 +872,36 @@
                 window.location.href = 'menu.html';
                 return;
             }
+            const data = snap.val();
             if (!data) return;
             const pArray = data.players
                 ? Object.entries(data.players).map(([id, p]) => ({...p, id})).sort((a,b) => b.q - a.q).slice(0, 3)
                 : [];
             gameState = {...data, players: pArray};
             myIndex = gameState.players.findIndex(p => p.id === myId);
-            if (data.status === "finished") { showVictoryUI(gameState.players.find(p => p.score === 0)); return; }
+
+            if (data.status === "finished") {
+                showVictoryUI(gameState.players.find(p => {
+                    const allClosed = cricketTargets.every(t => (p.marks || {})[t] >= 3);
+                    const maxScore = Math.max(...gameState.players.map(pl => pl.score || 0));
+                    return allClosed && p.score >= maxScore;
+                }));
+                return;
+            }
+
+            // Nouveau tour
             if (data.currentPlayer !== lastProcessedTurn) {
-                dartsInTurn = []; visualDarts = []; isBust = false;
+                dartsInTurn = [];
                 lastProcessedTurn = data.currentPlayer;
                 if (gameState.currentPlayer === myIndex) {
-                    scoreAtTurnStart = gameState.players[myIndex]?.score || 501;
-                    localDisplayScore = scoreAtTurnStart;
+                    const me = gameState.players[myIndex];
+                    scoreAtTurnStart = me ? me.score : 0;
+                    localScore = scoreAtTurnStart;
+                    marksAtTurnStart = { ...(me ? me.marks || {} : {}) };
+                    localMarks = { ...marksAtTurnStart };
                 }
             }
+
             document.getElementById('setup-screen').style.display = 'none';
             document.getElementById('cam-screen').style.display = 'none';
             document.getElementById('game-screen').style.display = 'flex';
