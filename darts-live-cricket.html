@@ -556,9 +556,16 @@
 
     window.onload = () => {
         const saved = localStorage.getItem('darts_pseudo');
-        if(saved) document.getElementById('pName').value = saved;
+        if (saved) document.getElementById('pName').value = saved;
         renderPad();
-        auth.signInAnonymously().then(() => { initStands(); }).catch(err => console.error("Erreur Firebase:", err));
+        renderStands({});
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                initStands();
+            } else {
+                auth.signInAnonymously().catch(err => console.error('Auth error:', err));
+            }
+        });
     };
 
     function toggleInput(mode) {
@@ -903,19 +910,7 @@
         }
         _listenRoom(name);
     }
-    window.onload = () => {
-        const saved = localStorage.getItem('darts_pseudo');
-        if (saved) document.getElementById('pName').value = saved;
-        renderPad();
-        renderStands({});
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                initStands();
-            } else {
-                auth.signInAnonymously().catch(err => console.error('Auth error:', err));
-            }
-        });
-    };
+    ;
 
 function renderStands(rooms) {
         const grid = document.getElementById('standGrid');
