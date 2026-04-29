@@ -192,7 +192,6 @@
         <div class="score-section">
             <div class="header-scores" id="gamePlayers"></div>
             <video id="local-video" autoplay playsinline muted style="display:none;position:absolute;width:1px;height:1px;"></video>
-            <button id="btn-zoom-game" onclick="toggleCamZoom()" style="display:none;position:absolute;top:6px;right:8px;background:#222;color:#fff;border:1px solid #555;border-radius:16px;padding:5px 12px;font-size:0.7rem;font-weight:700;cursor:pointer;z-index:10;">🔍 Zoom x1</button>
             <div class="turn-announcer" id="turn-txt">...</div>
         </div>
         <!-- ZONE INTERACTIVE : occupe tout l'espace restant sous .score-section -->
@@ -354,7 +353,7 @@
         const btn = document.getElementById('btn-zoom');
         if (btn) btn.innerText = active ? '🔍 Zoom x2 (ON)' : '🔍 Zoom x1';
         const btn2 = document.getElementById('btn-zoom-game');
-        if (btn2) btn2.innerText = active ? '🔍 Zoom x2 (ON)' : '🔍 Zoom x1';
+        if (btn2) btn2.innerText = active ? '🔍 x2 ●' : '🔍 x1';
     }
 
     function toggleCamZoom() {
@@ -778,7 +777,6 @@
             document.getElementById('setup-screen').style.display = 'none';
             document.getElementById('cam-screen').style.display = 'none';
             document.getElementById('game-screen').style.display = 'flex';
-            if (playerMode === 2) { const bz = document.getElementById('btn-zoom-game'); if (bz) bz.style.display = 'block'; }
             syncUI();
         });
     }
@@ -942,9 +940,12 @@ if (videoLabel && activePlayer) {
                 const div = document.createElement('div');
                 div.className = 'p-column active-' + i + ' has-live-video';
                 div.id = 'vcrd-' + i;
-                div.innerHTML = '<div class="live-badge">● LIVE</div><div class="score-overlay"><div class="p-name">'+p.name+'</div><div class="p-score">'+score+'</div><div class="p-last-v">'+(p.lastTurn||"---")+'</div><div class="p-stats">AVG: '+avg+'</div></div>';
+                div.innerHTML = '<div class="live-badge">● LIVE</div><button id="btn-zoom-game" onclick="toggleCamZoom()" style="position:absolute;bottom:5px;right:5px;z-index:3;background:rgba(0,0,0,0.6);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:12px;padding:3px 8px;font-size:0.55rem;font-weight:900;cursor:pointer;letter-spacing:0.5px;">🔍 x1</button><div class="score-overlay"><div class="p-name">'+p.name+'</div><div class="p-score">'+score+'</div><div class="p-last-v">'+(p.lastTurn||"---")+'</div><div class="p-stats">AVG: '+avg+'</div></div>';
                 if (card) container.replaceChild(div, card); else container.appendChild(div);
                 card = div;
+                // Synchronise le label du bouton zoom avec l'état courant
+                const bzNew = div.querySelector('#btn-zoom-game');
+                if (bzNew) bzNew.innerText = camZoomActive ? '🔍 x2 ●' : '🔍 x1';
             } else {
                 const overlay = card.querySelector('.score-overlay');
                 if (overlay) overlay.innerHTML = '<div class="p-name">'+p.name+'</div><div class="p-score">'+score+'</div><div class="p-last-v">'+(p.lastTurn||"---")+'</div><div class="p-stats">AVG: '+avg+'</div>';
