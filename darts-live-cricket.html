@@ -757,7 +757,8 @@
             if(count === 0) db.ref("rooms_cricket/"+name).set({ status: "playing", currentPlayer: 0 });
             const playerRef = db.ref("rooms_cricket/"+name+"/players").push();
             myId = playerRef.key;
-            playerRef.set({ name: myName, score: 501, q: parseInt(document.getElementById('qualifInput').value)||0, totalDarts: 0, totalPoints: 0 });
+            const emptyMarks = { 20:0, 19:0, 18:0, 17:0, 16:0, 15:0, 25:0 };
+        playerRef.set({ name: myName, score: 0, marks: emptyMarks, q: parseInt(document.getElementById('qualifInput').value)||0, totalDarts: 0, lastTurn: "" });
 
             // Init PeerJS et publie peerId + playerId dans liveSession
             peer = new Peer();
@@ -864,8 +865,10 @@
                 window.location.href = 'menu.html';
                 return;
             }
-            if(!data || !data.players) return;
-            const pArray = Object.entries(data.players).map(([id, p]) => ({...p, id})).sort((a,b) => b.q - a.q).slice(0, 3);
+            if (!data) return;
+            const pArray = data.players
+                ? Object.entries(data.players).map(([id, p]) => ({...p, id})).sort((a,b) => b.q - a.q).slice(0, 3)
+                : [];
             gameState = {...data, players: pArray};
             myIndex = gameState.players.findIndex(p => p.id === myId);
             if (data.status === "finished") { showVictoryUI(gameState.players.find(p => p.score === 0)); return; }
@@ -890,7 +893,8 @@
         if(count === 0) db.ref("rooms_cricket/"+name).set({ status: "playing", currentPlayer: 0 });
         const playerRef = db.ref("rooms_cricket/"+name+"/players").push();
         myId = playerRef.key;
-        playerRef.set({ name: myName, score: 501, q: parseInt(document.getElementById('qualifInput').value)||0, totalDarts: 0, totalPoints: 0 });
+        const emptyMarks = { 20:0, 19:0, 18:0, 17:0, 16:0, 15:0, 25:0 };
+        playerRef.set({ name: myName, score: 0, marks: emptyMarks, q: parseInt(document.getElementById('qualifInput').value)||0, totalDarts: 0, lastTurn: "" });
         if (playerMode === 0 || playerMode === 2) initVideoSystem(name);
         if (playerMode === 2) {
             startCamera().then((ok) => {
