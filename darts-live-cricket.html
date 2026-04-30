@@ -240,38 +240,53 @@
         ).join('') + `<button class="key" onclick="addDart(0)"><span>MISS</span></button>`;
     }
 
-    function initStands() {
-        db.ref('rooms_cricket').on('value', snap => {
-            const rooms = snap.val() || {};
-            const grid = document.getElementById('standGrid');
-            grid.innerHTML = STANDS.map(name => {
-                const count = rooms[name]?.players ? Object.keys(rooms[name].players).length : 0;
-                return `<div class="stand-btn ${count > 0 ? 'active-room' : ''}" onclick="joinStand('${name}', ${count})">
-                    <span class="stand-name">${name}</span><span class="stand-status">${count}/3 JOUEURS</span>
+function initStands() {
+    // On écoute "rooms" pour voir les stands du 501 et du Cricket au même endroit
+    db.ref('rooms').on('value', snap => {
+        const rooms = snap.val() || {};
+        const grid = document.getElementById('standGrid');
+        grid.innerHTML = STANDS.map(name => {
+            const roomData = rooms[name] || {};
+            const count = roomData.players ? Object.keys(roomData.players).length : 0;
+            const isActive = count > 0;
+            
+            return `
+                <div class="stand-btn ${isActive ? 'active-room' : ''}" onclick="joinStand('${name}', ${count})">
+                    <span class="stand-name">${name}</span>
+                    <span class="stand-status">${count}/3 JOUEURS</span>
                 </div>`;
-            }).join('');
+        }).join('');
+    });
+}
+
+async function joinStand(name, count) {
+    if(count >= 3) return;
+    myName = document.getElementById('pName').value.trim().toUpperCase();
+    if(!myName) return alert("PSEUDO REQUIS");
+    roomName = name;
+
+    // Si le stand est vide, on initialise la structure Cricket
+    if(count === 0) {
+        await db.ref(`rooms/${name}`).set({ 
+            status: "playing", 
+            currentPlayer: 0,
+            gameType: "cricket" // On précise le type de jeu
         });
     }
+    
+    const playerRef = db.ref(`rooms/${name}/players`).push();
+    myId = playerRef.key;
+    
+    await playerRef.set({
+        name: myName, 
+        score: 0, 
+        marks: {20:0, 19:0, 18:0, 17:0, 16:0, 15:0, 25:0},
+        q: parseInt(document.getElementById('qualifInput').value) || 0
+    });
 
-    async function joinStand(name, count) {
-        if(count >= 3) return;
-        myName = document.getElementById('pName').value.trim().toUpperCase();
-        if(!myName) return alert("PSEUDO REQUIS");
-        roomName = name;
-
-        if(count === 0) await db.ref(`rooms_cricket/${name}`).set({ status: "playing", currentPlayer: 0 });
-        const playerRef = db.ref(`rooms_cricket/${name}/players`).push();
-        myId = playerRef.key;
-        
-        await playerRef.set({
-            name: myName, score: 0, 
-            marks: {20:0, 19:0, 18:0, 17:0, 16:0, 15:0, 25:0},
-            q: parseInt(document.getElementById('qualifInput').value) || 0
-        });
-
-        if(playerMode > 0) initVideo();
-        listenRoom();
-    }
+    if(playerMode > 0) initVideo();
+    listenRoom();
+}
 
     function initVideo() {
         peer = new Peer();
