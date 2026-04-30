@@ -864,7 +864,7 @@
                     div.innerHTML = '<div class="live-badge">● LIVE</div>'
                         +'<button id="btn-zoom-game" onclick="toggleCamZoom()" style="position:absolute;bottom:5px;right:5px;z-index:3;background:rgba(0,0,0,0.6);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:12px;padding:3px 8px;font-size:0.55rem;font-weight:900;cursor:pointer;">🔍 x1</button>'
                         +'<div class="score-overlay"><div class="p-name">'+p.name+'</div><div class="p-score">'+score+'</div>'
-                        +'<div class="cricket-grid" style="font-size:0.55rem;width:100%;">'+gridHTML+'</div></div>';
+                        +'<div class="cricket-grid" style="font-size:0.8rem;width:100%;">'+gridHTML+'</div></div>';
                     if (card) container.replaceChild(div, card); else container.appendChild(div);
                     card = div;
                     const bz = div.querySelector('#btn-zoom-game');
@@ -872,7 +872,7 @@
                 } else {
                     const overlay = card.querySelector('.score-overlay');
                     if (overlay) overlay.innerHTML = '<div class="p-name">'+p.name+'</div><div class="p-score">'+score+'</div>'
-                        +'<div class="cricket-grid" style="font-size:0.55rem;width:100%;">'+gridHTML+'</div>';
+                        +'<div class="cricket-grid" style="font-size:0.8rem;width:100%;">'+gridHTML+'</div>';
                 }
                 let vid = card.querySelector('video');
                 if (!vid) { vid = document.createElement('video'); vid.autoplay=true; vid.playsInline=true; vid.muted=true; card.insertBefore(vid, card.firstChild); }
