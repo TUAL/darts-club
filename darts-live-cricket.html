@@ -73,7 +73,7 @@
         #mode-toggle-zone { display: flex; align-items: center; justify-content: center; min-width: 50px; height: 100%; }
         .btn-mode { width: 45px; height: 45px; border-radius: 8px; border: 1px solid #333; background: #21262d; cursor: pointer; font-size: 1.3rem; }
         .btn-mode:active { background: #30363d; transform: scale(0.95); }
-        .keyboard { flex: 1; min-height: 0; background: #1a1a1a; display: flex; flex-direction: column; padding: 2px; border-top: 4px solid var(--mode-color); transition: border-color 0.2s; }
+        .keyboard { flex: 1;height: 55dvh; min-height: 0; background: #1a1a1a; display: flex; flex-direction: column; padding: 2px; border-top: 4px solid var(--mode-color); transition: border-color 0.2s; }
         .mod-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: #333; }
         .btn-m { background: #1a1a1a; color: #888; padding: 15px; border: none; font-weight: 900; font-size: 0.9rem; }
         #m1.active { color: #fff; border-bottom: 4px solid var(--accent); }
@@ -88,7 +88,7 @@
         .key.cricket-target span { color: var(--accent-green); }
         .special-row { display: grid; grid-template-columns: 1fr 1.2fr 1.2fr 1.2fr; height: 70px; gap: 1px; background: #333; }
         .sp-key { background: #121916; color: white; border: none; font-weight: bold; font-size: 0.8rem; }
-        #target-frame { display: none; flex: 1; min-height: 0; background: #000; position: relative; flex-direction: column; align-items: center; justify-content: center; }
+        #target-frame { display: none;height: 55dvh; flex: 1; min-height: 0; background: #000; position: relative; flex-direction: column; align-items: center; justify-content: center; }
         #dartboard-container { position: relative; width: min(45dvh, 90vw); height: min(45dvh, 90vw); max-width: 500px; max-height: 500px; }
         .btn-miss { position: absolute; bottom: 5px; right: 5px; width: 50px; height: 50px; background: #161b22; color: #fff; border: 1px solid #30363d; border-radius: 15px; font-weight: 900; z-index: 12; }
         .target-undo { position: absolute; bottom: 5px; left: 5px; width: 50px; height: 50px; background: #30363d; color: #fff; border: 1px solid #30363d; border-radius: 15px; font-size: 1.5rem; z-index: 12; }
