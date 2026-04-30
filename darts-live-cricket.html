@@ -16,16 +16,7 @@
             --mode-color: var(--accent);
         }
         * { box-sizing: border-box; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
-        
-        body { 
-            font-family: -apple-system, system-ui, sans-serif; 
-            background: var(--bg); color: var(--text); 
-            margin: 0; padding: 0; height: 100dvh;
-            display: flex; flex-direction: column; overflow: hidden; 
-            position: fixed; width: 100%;
-        }
-
-        /* --- SETUP --- */
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; position: fixed; width: 100%; }
         #setup-screen { flex:1; display:flex; flex-direction:column; align-items:center; padding:20px; overflow-y:auto; }
         .setup-box { width: 100%; max-width: 320px; text-align: center; }
         .input-field { width: 100%; background: var(--card); border: 1px solid #30363d; color: white; padding: 12px; border-radius: 12px; margin-bottom: 10px; outline: none; }
@@ -34,6 +25,16 @@
         .stand-btn.active-room { border-left-color: var(--accent-green); }
         .stand-name { display: block; font-weight: 800; font-size: 0.75rem; color: #fff; text-transform: uppercase; }
         .stand-status { font-size: 0.6rem; color: #8b949e; }
+        .mode-selector { display: flex; flex-direction: column; gap: 8px; margin: 15px 0; }
+        .mode-btn { background: var(--card); border: 2px solid #30363d; color: #fff; padding: 12px 15px; border-radius: 12px; text-align: left; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 12px; }
+        .mode-btn.selected { border-color: var(--accent-orange); background: rgba(243,156,18,0.1); }
+        .mode-icon { font-size: 1.4rem; flex-shrink: 0; }
+        .mode-label { font-size: 0.8rem; font-weight: 900; text-transform: uppercase; display: block; }
+        .mode-desc  { font-size: 0.6rem; color: #8b949e; margin-top: 2px; display: block; }
+        #game-screen { display: none; height: 90dvh; flex-direction: column; background: #000; }
+        .top-bar { height: 50px; background: #1a1a1a; display: flex; align-items: center; padding: 0 15px; flex-shrink: 0; border-bottom: 1px solid #333; }
+        .back-icon { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 1px solid #444; border-radius: 4px; cursor: pointer; }
+        .top-title { flex: 1; text-align: center; font-size: 0.75rem; font-weight: 900; letter-spacing: 1px; color: #ccc; }
 
         /* --- SCORE SECTION CRICKET --- */
         .score-section { 
@@ -45,56 +46,34 @@
             overflow: hidden;
         }
         .header-scores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; padding: 0 10px; flex: 1; }
-        
         .p-column { background: #1a1a1a; border: 3px solid #333; border-radius: 12px; display: flex; flex-direction: column; padding: 5px; opacity: 0.4; transition: 0.3s; color: #fff; }
         .p-column.active { opacity: 1; border-color: var(--accent-green); background: #161b22; }
         .p-name { font-size: 0.9rem; font-weight: 900; text-align: center; text-transform: uppercase; margin-bottom: 2px; }
         .p-score { font-size: 1.2rem; font-weight: 900; text-align: center; color: var(--accent-orange); margin-bottom: 3px; }
-        
-        /* Grille des segments */
         .cricket-grid { display: flex; flex-direction: column; gap: 1px; font-size: 0.8rem; font-weight: bold; }
         .segment-row { display: flex; justify-content: space-between; padding: 2px 4px; border-bottom: 1px solid #222; }
-        .mark-symbol {
-            display: inline-block;
-            width: 24px;
-            height: 18px;
-            line-height: 18px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 1.0rem;
-            transition: all 0.2s ease;
-        }
-        
-        /* Couleurs par joueur */
+        .mark-symbol { display: inline-block; width: 24px; height: 18px; line-height: 18px; text-align: center; font-weight: bold; font-size: 1.0rem; transition: all 0.2s ease; }
         .p-column.p-0 { --p-color: var(--accent-green); }
         .p-column.p-1 { --p-color: var(--accent-orange); }
         .p-column.p-2 { --p-color: var(--accent-red); }
-        .p-column.active { 
-            border-color: var(--p-color) !important; 
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
-        }
+        .p-column.active { border-color: var(--p-color) !important; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
         .p-column.active .p-name { color: var(--p-color); }
+        /* VIDEO dans la carte joueur */
+        .p-column.has-live-video { position: relative; overflow: hidden; padding: 0; border-color: var(--accent-orange) !important; opacity: 1 !important; }
+        .p-column.has-live-video video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+        .p-column.has-live-video .score-overlay { position: relative; z-index: 2; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: space-around; padding: 5px; background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.15) 50%, rgba(0,0,0,0.7) 100%); color: #fff; }
+        .live-badge { position: absolute; top: 5px; right: 5px; z-index: 3; background: var(--accent-orange); color: #000; font-size: 0.5rem; font-weight: 900; padding: 2px 6px; border-radius: 10px; letter-spacing: 1px; }
 
-        /* --- JEU --- */
-        #game-screen { display: none; height: 90dvh; flex-direction: column; background: #000; }
-
-        .top-bar { height: 50px; background: #1a1a1a; display: flex; align-items: center; padding: 0 15px; flex-shrink: 0; border-bottom: 1px solid #333; }
-        .back-icon { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 1px solid #444; border-radius: 4px; cursor: pointer; }
-        .top-title { flex: 1; text-align: center; font-size: 0.75rem; font-weight: 900; letter-spacing: 1px; color: #ccc; }
-
-        .p-last-v { font-size: 0.65rem; font-weight: bold; margin-bottom: 5px; opacity: 0.9; }
-        .p-stats { font-size: 0.65rem; font-weight: 900; width: 90%; }
-        
         .turn-announcer { height: 35px; display: flex; align-items: center; justify-content: center; color: var(--accent-orange); font-weight: 900; font-size: 0.8rem; text-transform: uppercase; }
-
         .input-info { height: 75px; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0 15px; background: #000; }
         .dart-val { width: 70px; height: 55px; background: white; color: black; border-radius: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; font-size: 1.1rem; }
         .dart-val small { font-size: 0.55rem; font-weight: bold; color: #555; }
         .btn-valid-darts { max-width: 80px; flex: 1; height: 55px; background: #222; border: none; color: #444; border-radius: 30px; font-weight: 900; font-size: 0.85rem; }
-        .btn-valid-darts.ready { color: #fff; cursor: pointer; background: var(--accent-green); }
-
-        /* --- CLAVIER --- */
-        .keyboard { height: 55dvh; background: #1a1a1a; display: flex; flex-direction: column; padding: 2px; border-top: 4px solid var(--mode-color); transition: border-color 0.2s; }
+        .btn-valid-darts.ready { cursor: pointer; background: var(--accent-green) !important; color: #fff !important; }
+        #mode-toggle-zone { display: flex; align-items: center; justify-content: center; min-width: 50px; height: 100%; }
+        .btn-mode { width: 45px; height: 45px; border-radius: 8px; border: 1px solid #333; background: #21262d; cursor: pointer; font-size: 1.3rem; }
+        .btn-mode:active { background: #30363d; transform: scale(0.95); }
+        .keyboard { flex: 1; min-height: 0; background: #1a1a1a; display: flex; flex-direction: column; padding: 2px; border-top: 4px solid var(--mode-color); transition: border-color 0.2s; }
         .mod-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: #333; }
         .btn-m { background: #1a1a1a; color: #888; padding: 15px; border: none; font-weight: 900; font-size: 0.9rem; }
         #m1.active { color: #fff; border-bottom: 4px solid var(--accent); }
@@ -106,93 +85,24 @@
         .key small { font-size: 0.75rem; color: #555; font-weight: 900; display: block; min-height: 1.2em; }
         .special-row { display: grid; grid-template-columns: 1fr 1.2fr 1.2fr 1.2fr; height: 70px; gap: 1px; background: #333; }
         .sp-key { background: #121916; color: white; border: none; font-weight: bold; font-size: 0.8rem; }
-
-        /* --- MODE CIBLE SVG --- */
-        #target-frame {
-            display: none;
-            height: 55dvh;
-            background: #000;
-            position: relative;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        #dartboard-container {
-            position: relative;
-            width: min(45dvh, 90vw);
-            height: min(45dvh, 90vw);
-            max-width: 500px;
-            max-height: 500px;
-        }
-        .btn-miss {
-            position: absolute; bottom: 5px; right: 5px;
-            width: 50px; height: 50px; background: #161b22;
-            color: #fff; border: 1px solid #30363d; border-radius: 15px;
-            font-weight: 900; z-index: 12;
-        }
-        .target-undo {
-            position: absolute; bottom: 5px; left: 5px;
-            width: 50px; height: 50px; background: #30363d;
-            color: #fff; border: 1px solid #30363d; border-radius: 15px;
-            font-size: 1.5rem; z-index: 12;
-        }
-
-        /* --- BOUTON MODE --- */
-        #mode-toggle-zone { display: flex; align-items: center; justify-content: center; min-width: 50px; height: 100%; }
-        .btn-mode { width: 45px; height: 45px; border-radius: 8px; border: 1px solid #333; background: #21262d; cursor: pointer; font-size: 1.3rem; }
-        .btn-mode:active { background: #30363d; transform: scale(0.95); }
-
-        /* --- OVERLAY VICTOIRE --- */
-        .overlay { 
-            display: none; position: fixed; inset: 0; background: rgba(13,17,23,0.98); 
-            z-index: 999; flex-direction: column; justify-content: center; align-items: center; padding: 20px; 
-        }
+        #target-frame { display: none; flex: 1; min-height: 0; background: #000; position: relative; flex-direction: column; align-items: center; justify-content: center; }
+        #dartboard-container { position: relative; width: min(45dvh, 90vw); height: min(45dvh, 90vw); max-width: 500px; max-height: 500px; }
+        .btn-miss { position: absolute; bottom: 5px; right: 5px; width: 50px; height: 50px; background: #161b22; color: #fff; border: 1px solid #30363d; border-radius: 15px; font-weight: 900; z-index: 12; }
+        .target-undo { position: absolute; bottom: 5px; left: 5px; width: 50px; height: 50px; background: #30363d; color: #fff; border: 1px solid #30363d; border-radius: 15px; font-size: 1.5rem; z-index: 12; }
+        .overlay { display:none; position:fixed; inset:0; background:rgba(13,17,23,0.98); z-index:999; flex-direction:column; justify-content:center; align-items:center; padding:20px; }
         .final-box { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid #30363d; width: 100%; max-width: 300px; text-align: center; }
-        .btn-save { background: var(--accent) !important; font-size: 0.85rem; font-weight: 800; border-radius: 10px; height: 50px; width: 100%; margin: 10px 0; color: white; border: none; }
-
-        /* --- MODALE QUITTER --- */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(5px);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-        .modal-content {
-            background: #121212;
-            padding: 2rem;
-            border-radius: 15px;
-            border-left: 5px solid #f39c12;
-            max-width: 400px;
-            text-align: center;
-            color: white;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        .modal-header {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        .modal-title {
-            background: #f39c12;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+        .btn-save { background: var(--accent) !important; font-size: 0.85rem; font-weight: 800; border-radius: 10px; height: 50px; width: 100%; margin: 10px 0; color: white; border:none; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-content { background: #121212; padding: 2rem; border-radius: 15px; border-left: 5px solid #f39c12; max-width: 400px; text-align: center; color: white; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .modal-header { font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .modal-title { background: #f39c12; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .modal-buttons { display: flex; gap: 15px; margin-top: 2rem; }
         .modal-buttons button { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .btn-cancel { background: #333; color: white; }
         .btn-confirm { background: #333; color: white; }
         .btn-confirm:hover { transform: scale(1.05); background: #f39c12; }
-    
-        /* --- VIDEO FRAME --- */
+
+        /* Style unifié pour la zone vidéo adverse */
         #video-frame {
             display: flex;
             justify-content: center;
@@ -212,39 +122,26 @@
             display: block;
         }
         #video-label {
-            position: absolute;
+            position: absolute; 
             top: 20px;
-            left: 20px;
-            background: rgba(0,0,0,0.8);
-            color: #fff;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 900;
-            border: 1px solid var(--accent-orange);
+            left: 20px; 
+            background: rgba(0,0,0,0.8); 
+            color: #fff; 
+            padding: 4px 12px; 
+            border-radius: 20px; 
+            font-size: 0.7rem; 
+            font-weight: 900; 
+            border: 1px solid var(--accent-orange); 
             text-transform: uppercase;
             z-index: 10;
         }
-        /* --- VIDEO LIVE --- */
-        .p-column.has-live-video { position: relative; overflow: hidden; padding: 0; border-color: var(--accent-orange) !important; opacity: 1 !important; }
-        .p-column.has-live-video video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-        .p-column.has-live-video .score-overlay { position: relative; z-index: 2; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: space-around; padding: 10px 5px; background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.15) 50%, rgba(0,0,0,0.7) 100%); color: #fff; }
-        .live-badge { position: absolute; top: 5px; right: 5px; z-index: 3; background: var(--accent-orange); color: #000; font-size: 0.5rem; font-weight: 900; padding: 2px 6px; border-radius: 10px; letter-spacing: 1px; }
-        .mode-btn { background: var(--card); border: 2px solid #30363d; color: #fff; padding: 12px 15px; border-radius: 12px; text-align: left; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 12px; }
-        .mode-btn.selected { border-color: var(--accent-orange); background: rgba(243,156,18,0.1); }
-        .mode-desc  { font-size: 0.6rem; color: #8b949e; margin-top: 2px; display: block; }
-
     </style>
-
 </head>
 <body>
     <div class="top-bar">
         <div id="quitModal" class="modal-overlay">
             <div class="modal-content">
-                <div class="modal-header">
-                    <span>📡</span>
-                    <span class="modal-title">QUITTER ?</span>
-                </div>
+                <div class="modal-header"><span>📡</span><span class="modal-title">QUITTER ?</span></div>
                 <p>Es-tu sûr de vouloir abandonner<br>la partie en cours ?</p>
                 <div class="modal-buttons">
                     <button onclick="closeModal()" class="btn-cancel">RESTER</button>
@@ -253,9 +150,7 @@
             </div>
         </div>
         <div class="back-icon" onclick="openModal()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
         </div>
         <div class="top-title" id="room-display">📡 CRICKET - DARTS LIVE</div>
     </div>
@@ -265,26 +160,24 @@
             <h2 style="color:var(--accent); font-size:0.9rem; letter-spacing:2px;">DARTS CLUB LIVE PREMIUM</h2>
             <input type="text" id="pName" class="input-field" placeholder="TON PSEUDO..." autocomplete="off">
             <input type="number" id="qualifInput" class="input-field" placeholder="SCORE BULLE (ORDRE)">
-            <div style="margin:15px 0 5px 0;text-align:left;font-size:0.65rem;color:#8b949e;font-weight:900;text-transform:uppercase;letter-spacing:1px;">MODE DE JEU</div>
-            <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:15px;">
+            <div class="mode-selector">
                 <div class="mode-btn selected" id="mode-btn-0" onclick="selectMode(0)">
-                    <span style="font-size:1.4rem;">⌨️</span>
-                    <div><span style="font-weight:900;font-size:0.85rem;">Joueur Standard</span><span class="mode-desc">Saisie des scores uniquement</span></div>
+                    <span class="mode-icon">🎯</span>
+                    <div><span class="mode-label">Joueur</span><span class="mode-desc">Score uniquement, pas de caméra</span></div>
                 </div>
                 <div class="mode-btn" id="mode-btn-1" onclick="selectMode(1)">
-                    <span style="font-size:1.4rem;">📡</span>
-                    <div><span style="font-weight:900;font-size:0.85rem;">Joueur + Cam (2 appareils)</span><span class="mode-desc">Appareil caméra + appareil scores</span></div>
+                    <span class="mode-icon">📡</span>
+                    <div><span class="mode-label">Joueur + Cam (2 appareils)</span><span class="mode-desc">Appareil caméra + appareil scores</span></div>
                 </div>
                 <div class="mode-btn" id="mode-btn-2" onclick="selectMode(2)">
-                    <span style="font-size:1.4rem;">🎥</span>
-                    <div><span style="font-weight:900;font-size:0.85rem;">Joueur avec Caméra</span><span class="mode-desc">Cet appareil filme ET marque les scores</span></div>
+                    <span class="mode-icon">📸</span>
+                    <div><span class="mode-label">Joueur + Cam (1 appareil)</span><span class="mode-desc">Même appareil : tu joues et filmes la cible</span></div>
                 </div>
             </div>
             <div id="standGrid" class="stand-grid"></div>
         </div>
     </div>
 
-    
     <!-- ÉCRAN CAMÉRA SEULE (mode 1, rôle caméra) -->
     <div id="cam-screen" style="display:none;height:calc(100dvh - 50px);flex-direction:column;background:#000;">
         <div id="cam-opponent-zone" style="display:none;flex:1;position:relative;background:#000;">
@@ -302,95 +195,76 @@
             <button id="btn-zoom" onclick="toggleCamZoom()" style="background:#222;color:#fff;border:1px solid #555;border-radius:20px;padding:8px 20px;font-size:0.8rem;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:1px;">🔍 Zoom x1</button>
         </div>
     </div>
+
     <div id="game-screen">
         <div class="score-section">
             <div class="header-scores" id="gamePlayers"></div>
             <video id="local-video" autoplay playsinline muted style="display:none;position:absolute;width:1px;height:1px;"></video>
             <div class="turn-announcer" id="turn-txt">...</div>
         </div>
-
         <!-- ZONE INTERACTIVE -->
         <div id="interactive-zone" style="flex:1; display:flex; flex-direction:column; overflow:hidden; min-height:0;">
 
-        <div class="input-info">
-            <div id="mode-toggle-zone">
-                <button class="btn-mode" id="btn-to-target" onclick="toggleInput('target')">🎯</button>
-                <button class="btn-mode" id="btn-to-kb" onclick="toggleInput('kb')" style="display:none;">⌨️</button>
+            <!-- Barre de saisie fléchettes -->
+            <div class="input-info">
+                <div id="mode-toggle-zone">
+                    <button class="btn-mode" id="btn-to-target" onclick="toggleInput('target')">🎯</button>
+                    <button class="btn-mode" id="btn-to-kb" onclick="toggleInput('kb')" style="display:none;">⌨️</button>
+                </div>
+                <div class="dart-val" id="v0">--<small>-</small></div>
+                <div class="dart-val" id="v1">--<small>-</small></div>
+                <div class="dart-val" id="v2">--<small>-</small></div>
+                <button class="btn-valid-darts" id="btn-validate" onclick="finishTurn()" disabled>VALIDER</button>
             </div>
-            <div class="dart-val" id="v0">--<small>-</small></div>
-            <div class="dart-val" id="v1">--<small>-</small></div>
-            <div class="dart-val" id="v2">--<small>-</small></div>
-            <button class="btn-valid-darts" id="btn-validate" onclick="finishTurn()" disabled>VALIDER</button>
-        </div>
 
-        <!-- VIDEO ADVERSE -->
-        <div id="video-frame">
-            <video id="remote-video" autoplay playsinline></video>
-            <div id="video-label">DIRECT • JOUEUR</div>
-        </div>
-
-        <!-- MODE CIBLE -->
-        <div id="target-frame">
-            <button class="btn-miss" onclick="addDart(0)">MISS<br>0</button>
-            <div id="dartboard-container"></div>
-            <button class="target-undo" onclick="undoLastDart()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 4v7a4 4 0 0 1-4 4H4"/><path d="m9 10-5 5 5 5"/></svg></button>
-        </div>
-
-        <!-- CLAVIER -->
-        <div class="keyboard" id="kb-frame">
-            <div class="mod-row">
-                <button class="btn-m active" id="m1" onclick="setMod(1)">SIMPLE</button>
-                <button class="btn-m" id="m2" onclick="setMod(2)">DOUBLE</button>
-                <button class="btn-m" id="m3" onclick="setMod(3)">TRIPLE</button>
+            <!-- VIDEO ADVERSE -->
+            <div id="video-frame">
+                <video id="remote-video" autoplay playsinline></video>
+                <div id="video-label">DIRECT • JOUEUR</div>
             </div>
-            <div id="pad" class="num-grid"></div>
-            <div class="special-row">
-                <button class="sp-key" onclick="undoLastDart()" style="font-size:1.5rem;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 4v7a4 4 0 0 1-4 4H4"/><path d="m9 10-5 5 5 5"/></svg></button>
-                <button class="sp-key" onclick="addDart(0)">Out<br>0</button>
-                <button class="sp-key" onclick="addDart(25)">25</button>
-                <button class="sp-key" onclick="addDart(50)">BULL</button>
+
+            <!-- MODE CIBLE -->
+            <div id="target-frame">
+                <button class="btn-miss" onclick="addDart(0)">MISS<br>0</button>
+                <div id="dartboard-container"></div>
+                <button class="target-undo" onclick="undoLastDart()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 4v7a4 4 0 0 1-4 4H4"/><path d="m9 10-5 5 5 5"/></svg></button>
             </div>
-        </div>
+
+            <!-- CLAVIER -->
+            <div class="keyboard" id="kb-frame">
+                <div class="mod-row">
+                    <button class="btn-m active" id="m1" onclick="setMod(1)">SIMPLE</button>
+                    <button class="btn-m" id="m2" onclick="setMod(2)">DOUBLE</button>
+                    <button class="btn-m" id="m3" onclick="setMod(3)">TRIPLE</button>
+                </div>
+                <div id="pad" class="num-grid"></div>
+                <div class="special-row">
+                    <button class="sp-key" onclick="undoLastDart()" style="font-size:1.5rem;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 4v7a4 4 0 0 1-4 4H4"/><path d="m9 10-5 5 5 5"/></svg></button>
+                    <button class="sp-key" onclick="addDart(0)">Out<br>0</button>
+                    <button class="sp-key" onclick="addDart(25)">25</button>
+                    <button class="sp-key" onclick="addDart(50)">BULL</button>
+                </div>
+            </div>
 
         </div><!-- /interactive-zone -->
     </div>
 
     <div id="end-screen" class="overlay">
-        <div class="top-bar" style="width: 100%; position: absolute; top: 0; left: 0;">
-            <div class="back-icon" onclick="window.location.href='menu.html'">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            </div>
+        <div class="top-bar" style="width:100%;position:absolute;top:0;left:0;">
+            <div class="back-icon" onclick="window.location.href='menu.html'"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
             <div class="top-title">📡 CRICKET - DARTS LIVE</div>
         </div>
         <div class="final-box">
-            <h1 style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;">MATCH TERMINÉ</h1>
-            <div id="winner-display" style="font-size: 1.8rem; font-weight: 900; margin: 10px 0; color:var(--accent-green);">VICTOIRE</div>
-            <div id="stats-list" style="background: #0b1410; border-radius: 8px; padding: 10px; border: 1px solid #30363d; text-align: left; font-size: 0.75rem;"></div>
+            <h1 style="font-size:0.7rem;color:#8b949e;text-transform:uppercase;">MATCH TERMINÉ</h1>
+            <div id="winner-display" style="font-size:1.8rem;font-weight:900;margin:10px 0;color:var(--accent-green);">VICTOIRE</div>
+            <div id="stats-list" style="background:#0b1410;border-radius:8px;padding:10px;border:1px solid #30363d;text-align:left;font-size:0.75rem;"></div>
             <button id="btn-save-only" class="btn-save" style="display:none;" onclick="saveVictory()">ENREGISTRER LA VICTOIRE</button>
-            <button class="btn-save" style="width:100%; background:#30363d !important;" onclick="resetStand()">VIDER LE STAND / MENU</button>
-        </div>
-    </div>
-
-<div id="end-screen" class="overlay">
-        <div class="top-bar" style="width: 100%; position: absolute; top: 0; left: 0;">
-            <div class="back-icon" onclick="window.location.href='menu.html'">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            </div>
-            <div class="top-title">📡 CRICKET - DARTS LIVE</div>
-        </div>
-        <div class="final-box">
-            <h1 style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;">MATCH TERMINÉ</h1>
-            <div id="winner-display" style="font-size: 1.8rem; font-weight: 900; margin: 10px 0; color:var(--accent-green);">VICTOIRE</div>
-            <div id="stats-list" style="background: #0b1410; border-radius: 8px; padding: 10px; border: 1px solid #30363d; text-align: left; font-size: 0.75rem;"></div>
-            <button id="btn-save-only" class="btn-save" style="display:none;" onclick="saveVictory()">ENREGISTRER LA VICTOIRE</button>
-            <button class="btn-save" style="width:100%; background:#30363d !important;" onclick="resetStand()">VIDER LE STAND / MENU</button>
+            <button class="btn-save" style="width:100%;background:#30363d !important;" onclick="resetStand()">VIDER LE STAND / MENU</button>
         </div>
     </div>
 
 <script>
-
-    // --- FIREBASE CONFIG ---
-    const firebaseConfig = { 
+    const firebaseConfig = {
         apiKey: "AIzaSyCSeggBmTOXR_XyspjuAsbhMfncp9MYUBA",
         authDomain: "dartsclub-1aab9.firebaseapp.com",
         databaseURL: "https://dartsclub-1aab9-default-rtdb.europe-west1.firebasedatabase.app",
@@ -407,19 +281,17 @@
     const cricketTargets = [20, 19, 18, 17, 16, 15, 25];
     const STANDS = ["1 - LITTLER", "2 - HUMPHRIES", "3 - PRICE", "4 - VAN VEEN", "5 - VAN GERWEN", "6 - TRICOLE"];
 
-    // --- ÉTAT LIVE ---
     let roomName, myName, myId, myIndex = -1, lastProcessedTurn = -1;
     let dartsInTurn = [], multiplier = 1;
     let gameState = { players: [], currentPlayer: 0, status: "open" };
     let svgBuilt = false;
 
-    // --- ÉTAT LOCAL DU TOUR (marks + score en cours de saisie) ---
-    let localMarks = {};    // copie locale des marks du joueur courant pour affichage instantané
-    let localScore = 0;     // copie locale du score
+    // État local du tour Cricket
+    let localMarks = {};
+    let localScore = 0;
     let scoreAtTurnStart = 0;
     let marksAtTurnStart = {};
 
-    
     let playerMode = 0;
     let peer, localStream, currentCall;
     window._remoteStream = null;
@@ -429,13 +301,15 @@
         document.querySelectorAll('.mode-btn').forEach((b, i) => b.classList.toggle('selected', i === m));
     }
 
+    // ================================================================
+    // SYSTÈME VIDÉO — IDENTIQUE AU 501
+    // ================================================================
     function initVideoSystem(room) {
         peer = new Peer();
         peer.on('open', (id) => {
             const updates = {};
             if (playerMode === 0) {
                 updates["rooms_cricket/"+room+"/hosts/tablette/peerId"] = id;
-                // Enregistre aussi dans players pour être joignable par les caméras mode 1
                 updates["rooms_cricket/"+room+"/players/"+myId+"/peerId"] = id;
             } else if (playerMode === 2) {
                 updates["rooms_cricket/"+room+"/players/"+myId+"/hasCamera"] = true;
@@ -444,7 +318,6 @@
             db.ref().update(updates);
         });
         peer.on('error', (err) => console.error('PeerJS erreur:', err));
-        // Tous les modes écoutent les appels entrants (mode 1 inclus : reçoit le flux de l'adversaire mode 2)
         peer.on('call', (call) => {
             call.answer();
             call.on('stream', (remoteStream) => {
@@ -469,7 +342,6 @@
 
     function applyZoom(active) {
         const ZOOM = 1.5;
-        // 1. Zoom natif sur la track (Android Chrome) — fonctionne pour tous les modes
         if (localStream) {
             const track = localStream.getVideoTracks()[0];
             if (track) {
@@ -479,19 +351,16 @@
                 }
             }
         }
-        // 2. Fallback CSS scale — mode 1 : previews fixes
         const preview = document.getElementById('cam-preview');
         const pip = document.getElementById('cam-preview-pip');
         if (preview) preview.style.transform = active ? 'scale(' + ZOOM + ')' : 'scale(1)';
         if (pip)     pip.style.transform     = active ? 'scale(' + ZOOM + ')' : 'scale(1)';
-        // 3. Fallback CSS scale — mode 2 : vidéos injectées dynamiquement dans .has-live-video
         document.querySelectorAll('.p-column.has-live-video video').forEach(vid => {
             if (vid.srcObject === localStream) {
                 vid.style.transform = active ? 'scale(' + ZOOM + ')' : 'scale(1)';
                 vid.style.transformOrigin = 'center center';
             }
         });
-        // 4. Mettre à jour les boutons (mode 1 et mode 2)
         const btn = document.getElementById('btn-zoom');
         if (btn) btn.innerText = active ? '🔍 Zoom x2 (ON)' : '🔍 Zoom x1';
         const btn2 = document.getElementById('btn-zoom-game');
@@ -514,7 +383,6 @@
         }
     }
 
-    // Suivi des appels sortants par peerId pour éviter les doublons
     const _activeCalls = {};
 
     function callPeer(targetPeerId, label) {
@@ -527,7 +395,6 @@
         call.on('error', () => { delete _activeCalls[targetPeerId]; });
     }
 
-    // L'appareil caméra (mode 1) affiche TOUJOURS sa propre caméra, rien d'autre
     function syncCamScreen() {
         if (playerMode !== 1) return;
         const selfZone = document.getElementById('cam-self-zone');
@@ -537,14 +404,11 @@
     }
 
     function initVideoFirebaseListener(room) {
-        // Mode 1 caméra : appelle l'appareil scores + tous les adversaires présents dans la room
         if (playerMode === 1) {
-            // Appelle l'appareil scores du même joueur dès qu'il est prêt
             db.ref('users/' + myName + '/liveSession/scorePeerId').on('value', snap => {
                 const scorePeerId = snap.val();
                 if (scorePeerId && localStream) callPeer(scorePeerId, 'score-device');
             });
-            // Surveille tous les joueurs de la room et appelle ceux qui ont un peerId (mode 0 ou 2)
             db.ref("rooms_cricket/"+room+"/players").on('value', snap => {
                 const players = snap.val();
                 if (!players) return;
@@ -552,7 +416,6 @@
                     if (pid !== myId && p.peerId) callPeer(p.peerId, p.name);
                 });
             });
-            // Appelle aussi le mode 0 (tablette) si présent
             db.ref("rooms_cricket/"+room+"/hosts/tablette/peerId").on('value', snap => {
                 const tabletteId = snap.val();
                 if (tabletteId && localStream) callPeer(tabletteId, 'tablette');
@@ -568,18 +431,15 @@
             if (!activePlayer) return;
             if (playerMode === 2) {
                 if (activePlayer.id === myId) {
-                    // Appelle tous les autres joueurs avec peerId ET leur scorePeerId (appareil scores)
                     pArray.forEach(p => {
                         if (p.id !== myId) {
                             if (p.peerId) callPeer(p.peerId, p.name);
                             if (p.scorePeerId) callPeer(p.scorePeerId, p.name + '-scores');
                         }
                     });
-                    // Appelle aussi le joueur mode 0 (tablette) s'il est connecté
                     const tabletteId = data.hosts && data.hosts.tablette && data.hosts.tablette.peerId;
                     if (tabletteId) callPeer(tabletteId, 'tablette');
                 } else {
-                    // Ce n'est plus mon tour : ferme tous les appels sortants
                     Object.entries(_activeCalls).forEach(([pid, call]) => { if (call && call.open) call.close(); });
                 }
             } else {
@@ -595,16 +455,9 @@
 
     window.onload = () => {
         const saved = localStorage.getItem('darts_pseudo');
-        if (saved) document.getElementById('pName').value = saved;
+        if(saved) document.getElementById('pName').value = saved;
         renderPad();
-        renderStands({});
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                initStands();
-            } else {
-                auth.signInAnonymously().catch(err => console.error('Auth error:', err));
-            }
-        });
+        auth.signInAnonymously().then(() => { initStands(); }).catch(err => console.error("Erreur Firebase:", err));
     };
 
     function toggleInput(mode) {
@@ -684,7 +537,6 @@
         myName = document.getElementById('pName').value.trim().toUpperCase();
         if(!myName) return alert("ENTRE TON PSEUDO");
         localStorage.setItem('darts_pseudo', myName);
-
         if (playerMode === 1) {
             showMode1Popup(name, count);
             return;
@@ -692,7 +544,6 @@
         _doJoinStand(name, count);
     }
 
-    // --- MODE 1 : popup choix caméra ou scores ---
     function showMode1Popup(name, count) {
         const overlay = document.createElement('div');
         overlay.id = 'role-popup';
@@ -702,12 +553,10 @@
                 <div style="font-size:1.5rem;margin-bottom:8px;">📡</div>
                 <div style="font-weight:900;font-size:1rem;color:#fff;margin-bottom:6px;text-transform:uppercase;">2 appareils — ton rôle ?</div>
                 <div style="font-size:0.75rem;color:#8b949e;margin-bottom:20px;">Les deux appareils doivent avoir le même pseudo</div>
-
                 <div style="font-size:0.7rem;color:var(--accent-orange);font-weight:900;text-transform:uppercase;margin-bottom:8px;letter-spacing:1px;">① Commencer par cet appareil</div>
                 <button id="btn-cam-role" style="width:100%;background:var(--accent-orange);color:#000;font-weight:900;font-size:0.9rem;border:none;border-radius:10px;padding:14px;margin-bottom:20px;cursor:pointer;text-transform:uppercase;">
                     🎥 Cet appareil filme
                 </button>
-
                 <div style="font-size:0.7rem;color:#8b949e;font-weight:900;text-transform:uppercase;margin-bottom:8px;letter-spacing:1px;" id="score-btn-label">② Ensuite sur l'autre appareil</div>
                 <button id="btn-score-role" disabled style="width:100%;background:#1a1a1a;color:#555;font-weight:900;font-size:0.9rem;border:2px solid #333;border-radius:10px;padding:14px;cursor:not-allowed;text-transform:uppercase;transition:all 0.3s;">
                     ⌨️ Cet appareil marque les scores<br><span id="score-btn-hint" style="font-size:0.65rem;font-weight:400;display:block;margin-top:4px;">En attente de l'appareil caméra...</span>
@@ -718,25 +567,19 @@
             </div>`;
         document.body.appendChild(overlay);
 
-        // Bouton annuler : ferme le popup et retourne au setup, sans toucher Firebase
         document.getElementById('btn-cancel-role').addEventListener('click', () => {
             const popup = document.getElementById('role-popup');
             if (popup && popup._stopPoll) popup._stopPoll();
             popup?.remove();
         });
 
-        // Bouton caméra : désactivé immédiatement après le clic pour éviter le double enregistrement
         document.getElementById('btn-cam-role').addEventListener('click', () => {
             const btn = document.getElementById('btn-cam-role');
-            btn.disabled = true;
-            btn.style.opacity = '0.4';
-            btn.style.cursor = 'not-allowed';
+            btn.disabled = true; btn.style.opacity = '0.4'; btn.style.cursor = 'not-allowed';
             btn.innerText = '🎥 Caméra en cours de démarrage...';
             chooseMode1Role('cam', name, count);
         });
 
-        // Nettoie l'ancienne session UNIQUEMENT si elle appartient à un autre stand
-        // ou si elle date de plus de 2 minutes (session périmée du même stand)
         db.ref('users/' + myName + '/liveSession').once('value').then(snap => {
             const session = snap.val();
             if (session && (session.room !== name || (Date.now() - (session.ts || 0)) > 120000)) {
@@ -744,18 +587,14 @@
             }
         });
 
-        // Poll Firebase : dès que la caméra est prête pour ce pseudo, active le bouton scores
         let _poll = setInterval(() => {
             db.ref('users/' + myName + '/liveSession').once('value').then(snap => {
                 const session = snap.val();
                 if (session && session.peerId && session.room === name) {
                     clearInterval(_poll);
-                    // La caméra tourne déjà sur l'autre appareil : désactive le bouton "filme"
                     const btnCam = document.getElementById('btn-cam-role');
                     if (btnCam && !btnCam.disabled) {
-                        btnCam.disabled = true;
-                        btnCam.style.opacity = '0.3';
-                        btnCam.style.cursor = 'not-allowed';
+                        btnCam.disabled = true; btnCam.style.opacity = '0.3'; btnCam.style.cursor = 'not-allowed';
                         btnCam.innerText = '🎥 Caméra déjà active sur l\'autre appareil';
                     }
                     const btn = document.getElementById('btn-score-role');
@@ -779,47 +618,32 @@
         const popup = document.getElementById('role-popup');
         if (popup && popup._stopPoll) popup._stopPoll();
         popup?.remove();
-        if (role === 'cam') {
-            startCameraOnly(name, count);
-        } else {
-            connectScoreToCamera(name, count);
-        }
+        if (role === 'cam') { startCameraOnly(name, count); }
+        else { connectScoreToCamera(name, count); }
     }
 
-    // Appareil caméra : démarre cam, publie peerId, attend l'autre appareil
     function startCameraOnly(name, count) {
         document.getElementById('setup-screen').style.display = 'none';
         document.getElementById('cam-screen').style.display = 'flex';
-
-        // Nettoie l'ancienne session
         db.ref('users/' + myName + '/liveSession').remove();
-
         startCamera().then(ok => {
             if (!ok) { document.getElementById('cam-status').innerText = '❌ Caméra inaccessible'; return; }
             document.getElementById('cam-preview').srcObject = localStream;
-
-            // Rejoint le stand comme joueur et publie son myId dans liveSession
             roomName = name;
             if(count === 0) db.ref("rooms_cricket/"+name).set({ status: "playing", currentPlayer: 0 });
             const playerRef = db.ref("rooms_cricket/"+name+"/players").push();
             myId = playerRef.key;
             const emptyMarks = { 20:0, 19:0, 18:0, 17:0, 16:0, 15:0, 25:0 };
-        playerRef.set({ name: myName, score: 0, marks: emptyMarks, q: parseInt(document.getElementById('qualifInput').value)||0, totalDarts: 0, lastTurn: "" });
-
-            // Init PeerJS et publie peerId + playerId dans liveSession
+            playerRef.set({ name: myName, score: 0, marks: emptyMarks, q: parseInt(document.getElementById('qualifInput').value)||0, totalDarts: 0, lastTurn: "" });
             peer = new Peer();
             peer.on('open', (id) => {
                 db.ref('users/' + myName + '/liveSession').set({ peerId: id, playerId: myId, room: name, ts: Date.now() });
                 db.ref("rooms_cricket/"+name+"/players/"+myId+"/hasCamera").set(true);
                 db.ref("rooms_cricket/"+name+"/players/"+myId+"/peerId").set(id);
                 document.getElementById('cam-status').innerText = '✅ Prêt — en attente de l\'autre appareil \ndoit se connecter avec le même pseudo \nen mode scores';
-                // Démarre l'écoute pour appeler l'appareil scores dès qu'il se connecte
                 initVideoFirebaseListener(name);
             });
-            // L'appareil caméra ne reçoit rien : il filme et envoie uniquement
             peer.on('error', err => console.error('PeerJS cam erreur:', err));
-
-            // Surveille la suppression du stand : dès qu'il est vidé, coupe la caméra et retourne au menu
             db.ref("rooms_cricket/"+name).on('value', snap => {
                 if (!snap.exists()) {
                     camZoomActive = false; applyZoom(false);
@@ -834,34 +658,22 @@
         });
     }
 
-    // Appareil scores : lit liveSession du pseudo, récupère myId et peerId caméra
     function connectScoreToCamera(name, count) {
         document.getElementById('role-popup')?.remove();
-
         const sessionRef = db.ref('users/' + myName + '/liveSession');
         let attempts = 0;
-
-        // Variable accessible par le poll ET le callback open
         let myScorePeerId = null;
-
-        // Init PeerJS maintenant pour avoir son peerId prêt
         peer = new Peer();
         peer.on('open', (scorePeerId) => {
             myScorePeerId = scorePeerId;
-            // Publie son peerId dans liveSession pour que la caméra puisse l'appeler
             sessionRef.update({ scorePeerId: scorePeerId });
-
-            // Écoute les appels entrants (caméra mode 1 ET adversaire mode 2)
             peer.on('call', (call) => {
                 call.answer();
                 call.on('stream', remoteStream => {
                     window._remoteStream = remoteStream;
                     const remoteVid = document.getElementById('remote-video');
                     const videoFrame = document.getElementById('video-frame');
-                    if (remoteVid) {
-                        remoteVid.srcObject = remoteStream;
-                        remoteVid.play().catch(() => {});
-                    }
+                    if (remoteVid) { remoteVid.srcObject = remoteStream; remoteVid.play().catch(() => {}); }
                     if (videoFrame) videoFrame.style.display = 'flex';
                     if (document.getElementById('kb-frame'))     document.getElementById('kb-frame').style.display  = 'none';
                     if (document.getElementById('target-frame')) document.getElementById('target-frame').style.display = 'none';
@@ -876,8 +688,6 @@
             });
         });
         peer.on('error', err => console.error('PeerJS score erreur:', err));
-
-        // Attend que la session caméra soit publiée ET que le peerId local soit prêt
         const poll = setInterval(() => {
             attempts++;
             sessionRef.once('value').then(snap => {
@@ -887,7 +697,6 @@
                     myId = session.playerId;
                     playerMode = 10;
                     roomName = name;
-                    // Publie le scorePeerId dans rooms_cricket pour que les adversaires mode 2 puissent l'appeler
                     db.ref("rooms_cricket/"+name+"/players/"+myId+"/scorePeerId").set(myScorePeerId);
                     document.getElementById('room-display').innerText = "📡 CRICKET LIVE : " + name;
                     _listenRoom(name);
@@ -899,10 +708,8 @@
         }, 1000);
     }
 
-    // Écoute Firebase du stand (partagée entre _doJoinStand et connectScoreToCamera)
     function _listenRoom(name) {
         db.ref("rooms_cricket/"+name).on('value', snap => {
-            // Stand supprimé
             if (!snap.exists()) {
                 if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
                 if (currentCall && currentCall.open) currentCall.close();
@@ -911,10 +718,8 @@
                 return;
             }
             const data = snap.val();
-            if (!data) return;
-            const pArray = data.players
-                ? Object.entries(data.players).map(([id, p]) => ({...p, id})).sort((a,b) => b.q - a.q).slice(0, 3)
-                : [];
+            if(!data || !data.players) return;
+            const pArray = Object.entries(data.players).map(([id, p]) => ({...p, id})).sort((a,b) => b.q - a.q).slice(0, 3);
             gameState = {...data, players: pArray};
             myIndex = gameState.players.findIndex(p => p.id === myId);
 
@@ -927,7 +732,6 @@
                 return;
             }
 
-            // Nouveau tour
             if (data.currentPlayer !== lastProcessedTurn) {
                 dartsInTurn = [];
                 lastProcessedTurn = data.currentPlayer;
@@ -963,111 +767,116 @@
         }
         _listenRoom(name);
     }
-    ;
 
-function renderStands(rooms) {
-        const grid = document.getElementById('standGrid');
-        if (!grid) return;
-        grid.innerHTML = "";
-        STANDS.forEach(name => {
-            const r = rooms[name] || {};
-            const players = r.players ? Object.values(r.players) : [];
-            const colorClass = players.length > 0 ? "active-room" : "";
-            grid.innerHTML += '<div class="stand-btn ' + colorClass + '" onclick="joinStand(\'' + name + '\', ' + players.length + ')">'
-                + '<span class="stand-name">' + name + '</span>'
-                + '<span class="stand-status">' + players.length + '/3 JOUEURS</span>'
-                + '</div>';
-        });
+    function renderPad() {
+        const pad = document.getElementById('pad');
+        pad.innerHTML = "";
+        for(let i=1; i<=20; i++) {
+            pad.innerHTML += '<button class="key" onclick="addDart('+i+')"><span>'+i+'</span><small>&nbsp;</small></button>';
+        }
     }
 
-    function joinStand(name, count) {
-        if (count >= 3) return alert("CE STAND EST COMPLET (MAX 3 JOUEURS)");
-        myName = document.getElementById('pName').value.trim().toUpperCase();
-        if (!myName) return alert("ENTRE TON PSEUDO");
-        localStorage.setItem('darts_pseudo', myName);
-        roomName = name;
-
-        if (playerMode === 1) {
-            showMode1Popup(name, count);
-            return;
-        }
-        _doJoinStand(name, count);
+    function setMod(m) {
+        multiplier = m;
+        document.querySelectorAll('.btn-m').forEach(b => b.classList.remove('active'));
+        document.getElementById('m'+m).classList.add('active');
+        const colors = ["", "var(--accent)", "var(--accent-orange)", "var(--accent-red)"];
+        document.documentElement.style.setProperty('--mode-color', colors[m]);
     }
-    function _doJoinStand(name, count) {
-        roomName = name;
-        document.getElementById('room-display').innerText = "📡 CRICKET LIVE : " + name;
-        if (count === 0) {
-            db.ref('rooms_cricket/' + name).set({ status: "playing", currentPlayer: 0 });
-        }
-        const playerRef = db.ref('rooms_cricket/' + name + '/players').push();
-        myId = playerRef.key;
-        const emptyMarks = { 20:0, 19:0, 18:0, 17:0, 16:0, 15:0, 25:0 };
-        playerRef.set({
-            name: myName,
-            score: 0,
-            marks: emptyMarks,
-            q: parseInt(document.getElementById('qualifInput').value) || 0,
-            totalDarts: 0,
-            lastTurn: ""
-        });
 
-        if (playerMode === 0 || playerMode === 2) initVideoSystem(name);
-        if (playerMode === 2) {
-            startCamera().then(ok => {
-                if (ok) initVideoFirebaseListener(name);
-            });
-        }
-        _listenRoom(name);
-    }
-    function _listenRoom(name) {
-        db.ref('rooms_cricket/' + name).on('value', snap => {
-            if (!snap.exists()) {
-                if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
-                if (currentCall && currentCall.open) currentCall.close();
-                if (peer) { peer.destroy(); }
-                window.location.href = 'menu.html';
-                return;
+    // ================================================================
+    // LOGIQUE MÉTIER CRICKET
+    // ================================================================
+    function addDart(val) {
+        if (gameState.currentPlayer !== myIndex || dartsInTurn.length >= 3) return;
+        const allClosed = cricketTargets.every(t => localMarks[t] >= 3);
+        const maxScore = Math.max(...gameState.players.map(pl => pl.id === myId ? localScore : (pl.score || 0)));
+        if (allClosed && localScore >= maxScore) return;
+
+        let currentVal = val;
+        let currentMultiplier = (val === 50) ? 2 : multiplier;
+        if (val === 50) currentVal = 25;
+        if (val === 0) { dartsInTurn.push({ val: 0, m: 1, pts: 0 }); setMod(1); syncUI(); return; }
+
+        let pointsAdded = 0;
+        if (cricketTargets.includes(currentVal)) {
+            let hitCount = currentMultiplier;
+            if (localMarks[currentVal] < 3) {
+                let spaceLeft = 3 - localMarks[currentVal];
+                let toFill = Math.min(hitCount, spaceLeft);
+                localMarks[currentVal] += toFill;
+                hitCount -= toFill;
             }
-            const data = snap.val();
-            if (!data || !data.players) return;
-            const pArray = Object.entries(data.players)
-                .map(([id, p]) => ({ ...p, id }))
-                .sort((a, b) => b.q - a.q)
-                .slice(0, 3);
-            gameState = { ...data, players: pArray };
-            myIndex = gameState.players.findIndex(p => p.id === myId);
-
-            if (data.status === "finished") {
-                showVictoryUI(gameState.players.find(p => {
-                    const allClosed = cricketTargets.every(t => (p.marks || {})[t] >= 3);
-                    const maxScore = Math.max(...gameState.players.map(pl => pl.score));
-                    return allClosed && p.score >= maxScore;
-                }));
-                return;
-            }
-
-            if (data.currentPlayer !== lastProcessedTurn) {
-                dartsInTurn = [];
-                lastProcessedTurn = data.currentPlayer;
-                if (gameState.currentPlayer === myIndex) {
-                    const me = gameState.players[myIndex];
-                    scoreAtTurnStart = me.score;
-                    localScore = me.score;
-                    marksAtTurnStart = { ...(me.marks || {}) };
-                    localMarks = { ...marksAtTurnStart };
+            if (hitCount > 0) {
+                const isClosedByAll = gameState.players.every(pl => {
+                    const marks = pl.id === myId ? localMarks : (pl.marks || {});
+                    return (marks[currentVal] || 0) >= 3;
+                });
+                if (!isClosedByAll) {
+                    pointsAdded = currentVal * hitCount;
+                    localScore += pointsAdded;
                 }
             }
+        }
+        dartsInTurn.push({ val: currentVal, m: currentMultiplier, pts: pointsAdded });
+        setMod(1);
+        syncUI();
+    }
 
-            document.getElementById('setup-screen').style.display = 'none';
-            document.getElementById('cam-screen').style.display = 'none';
-            document.getElementById('game-screen').style.display = 'flex';
-            syncUI();
+    function undoLastDart() {
+        if (dartsInTurn.length === 0) return;
+        const last = dartsInTurn.pop();
+        localScore -= last.pts;
+        if (cricketTargets.includes(last.val) && last.val !== 0) {
+            let marksUsed = last.m - (last.pts / (last.val || 1));
+            localMarks[last.val] = Math.max(0, (localMarks[last.val] || 0) - marksUsed);
+        }
+        syncUI();
+    }
+
+    function finishTurn() {
+        if (gameState.currentPlayer !== myIndex) return;
+        const me = gameState.players[myIndex];
+        const totalDarts = (me.totalDarts || 0) + dartsInTurn.length;
+        const lastTurnLabel = dartsInTurn.map(d => {
+            if (d.val === 0) return "Miss";
+            let v = d.val === 25 ? "B" : d.val;
+            let mTxt = d.m === 3 ? "T" : d.m === 2 ? "D" : "S";
+            return mTxt + v;
+        }).join(" | ") || "---";
+
+        db.ref("rooms_cricket/"+roomName+"/players/"+myId).update({
+            score: localScore,
+            marks: localMarks,
+            totalDarts: totalDarts,
+            lastTurn: lastTurnLabel
+        }).then(() => {
+            const allClosed = cricketTargets.every(t => (localMarks[t] || 0) >= 3);
+            const scores = gameState.players.map(pl => pl.id === myId ? localScore : (pl.score || 0));
+            const maxScore = Math.max(...scores);
+            if (allClosed && localScore >= maxScore) {
+                db.ref("rooms_cricket/"+roomName).update({ status: "finished" });
+            } else {
+                db.ref("rooms_cricket/"+roomName).update({ currentPlayer: (gameState.currentPlayer + 1) % gameState.players.length, lastPlayerId: myId });
+            }
         });
     }
+
+    function getSymbol(count) {
+        if (count === 0) return '<span style="opacity:0.2">◦</span>';
+        if (count === 1) return '/';
+        if (count === 2) return 'X';
+        if (count >= 3) return '⊗';
+        return '';
+    }
+
+    // ================================================================
+    // syncUI — UNE SEULE DÉFINITION, identique à 501 pour la vidéo
+    // ================================================================
     function syncUI() {
         syncCamScreen();
         const container = document.getElementById('gamePlayers');
-        if (!container) return;
+        if(!container) return;
 
         const isMyTurn = (gameState.currentPlayer === myIndex);
         const activePlayer = gameState.players[gameState.currentPlayer];
@@ -1080,6 +889,7 @@ function renderStands(rooms) {
         const tgtFrame   = document.getElementById('target-frame');
         const remoteVid  = document.getElementById('remote-video');
 
+        // Label vidéo adverse
         const videoLabel = document.getElementById('video-label');
         if (videoLabel && activePlayer) {
             if (activePlayer.hasCamera) {
@@ -1091,6 +901,7 @@ function renderStands(rooms) {
             }
         }
 
+        // --- Gestion vidéo / zone de saisie ---
         if (!isMyTurn) {
             if (videoFrame)  videoFrame.style.display = 'flex';
             if (kbFrame)     kbFrame.style.display    = 'none';
@@ -1102,7 +913,7 @@ function renderStands(rooms) {
                 }
             }
         } else {
-            if (videoFrame) videoFrame.style.display = 'none';
+            if (videoFrame)  videoFrame.style.display = 'none';
             const isTargetMode = (document.getElementById('btn-to-kb') &&
                                   document.getElementById('btn-to-kb').style.display === 'block');
             if (isTargetMode) {
@@ -1114,19 +925,27 @@ function renderStands(rooms) {
             }
         }
 
+        // --- Texte de tour ---
         const turnTxtEl = document.getElementById('turn-txt');
         if (turnTxtEl && activePlayer) {
             turnTxtEl.innerText = isMyTurn ? "À TOI DE JOUER !" : "AU TOUR DE " + activePlayer.name.toUpperCase();
         }
 
+        // --- Affichage des cartes joueurs ---
         gameState.players.forEach((p, i) => {
-            const isMe = (i === myIndex);
-            const isActive = (i === gameState.currentPlayer);
+            const isMe = (i === myIndex), isActive = (i === gameState.currentPlayer);
             const marks = isMe ? localMarks : (p.marks || {});
             const score = isMe ? localScore : (p.score || 0);
             const showLive = isActive && isMe && playerMode >= 1;
 
             let card = document.getElementById('vcrd-' + i);
+
+            const cricketGridHTML = '<div class="cricket-grid" style="font-size:0.55rem;">'
+                + cricketTargets.map(t =>
+                    '<div class="segment-row"><span>' + (t===25?'BULL':t) + '</span>'
+                    + '<span>' + getSymbol((isMe ? localMarks : (p.marks||{}))[t] || 0) + '</span></div>'
+                ).join('')
+                + '</div>';
 
             if (showLive) {
                 if (!card || !card.classList.contains('has-live-video')) {
@@ -1138,9 +957,7 @@ function renderStands(rooms) {
                         + '<div class="score-overlay">'
                         + '<div class="p-name">' + p.name + '</div>'
                         + '<div class="p-score">' + score + '</div>'
-                        + '<div class="cricket-grid" style="font-size:0.5rem;">'
-                        + cricketTargets.map(t => '<div class="segment-row"><span>' + (t===25?'BULL':t) + '</span><span>' + getSymbol((isMe?localMarks:p.marks||{})[t]||0) + '</span></div>').join('')
-                        + '</div>'
+                        + cricketGridHTML
                         + '</div>';
                     if (card) container.replaceChild(div, card); else container.appendChild(div);
                     card = div;
@@ -1150,9 +967,7 @@ function renderStands(rooms) {
                     const overlay = card.querySelector('.score-overlay');
                     if (overlay) overlay.innerHTML = '<div class="p-name">' + p.name + '</div>'
                         + '<div class="p-score">' + score + '</div>'
-                        + '<div class="cricket-grid" style="font-size:0.5rem;">'
-                        + cricketTargets.map(t => '<div class="segment-row"><span>' + (t===25?'BULL':t) + '</span><span>' + getSymbol((isMe?localMarks:p.marks||{})[t]||0) + '</span></div>').join('')
-                        + '</div>';
+                        + cricketGridHTML;
                 }
                 let vid = card.querySelector('video');
                 if (!vid) {
@@ -1173,11 +988,9 @@ function renderStands(rooms) {
                         + '<div class="p-score">' + score + '</div>'
                         + '<div class="cricket-grid">'
                         + cricketTargets.map(t =>
-                            '<div class="segment-row">'
-                            + '<span>' + (t === 25 ? 'BULL' : t) + '</span>'
+                            '<div class="segment-row"><span>' + (t===25?'BULL':t) + '</span>'
                             + '<span class="mark-symbol" style="color:' + (isActive ? 'var(--p-color)' : 'var(--accent-green)') + '">'
-                            + getSymbol(marks[t] || 0)
-                            + '</span></div>'
+                            + getSymbol(marks[t] || 0) + '</span></div>'
                         ).join('')
                         + '</div>';
                     if (card) container.replaceChild(div, card); else container.appendChild(div);
@@ -1187,225 +1000,47 @@ function renderStands(rooms) {
                         + '<div class="p-score">' + score + '</div>'
                         + '<div class="cricket-grid">'
                         + cricketTargets.map(t =>
-                            '<div class="segment-row">'
-                            + '<span>' + (t === 25 ? 'BULL' : t) + '</span>'
+                            '<div class="segment-row"><span>' + (t===25?'BULL':t) + '</span>'
                             + '<span class="mark-symbol" style="color:' + (isActive ? 'var(--p-color)' : 'var(--accent-green)') + '">'
-                            + getSymbol(marks[t] || 0)
-                            + '</span></div>'
+                            + getSymbol(marks[t] || 0) + '</span></div>'
                         ).join('')
                         + '</div>';
                 }
             }
         });
 
-        Array.from(container.children).forEach((child, i) => {
-            if (i >= gameState.players.length) container.removeChild(child);
-        });
+        Array.from(container.children).forEach((child, i) => { if (i >= gameState.players.length) container.removeChild(child); });
 
-        // Fléchettes
-        for (let i = 0; i < 3; i++) {
-            const el = document.getElementById('v' + i);
-            if (el) {
+        // --- Affichage des fléchettes ---
+        for(let i=0; i<3; i++) {
+            const el = document.getElementById('v'+i);
+            if(el) {
                 if (dartsInTurn[i]) {
                     let d = dartsInTurn[i];
-                    let valTxt = d.val === 25 ? "B" : d.val;
-                    let multTxt = d.m === 3 ? "T" : d.m === 2 ? "D" : "S";
-                    el.innerText = multTxt + valTxt;
+                    if (d.val === 0) { el.innerHTML = 'Miss<small>0</small>'; }
+                    else {
+                        let v = d.val === 25 ? "B" : d.val;
+                        let mTxt = d.m === 3 ? "T" : d.m === 2 ? "D" : "S";
+                        el.innerHTML = (mTxt+v) + '<small>' + (d.pts > 0 ? '+'+d.pts : '') + '</small>';
+                    }
                 } else {
-                    el.innerText = "--";
+                    el.innerHTML = '--<small>-</small>';
                 }
             }
         }
 
-        const isMyTurnBtn = (gameState.currentPlayer === myIndex);
-        const allClosed = cricketTargets.every(t => localMarks[t] >= 3);
-        const maxScore = Math.max(...gameState.players.map(pl => pl.id === myId ? localScore : (pl.score || 0)));
-        const isWinner = allClosed && localScore >= maxScore;
-        const canValidate = isMyTurnBtn && (dartsInTurn.length === 3 || isWinner);
-        const btn = document.getElementById('btn-validate');
-        if (btn) {
-            btn.disabled = !canValidate;
-            btn.classList.toggle('ready', canValidate);
-        }
-    }
-function renderPad() {
-        const pad = document.getElementById('pad');
-        pad.innerHTML = "";
-        for (let i = 1; i <= 20; i++) {
-            pad.innerHTML += `<button class="key" onclick="addDart(${i})"><span>${i}</span></button>`;
-        }
-    }
-
-    function setMod(m) {
-        multiplier = m;
-        document.querySelectorAll('.btn-m').forEach(b => b.classList.remove('active'));
-        document.getElementById('m' + m).classList.add('active');
-        const colors = ["", "var(--accent)", "var(--accent-orange)", "var(--accent-red)"];
-        document.documentElement.style.setProperty('--mode-color', colors[m]);
-    }
-
-    // =============================================
-    // LOGIQUE CRICKET
-    // =============================================
-    function addDart(val) {
-        if (gameState.currentPlayer !== myIndex || dartsInTurn.length >= 3) return;
-
-        // Vérif déjà gagné localement
-        const allClosed = cricketTargets.every(t => localMarks[t] >= 3);
-        const maxScore = Math.max(...gameState.players.map(pl =>
-            pl.id === myId ? localScore : pl.score
-        ));
-        if (allClosed && localScore >= maxScore) return;
-
-        let currentVal = val;
-        let currentMultiplier = (val === 50) ? 2 : multiplier;
-        if (val === 50) currentVal = 25;
-
-        let pointsAdded = 0;
-
-        if (cricketTargets.includes(currentVal)) {
-            let hitCount = currentMultiplier;
-
-            // Compléter les 3 marques
-            if (localMarks[currentVal] < 3) {
-                let spaceLeft = 3 - localMarks[currentVal];
-                let toFill = Math.min(hitCount, spaceLeft);
-                localMarks[currentVal] += toFill;
-                hitCount -= toFill;
-            }
-
-            // Points si surplus et segment pas fermé par tous
-            if (hitCount > 0) {
-                const isClosedByAll = gameState.players.every(pl => {
-                    const marks = pl.id === myId ? localMarks : (pl.marks || {});
-                    return (marks[currentVal] || 0) >= 3;
-                });
-                if (!isClosedByAll) {
-                    pointsAdded = currentVal * hitCount;
-                    localScore += pointsAdded;
-                }
-            }
-        }
-
-        dartsInTurn.push({ val: currentVal, m: currentMultiplier, pts: pointsAdded });
-        setMod(1);
-        syncUI();
-    }
-
-    function undoLastDart() {
-        if (dartsInTurn.length === 0) return;
-        const last = dartsInTurn.pop();
-
-        // Restituer le score
-        localScore -= last.pts;
-
-        // Restituer les marques
-        if (cricketTargets.includes(last.val)) {
-            let marksUsed = last.m - (last.pts / (last.val || 1));
-            localMarks[last.val] = Math.max(0, localMarks[last.val] - marksUsed);
-        }
-
-        syncUI();
-    }
-
-    function finishTurn() {
-        if (gameState.currentPlayer !== myIndex) return;
-        const me = gameState.players[myIndex];
-        const totalDarts = (me.totalDarts || 0) + dartsInTurn.length;
-
-        // Construire le label du tour
-        const lastTurnLabel = dartsInTurn.map(d => {
-            let v = d.val === 25 ? "B" : d.val;
-            let mTxt = d.m === 3 ? "T" : d.m === 2 ? "D" : "S";
-            return mTxt + v;
-        }).join(" | ") || "---";
-
-        db.ref(`rooms_cricket/${roomName}/players/${myId}`).update({
-            score: localScore,
-            marks: localMarks,
-            totalDarts: totalDarts,
-            lastTurn: lastTurnLabel
-        }).then(() => {
-            // Vérifier la victoire
-            const allClosed = cricketTargets.every(t => localMarks[t] >= 3);
-            const scores = gameState.players.map(pl => pl.id === myId ? localScore : pl.score);
-            const maxScore = Math.max(...scores);
-            if (allClosed && localScore >= maxScore) {
-                db.ref(`rooms_cricket/${roomName}`).update({ status: "finished" });
-            } else {
-                db.ref(`rooms_cricket/${roomName}`).update({
-                    currentPlayer: (gameState.currentPlayer + 1) % gameState.players.length,
-                    lastPlayerId: myId
-                });
-            }
-        });
-    }
-
-    function getSymbol(count) {
-        if (count === 0) return '<span style="opacity:0.2">◦</span>';
-        if (count === 1) return '/';
-        if (count === 2) return 'X';
-        if (count >= 3) return '⊗';
-        return '';
-    }
-
-    function syncUI() {
-        const container = document.getElementById('gamePlayers');
-        if (!container) return;
-
-        container.innerHTML = gameState.players.map((p, i) => {
-            const isMe = (i === myIndex);
-            const marks = isMe ? localMarks : (p.marks || {});
-            const score = isMe ? localScore : (p.score || 0);
-            const isActive = (i === gameState.currentPlayer);
-
-            return `<div class="p-column p-${i} ${isActive ? 'active' : ''}">
-                <div class="p-name">${p.name}</div>
-                <div class="p-score">${score}</div>
-                <div class="cricket-grid">
-                    ${cricketTargets.map(t => `
-                        <div class="segment-row">
-                            <span>${t === 25 ? 'BULL' : t}</span>
-                            <span class="mark-symbol" style="color: ${isActive ? 'var(--p-color)' : 'var(--accent-green)'}">
-                                ${getSymbol(marks[t] || 0)}
-                            </span>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>`;
-        }).join('');
-
-        const activePlayer = gameState.players[gameState.currentPlayer];
-        if (activePlayer) document.getElementById('turn-txt').innerText = `À TOI ${activePlayer.name} !`;
-
-        // Affichage des fléchettes
-        for (let i = 0; i < 3; i++) {
-            const el = document.getElementById('v' + i);
-            if (dartsInTurn[i]) {
-                let d = dartsInTurn[i];
-                let valTxt = d.val === 25 ? "B" : d.val;
-                let multTxt = d.m === 3 ? "T" : d.m === 2 ? "D" : "S";
-                el.innerText = multTxt + valTxt;
-            } else {
-                el.innerText = "--";
-            }
-        }
-
-        // Bouton valider
-        const isMyTurn = (gameState.currentPlayer === myIndex);
-        const allClosed = cricketTargets.every(t => localMarks[t] >= 3);
-        const maxScore = Math.max(...gameState.players.map(pl => pl.id === myId ? localScore : (pl.score || 0)));
-        const isWinner = allClosed && localScore >= maxScore;
+        // --- Bouton valider ---
+        const allClosed = cricketTargets.every(t => (localMarks[t] || 0) >= 3);
+        const maxScoreVal = Math.max(...gameState.players.map(pl => pl.id === myId ? localScore : (pl.score || 0)));
+        const isWinner = allClosed && localScore >= maxScoreVal;
         const canValidate = isMyTurn && (dartsInTurn.length === 3 || isWinner);
-
         const btn = document.getElementById('btn-validate');
-        btn.disabled = !canValidate;
-        btn.classList.toggle('ready', canValidate);
+        if(btn) {
+            btn.disabled = !canValidate;
+            if(!btn.disabled) btn.classList.add('ready'); else btn.classList.remove('ready');
+        }
     }
 
-    // =============================================
-    // FIN DE PARTIE
-    // =============================================
     function showVictoryUI(winner) {
         document.getElementById('game-screen').style.display = 'none';
         document.getElementById('end-screen').style.display = 'flex';
@@ -1413,9 +1048,7 @@ function renderPad() {
         document.getElementById('stats-list').innerHTML = gameState.players.map(p => {
             const mpr = p.totalDarts > 0 ? ((21 / p.totalDarts) * 3).toFixed(2) : "0.00";
             const isWin = winner && p.id === winner.id;
-            return `<div style="display:flex; justify-content:space-between; margin-bottom:5px; color:${isWin ? '#2ecc71' : '#fff'}">
-                <span>${p.name}</span><span><b>${p.score} pts</b> | MPR ${mpr} (${p.totalDarts || 0} fl.)</span>
-            </div>`;
+            return '<div style="display:flex;justify-content:space-between;margin-bottom:5px;color:'+(isWin?'#2ecc71':'#fff')+'"><span>'+p.name+'</span><span><b>'+p.score+' pts</b> | MPR '+mpr+' ('+p.totalDarts+' fl.)</span></div>';
         }).join('');
         if (winner && winner.id === myId) document.getElementById('btn-save-only').style.display = 'block';
     }
@@ -1427,7 +1060,7 @@ function renderPad() {
         const btn = document.getElementById('btn-save-only');
         try {
             btn.disabled = true; btn.innerText = "ENREGISTREMENT...";
-            const ref = db.ref(`users/${winner.name}/games/live_cricket`);
+            const ref = db.ref("users/"+winner.name+"/games/live_cricket");
             const snap = await ref.child('top').once('value');
             let top = snap.val() || [];
             top.push({ mpr, darts: winner.totalDarts, date: new Date().toLocaleDateString('fr-FR') });
@@ -1436,32 +1069,29 @@ function renderPad() {
             await ref.child('stats/wins').transaction(c => (c || 0) + 1);
             let pts = mpr >= 3.5 ? 5 : mpr >= 2.8 ? 3 : mpr >= 2.0 ? 2 : 1;
             await ref.child('stats/points').transaction(c => (c || 0) + pts);
-            btn.innerText = "✅ ARCHIVÉ";
-            btn.style.background = "#2ecc71";
+            btn.innerText = "✅ ARCHIVÉ"; btn.style.background = "#2ecc71";
+            if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
+            const camPreview = document.getElementById('cam-preview');
+            if (camPreview && camPreview.srcObject) { camPreview.srcObject.getTracks().forEach(t => t.stop()); camPreview.srcObject = null; }
             setTimeout(() => resetStand(), 1500);
-        } catch(e) {
-            console.error(e); btn.disabled = false; btn.innerText = "ERREUR";
-        }
+        } catch(e) { console.error(e); btn.disabled = false; btn.innerText = "ERREUR"; }
     }
 
     async function resetStand() {
-        if (confirm("Vider le stand et revenir au menu ?")) {
-            await db.ref(`rooms_cricket/${roomName}`).remove();
+        if(confirm("Vider le stand et revenir au menu ?")) {
+            if (currentCall && currentCall.open) currentCall.close();
+            if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
+            if (peer) peer.destroy();
+            const camPreview = document.getElementById('cam-preview');
+            if (camPreview && camPreview.srcObject) { camPreview.srcObject.getTracks().forEach(t => t.stop()); camPreview.srcObject = null; }
+            await db.ref("rooms_cricket/"+roomName).remove();
             location.reload();
         }
     }
 
-    function openModal() {
-        document.getElementById('quitModal').style.display = 'flex';
-    }
-    function closeModal() {
-        document.getElementById('quitModal').style.display = 'none';
-    }
-    window.onclick = function(event) {
-        let modal = document.getElementById('quitModal');
-        if (event.target == modal) closeModal();
-    }
-
+    function openModal() { document.getElementById('quitModal').style.display = 'flex'; }
+    function closeModal() { document.getElementById('quitModal').style.display = 'none'; }
+    window.onclick = function(event) { if (event.target == document.getElementById('quitModal')) closeModal(); }
 </script>
 </body>
 </html>
