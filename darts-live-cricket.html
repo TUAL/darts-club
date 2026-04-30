@@ -37,7 +37,7 @@
         .top-title { flex: 1; text-align: center; font-size: 0.75rem; font-weight: 900; letter-spacing: 1px; color: #ccc; }
 
         /* --- SCORE SECTION : plus haute pour les marques Cricket --- */
-        .score-section { height: 42dvh; display: flex; flex-direction: column; background: var(--bg-dark); padding: 8px 0; }
+        .score-section { height: 30dvh; display: flex; flex-direction: column; background: var(--bg-dark); padding: 8px 0; }
         .header-scores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 0 8px; flex: 1; }
 
         /* Carte joueur Cricket */
@@ -305,7 +305,7 @@
     let camZoomActive = false;
 
     function applyZoom(active) {
-        const ZOOM = 1.5;
+        const ZOOM = 1.4;
         if (localStream) {
             const track = localStream.getVideoTracks()[0];
             if (track) {
