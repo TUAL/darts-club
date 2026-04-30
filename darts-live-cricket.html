@@ -18,184 +18,132 @@
         * { box-sizing: border-box; touch-action: manipulation; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; position: fixed; width: 100%; }
         
+        /* HEADER */
+        .top-bar { height: 50px; background: #1a1a1a; display: flex; align-items: center; padding: 0 15px; flex-shrink: 0; border-bottom: 1px solid #333; z-index: 100; }
+        .back-icon { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 1px solid #444; border-radius: 4px; cursor: pointer; }
+        .top-title { flex: 1; text-align: center; font-size: 0.75rem; font-weight: 900; letter-spacing: 1px; color: #ccc; }
+
+        /* SETUP SCREEN */
         #setup-screen { flex:1; display:flex; flex-direction:column; align-items:center; padding:20px; overflow-y:auto; }
         .setup-box { width: 100%; max-width: 320px; text-align: center; }
         .input-field { width: 100%; background: var(--card); border: 1px solid #30363d; color: white; padding: 12px; border-radius: 12px; margin-bottom: 10px; outline: none; }
         .stand-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; margin-top: 15px; }
-        .stand-btn { background: var(--card); border: 1px solid #30363d; padding: 12px; border-radius: 10px; text-align: left; cursor: pointer; border-left: 4px solid #30363d; }
-        .stand-btn.active-room { border-left-color: var(--accent-green); }
+        .stand-btn { background: var(--card); border: 1px solid #30363d; padding: 12px; border-radius: 10px; text-align: left; cursor: pointer; border-left: 4px solid #30363d; transition: 0.2s; }
+        .stand-btn.active-room { border-left-color: var(--accent-green); background: rgba(46, 204, 113, 0.05); }
         .stand-name { display: block; font-weight: 800; font-size: 0.75rem; color: #fff; text-transform: uppercase; }
         .stand-status { font-size: 0.6rem; color: #8b949e; }
         
         .mode-selector { display: flex; flex-direction: column; gap: 8px; margin: 15px 0; }
-        .mode-btn { background: var(--card); border: 2px solid #30363d; color: #fff; padding: 12px 15px; border-radius: 12px; text-align: left; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 12px; }
+        .mode-btn { background: var(--card); border: 2px solid #30363d; color: #fff; padding: 12px 15px; border-radius: 12px; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 12px; }
         .mode-btn.selected { border-color: var(--accent-orange); background: rgba(243,156,18,0.1); }
-        .mode-icon { font-size: 1.4rem; flex-shrink: 0; }
-        .mode-label { font-size: 0.8rem; font-weight: 900; text-transform: uppercase; display: block; }
-        .mode-desc  { font-size: 0.6rem; color: #8b949e; margin-top: 2px; display: block; }
 
-        #game-screen { display: none; height: 90dvh; flex-direction: column; background: #000; }
-        .top-bar { height: 50px; background: #1a1a1a; display: flex; align-items: center; padding: 0 15px; flex-shrink: 0; border-bottom: 1px solid #333; }
-        .back-icon { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 1px solid #444; border-radius: 4px; cursor: pointer; }
-        .top-title { flex: 1; text-align: center; font-size: 0.75rem; font-weight: 900; letter-spacing: 1px; color: #ccc; }
-
-        /* Cricket Score Section */
+        /* GAME SCREEN */
+        #game-screen { display: none; height: calc(100dvh - 50px); flex-direction: column; background: #000; }
         .score-section { height: 42dvh; display: flex; flex-direction: column; background: var(--bg-dark); padding: 10px 0; }
         .header-scores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; padding: 0 10px; flex: 1; }
-        .p-column { background: #1a1a1a; border: 3px solid #333; border-radius: 12px; display: flex; flex-direction: column; padding: 5px; opacity: 0.4; transition: 0.3s; color: #fff; overflow: hidden;}
-        .p-column.active-0 { border-color: var(--accent-orange); opacity: 1; }
-        .p-column.active-1 { border-color: var(--accent-green);  opacity: 1; }
-        .p-column.active-2 { border-color: var(--accent-red);    opacity: 1; }
-        .p-name { font-size: 0.75rem; font-weight: 900; text-align: center; text-transform: uppercase; margin-bottom: 2px; }
-        .p-score { font-size: 1.3rem; font-weight: 900; text-align: center; color: var(--accent-orange); margin-bottom: 4px; }
         
-        .cricket-grid { display: flex; flex-direction: column; gap: 1px; font-size: 0.7rem; font-weight: bold; flex: 1; justify-content: center;}
-        .segment-row { display: flex; justify-content: space-between; padding: 1px 4px; border-bottom: 1px solid #222; }
-        .mark-symbol { width: 20px; text-align: center; font-size: 0.9rem; }
+        .p-column { background: #1a1a1a; border: 3px solid #333; border-radius: 12px; display: flex; flex-direction: column; padding: 5px; opacity: 0.4; transition: 0.3s; position: relative; overflow: hidden; }
+        .p-column.active { border-color: var(--accent-orange); opacity: 1; }
+        .p-name { font-size: 0.7rem; font-weight: 900; text-align: center; text-transform: uppercase; color: #fff; }
+        .p-score { font-size: 1.4rem; font-weight: 900; text-align: center; color: var(--accent-orange); margin: 2px 0; }
+        
+        /* CRICKET GRID */
+        .cricket-grid { display: flex; flex-direction: column; gap: 1px; flex: 1; justify-content: center; }
+        .segment-row { display: flex; justify-content: space-between; padding: 1px 6px; border-bottom: 1px solid #222; font-size: 0.65rem; font-weight: bold; }
+        .mark-symbol { font-size: 0.9rem; width: 18px; text-align: center; }
 
-        .p-column.has-live-video { position: relative; padding: 0; }
-        .p-column.has-live-video video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-        .p-column.has-live-video .score-overlay { position: relative; z-index: 2; width: 100%; height: 100%; display: flex; flex-direction: column; padding: 5px; background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.8) 100%); color: #fff; }
-        .live-badge { position: absolute; top: 3px; right: 3px; z-index: 3; background: var(--accent-orange); color: #000; font-size: 0.45rem; font-weight: 900; padding: 1px 4px; border-radius: 4px; }
+        /* LIVE CAMERA OVERLAY */
+        .p-column.has-video video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+        .score-overlay { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.8) 100%); }
 
-        .turn-announcer { height: 30px; display: flex; align-items: center; justify-content: center; color: var(--accent-orange); font-weight: 900; font-size: 0.75rem; text-transform: uppercase; }
+        /* INPUT ZONE */
         .input-info { height: 70px; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 0 10px; background: #000; }
-        .dart-val { width: 65px; height: 50px; background: white; color: black; border-radius: 25px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; font-size: 1rem; }
-        .dart-val small { font-size: 0.5rem; font-weight: bold; color: #555; }
-        .btn-valid-darts { max-width: 80px; flex: 1; height: 50px; background: #222; border: none; color: #444; border-radius: 25px; font-weight: 900; font-size: 0.8rem; }
-        .btn-valid-darts.ready { background: var(--accent-green) !important; color: #fff !important; cursor: pointer; }
+        .dart-val { width: 65px; height: 50px; background: white; color: black; border-radius: 25px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.1rem; }
+        .btn-validate { flex: 1; max-width: 100px; height: 50px; background: #222; border: none; color: #444; border-radius: 25px; font-weight: 900; }
+        .btn-validate.ready { background: var(--accent-green) !important; color: #fff !important; }
 
-        #video-frame { display: flex; justify-content: center; align-items: center; flex: 1; background: #000; position: relative; overflow: hidden; }
-        #remote-video { height: 85%; aspect-ratio: 1/1; object-fit: cover; border-radius: 12px; border: 2px solid var(--accent-orange); display: block; }
-        #video-label { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.8); color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 0.65rem; font-weight: 900; border: 1px solid var(--accent-orange); text-transform: uppercase; z-index: 10; }
+        #video-frame { flex: 1; background: #000; position: relative; display: flex; justify-content: center; align-items: center; }
+        #remote-video { height: 90%; aspect-ratio: 1/1; object-fit: cover; border-radius: 12px; border: 2px solid var(--accent-orange); }
 
-        .keyboard { flex: 1; background: #1a1a1a; display: flex; flex-direction: column; padding: 2px; border-top: 4px solid var(--mode-color); }
+        /* KEYBOARD */
+        .keyboard { flex: 1; background: #1a1a1a; display: flex; flex-direction: column; padding: 2px; }
         .mod-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: #333; }
-        .btn-m { background: #1a1a1a; color: #888; padding: 12px; border: none; font-weight: 900; font-size: 0.8rem; }
-        #m1.active { color: #fff; border-bottom: 4px solid var(--accent); }
-        #m2.active { color: #fff; border-bottom: 4px solid var(--accent-orange); }
-        #m3.active { color: #fff; border-bottom: 4px solid var(--accent-red); }
+        .btn-m { background: #1a1a1a; color: #888; padding: 12px; border: none; font-weight: 900; }
+        .btn-m.active { color: #fff; border-bottom: 3px solid var(--accent-orange); }
         .num-grid { display: grid; grid-template-columns: repeat(4, 1fr); flex: 1; gap: 1px; background: #333; }
-        .key { background: #121916; border: none; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .key span { font-size: 1.2rem; font-weight: 900; }
+        .key { background: #121916; border: none; color: white; font-weight: 900; font-size: 1.2rem; }
         .special-row { display: grid; grid-template-columns: 1fr 1fr 1fr; height: 60px; gap: 1px; background: #333; }
-        .sp-key { background: #121916; color: white; border: none; font-weight: bold; font-size: 0.8rem; }
+        .sp-key { background: #121916; color: #fff; border: none; font-weight: bold; }
 
-        #target-frame { display: none; flex: 1; background: #000; position: relative; flex-direction: column; align-items: center; justify-content: center; }
-        #dartboard-container { position: relative; width: min(40dvh, 85vw); height: min(40dvh, 85vw); }
-        .btn-miss { position: absolute; bottom: 5px; right: 5px; width: 45px; height: 45px; background: #161b22; color: #fff; border: 1px solid #30363d; border-radius: 12px; font-weight: 900; z-index: 12; }
-        .target-undo { position: absolute; bottom: 5px; left: 5px; width: 45px; height: 45px; background: #30363d; color: #fff; border: 1px solid #30363d; border-radius: 12px; z-index: 12; }
-
-        .overlay { display:none; position:fixed; inset:0; background:rgba(13,17,23,0.98); z-index:999; flex-direction:column; justify-content:center; align-items:center; }
-        .final-box { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid #30363d; width: 90%; max-width: 300px; text-align: center; }
-        .btn-save { background: var(--accent) !important; font-size: 0.8rem; font-weight: 800; border-radius: 10px; height: 45px; width: 100%; margin: 10px 0; color: white; border:none; }
-        
+        /* MODALS */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; }
-        .modal-content { background: #121212; padding: 20px; border-radius: 15px; border-left: 5px solid #f39c12; width: 85%; max-width: 350px; text-align: center; color: white; }
+        .modal-content { background: #121212; padding: 20px; border-radius: 15px; border-left: 5px solid #f39c12; width: 85%; max-width: 350px; text-align: center; }
     </style>
 </head>
 <body>
+
     <div class="top-bar">
-        <div id="quitModal" class="modal-overlay">
-            <div class="modal-content">
-                <div style="font-size:1.5rem; margin-bottom:10px;">📡 <span style="color:#f39c12; font-weight:bold;">QUITTER ?</span></div>
-                <p>Abandonner la partie ?</p>
-                <div style="display:flex; gap:10px; margin-top:20px;">
-                    <button onclick="closeModal()" style="flex:1; padding:12px; border:none; border-radius:8px; background:#333; color:white;">RESTER</button>
-                    <button onclick="window.location.href='menu.html'" style="flex:1; padding:12px; border:none; border-radius:8px; background:#e74c3c; color:white;">QUITTER</button>
-                </div>
-            </div>
-        </div>
-        <div class="back-icon" onclick="openModal()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-        </div>
-        <div class="top-title" id="room-display">📡 CRICKET - LIVE PREMIUM</div>
+        <div class="back-icon" onclick="openQuitModal()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
+        <div class="top-title" id="room-display">CRICKET LIVE PREMIUM</div>
     </div>
 
     <div id="setup-screen">
         <div class="setup-box">
-            <h2 style="color:var(--accent); font-size:0.8rem; letter-spacing:2px; margin-bottom:20px;">DARTS CLUB CRICKET LIVE</h2>
+            <h2 style="color:var(--accent-orange); font-size:0.7rem; letter-spacing:2px;">CRICKET MODE</h2>
             <input type="text" id="pName" class="input-field" placeholder="TON PSEUDO...">
             <input type="number" id="qualifInput" class="input-field" placeholder="SCORE BULLE (ORDRE)">
             <div class="mode-selector">
-                <div class="mode-btn selected" onclick="selectMode(0)">
-                    <span class="mode-icon">🎯</span>
-                    <div><span class="mode-label">Joueur</span><span class="mode-desc">Pas de caméra</span></div>
-                </div>
-                <div class="mode-btn" onclick="selectMode(1)">
-                    <span class="mode-icon">📡</span>
-                    <div><span class="mode-label">2 appareils</span><span class="mode-desc">Appareil caméra + scores</span></div>
-                </div>
-                <div class="mode-btn" onclick="selectMode(2)">
-                    <span class="mode-icon">📸</span>
-                    <div><span class="mode-label">1 appareil</span><span class="mode-desc">Caméra + scores combinés</span></div>
-                </div>
+                <div class="mode-btn selected" id="m0" onclick="setPlayerMode(0)"><span>🎯</span> 1 APPAREIL (SANS CAM)</div>
+                <div class="mode-btn" id="m2" onclick="setPlayerMode(2)"><span>📸</span> 1 APPAREIL (AVEC CAM)</div>
             </div>
             <div id="standGrid" class="stand-grid"></div>
         </div>
     </div>
 
-    <div id="cam-screen" style="display:none; height:calc(100dvh - 50px); background:#000;">
-        <div id="cam-self-zone" style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:20px;">
-            <div style="color:var(--accent-orange); font-size:2rem;">🎥</div>
-            <div style="font-weight:900; color:white; text-transform:uppercase;">Caméra active</div>
-            <div id="cam-status" style="color:#8b949e; font-size:0.7rem; text-align:center;">Initialisation...</div>
-            <div style="width:100%; aspect-ratio:1/1; border:2px solid var(--accent-orange); border-radius:12px; overflow:hidden;">
-                <video id="cam-preview" autoplay playsinline muted style="width:100%; height:100%; object-fit:cover;"></video>
-            </div>
-            <button id="btn-zoom" onclick="toggleCamZoom()" style="background:#222; color:white; border:1px solid #555; padding:10px 20px; border-radius:20px;">🔍 Zoom x1</button>
-        </div>
-    </div>
-
     <div id="game-screen">
         <div class="score-section">
-            <div class="header-scores" id="gamePlayers"></div>
-            <video id="local-video" autoplay playsinline muted style="display:none;"></video>
-            <div class="turn-announcer" id="turn-txt">...</div>
+            <div class="header-scores" id="players-list"></div>
+            <div id="turn-announcer" style="text-align:center; color:var(--accent-orange); font-weight:900; font-size:0.7rem; padding:5px;">CHARGEMENT...</div>
         </div>
 
-        <div id="interactive-zone" style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
-            <div class="input-info">
-                <button class="btn-mode" id="btn-to-target" onclick="toggleInput('target')">🎯</button>
-                <button class="btn-mode" id="btn-to-kb" onclick="toggleInput('kb')" style="display:none;">⌨️</button>
-                <div class="dart-val" id="v0">--<small>-</small></div>
-                <div class="dart-val" id="v1">--<small>-</small></div>
-                <div class="dart-val" id="v2">--<small>-</small></div>
-                <button class="btn-valid-darts" id="btn-validate" onclick="finishTurn()" disabled>VALIDER</button>
-            </div>
+        <div class="input-info">
+            <div class="dart-val" id="d0">-</div>
+            <div class="dart-val" id="d1">-</div>
+            <div class="dart-val" id="d2">-</div>
+            <button class="btn-validate" id="btn-finish" onclick="finishTurn()" disabled>VALIDER</button>
+        </div>
 
-            <div id="video-frame">
-                <video id="remote-video" autoplay playsinline></video>
-                <div id="video-label">DIRECT • JOUEUR</div>
-            </div>
+        <div id="video-frame">
+            <video id="remote-video" autoplay playsinline></video>
+            <div style="position:absolute; top:10px; left:10px; background:rgba(0,0,0,0.6); padding:4px 10px; border-radius:10px; font-size:0.6rem; font-weight:bold; border:1px solid var(--accent-orange);">DIRECT ADVERSAIRE</div>
+        </div>
 
-            <div id="target-frame">
-                <button class="btn-miss" onclick="addDart(0)">0</button>
-                <div id="dartboard-container"></div>
-                <button class="target-undo" onclick="undoLastDart()">↩</button>
+        <div class="keyboard">
+            <div class="mod-row">
+                <button class="btn-m active" id="btn-s" onclick="setMult(1)">SIMPLE</button>
+                <button class="btn-m" id="btn-d" onclick="setMult(2)">DOUBLE</button>
+                <button class="btn-m" id="btn-t" onclick="setMult(3)">TRIPLE</button>
             </div>
-
-            <div class="keyboard" id="kb-frame">
-                <div class="mod-row">
-                    <button class="btn-m active" id="m1" onclick="setMod(1)">S</button>
-                    <button class="btn-m" id="m2" onclick="setMod(2)">D</button>
-                    <button class="btn-m" id="m3" onclick="setMod(3)">T</button>
-                </div>
-                <div id="pad" class="num-grid"></div>
-                <div class="special-row">
-                    <button class="sp-key" onclick="undoLastDart()">UNDO</button>
-                    <button class="sp-key" onclick="addDart(25)">25</button>
-                    <button class="sp-key" onclick="addDart(50)">BULL</button>
-                </div>
+            <div class="num-grid" id="kb-cricket">
+                <!-- Généré par JS -->
+            </div>
+            <div class="special-row">
+                <button class="sp-key" style="background:#222;" onclick="undoLast()">ANNULER</button>
+                <button class="sp-key" onclick="handleDart(25)">BULL</button>
+                <button class="sp-key" style="background:var(--accent-red);" onclick="handleDart(0)">MISS</button>
             </div>
         </div>
     </div>
 
-    <div id="end-screen" class="overlay">
-        <div class="final-box">
-            <div id="winner-display" style="font-size:1.5rem; font-weight:900; color:var(--accent-green);">VICTOIRE</div>
-            <div id="stats-list" style="margin:15px 0; font-size:0.8rem; text-align:left;"></div>
-            <button class="btn-save" onclick="location.reload()">RETOUR MENU</button>
+    <!-- MODAL QUITTER -->
+    <div id="quitModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 style="color:#fff;">QUITTER ?</h3>
+            <p style="color:#888; font-size:0.8rem;">La partie sera perdue.</p>
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button onclick="closeQuitModal()" style="flex:1; padding:12px; border:none; border-radius:8px; background:#333; color:white;">RESTER</button>
+                <button onclick="location.reload()" style="flex:1; padding:12px; border:none; border-radius:8px; background:var(--accent-red); color:white;">QUITTER</button>
+            </div>
         </div>
     </div>
 
@@ -209,223 +157,211 @@
         messagingSenderId: "769714266505",
         appId: "1:769714266505:web:ea1758db2c96702979c158"
     };
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+
+    firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const auth = firebase.auth();
-
-    const cricketTargets = [20, 19, 18, 17, 16, 15, 25];
-    const STANDS = ["1 - LITTLER", "2 - HUMPHRIES", "3 - PRICE", "4 - VAN VEEN", "5 - VAN GERWEN", "6 - TRICOLE"];
     
-    let roomName, myName, myId, myIndex = -1, playerMode = 0;
-    let dartsInTurn = [], visualDarts = [], multiplier = 1;
-    let localMarks = {}, localScore = 0;
+    // Auth anonyme pour les droits d'écriture
+    auth.signInAnonymously();
+
+    const STANDS = ["1 - LITTLER", "2 - HUMPHRIES", "3 - PRICE", "4 - VAN VEEN", "5 - VAN GERWEN", "6 - TRICOLE"];
+    const TARGETS = [20, 19, 18, 17, 16, 15];
+    
+    let myName, myId, roomName, myIndex = -1;
+    let playerMode = 0; // 0: No Cam, 2: 1 Device Cam
+    let multiplier = 1;
+    let dartsInTurn = [];
     let gameState = { players: [], currentPlayer: 0 };
-    let peer, localStream;
+    let localMarks = {}, localScore = 0;
+    let peer;
 
-    function selectMode(m) {
-        playerMode = m;
-        document.querySelectorAll('.mode-btn').forEach((b, i) => b.classList.toggle('selected', i === m));
-    }
-
+    // Initialisation
     window.onload = () => {
         const saved = localStorage.getItem('darts_pseudo');
         if(saved) document.getElementById('pName').value = saved;
-        renderPad();
+        
+        const kb = document.getElementById('kb-cricket');
+        TARGETS.forEach(val => {
+            kb.innerHTML += `<button class="key" onclick="handleDart(${val})">${val}</button>`;
+        });
+        
         initStands();
     };
 
-    function renderPad() {
-        const pad = document.getElementById('pad');
-        pad.innerHTML = cricketTargets.filter(v => v !== 25).map(v => 
-            `<button class="key" onclick="addDart(${v})"><span>${v}</span></button>`
-        ).join('') + `<button class="key" onclick="addDart(0)"><span>MISS</span></button>`;
+    function setPlayerMode(m) {
+        playerMode = m;
+        document.getElementById('m0').classList.toggle('selected', m === 0);
+        document.getElementById('m2').classList.toggle('selected', m === 2);
     }
 
-function initStands() {
-    // On écoute "rooms" pour voir les stands du 501 et du Cricket au même endroit
-    db.ref('rooms').on('value', snap => {
-        const rooms = snap.val() || {};
-        const grid = document.getElementById('standGrid');
-        grid.innerHTML = STANDS.map(name => {
-            const roomData = rooms[name] || {};
-            const count = roomData.players ? Object.keys(roomData.players).length : 0;
-            const isActive = count > 0;
-            
-            return `
-                <div class="stand-btn ${isActive ? 'active-room' : ''}" onclick="joinStand('${name}', ${count})">
+    function initStands() {
+        db.ref('rooms').on('value', snap => {
+            const rooms = snap.val() || {};
+            const grid = document.getElementById('standGrid');
+            grid.innerHTML = STANDS.map(name => {
+                const count = rooms[name]?.players ? Object.keys(rooms[name].players).length : 0;
+                return `<div class="stand-btn ${count > 0 ? 'active-room' : ''}" onclick="joinStand('${name}', ${count})">
                     <span class="stand-name">${name}</span>
                     <span class="stand-status">${count}/3 JOUEURS</span>
                 </div>`;
-        }).join('');
-    });
-}
-
-async function joinStand(name, count) {
-    if(count >= 3) return;
-    myName = document.getElementById('pName').value.trim().toUpperCase();
-    if(!myName) return alert("PSEUDO REQUIS");
-    roomName = name;
-
-    // Si le stand est vide, on initialise la structure Cricket
-    if(count === 0) {
-        await db.ref(`rooms/${name}`).set({ 
-            status: "playing", 
-            currentPlayer: 0,
-            gameType: "cricket" // On précise le type de jeu
+            }).join('');
         });
     }
-    
-    const playerRef = db.ref(`rooms/${name}/players`).push();
-    myId = playerRef.key;
-    
-    await playerRef.set({
-        name: myName, 
-        score: 0, 
-        marks: {20:0, 19:0, 18:0, 17:0, 16:0, 15:0, 25:0},
-        q: parseInt(document.getElementById('qualifInput').value) || 0
-    });
 
-    if(playerMode > 0) initVideo();
-    listenRoom();
-}
+    async function joinStand(name, count) {
+        if(count >= 3) return;
+        myName = document.getElementById('pName').value.trim().toUpperCase();
+        if(!myName) return alert("PSEUDO REQUIS");
+        localStorage.setItem('darts_pseudo', myName);
+        roomName = name;
 
-    function initVideo() {
-        peer = new Peer();
-        peer.on('open', id => {
-            db.ref(`rooms_cricket/${roomName}/players/${myId}/peerId`).set(id);
-            if(playerMode === 2) startCamera();
+        if(count === 0) {
+            await db.ref(`rooms/${name}`).set({ status: "playing", currentPlayer: 0, gameType: "cricket" });
+        }
+
+        const pRef = db.ref(`rooms/${name}/players`).push();
+        myId = pRef.key;
+        
+        await pRef.set({
+            name: myName, score: 0, 
+            marks: {20:0, 19:0, 18:0, 17:0, 16:0, 15:0, 25:0},
+            q: parseInt(document.getElementById('qualifInput').value) || 0
         });
+
+        if(playerMode === 2) initPeer();
+        startListening();
+    }
+
+    function initPeer() {
+        peer = new Peer();
+        peer.on('open', id => db.ref(`rooms/${roomName}/players/${myId}/peerId`).set(id));
         peer.on('call', call => {
-            call.answer();
-            call.on('stream', stream => {
-                const remote = document.getElementById('remote-video');
-                remote.srcObject = stream;
-                window._remoteStream = stream;
-                syncUI();
+            navigator.mediaDevices.getUserMedia({video: {facingMode:"user"}, audio:false}).then(stream => {
+                call.answer(stream);
+                call.on('stream', rs => document.getElementById('remote-video').srcObject = rs);
             });
         });
     }
 
-    async function startCamera() {
-        localStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
-        if(playerMode === 2) document.getElementById('local-video').srcObject = localStream;
-        return true;
-    }
-
-    function listenRoom() {
-        db.ref(`rooms_cricket/${roomName}`).on('value', snap => {
+    function startListening() {
+        document.getElementById('setup-screen').style.display = 'none';
+        document.getElementById('game-screen').style.display = 'flex';
+        
+        db.ref(`rooms/${roomName}`).on('value', snap => {
             const data = snap.val();
             if(!data) return;
-            const pArray = Object.entries(data.players).map(([id, p]) => ({...p, id})).sort((a,b) => b.q - a.q);
-            gameState = {...data, players: pArray};
-            myIndex = pArray.findIndex(p => p.id === myId);
             
-            if(data.currentPlayer !== window._lastTurn) {
-                dartsInTurn = []; visualDarts = []; window._lastTurn = data.currentPlayer;
-                localMarks = {...pArray[myIndex].marks};
-                localScore = pArray[myIndex].score;
+            const players = Object.entries(data.players).map(([id, p]) => ({...p, id})).sort((a,b) => b.q - a.q);
+            gameState = {...data, players};
+            myIndex = players.findIndex(p => p.id === myId);
+
+            if(gameState.currentPlayer !== window._lastIdx) {
+                dartsInTurn = [];
+                localMarks = {...players[myIndex].marks};
+                localScore = players[myIndex].score;
+                window._lastIdx = gameState.currentPlayer;
+                
+                // Appel auto si caméra
+                if(gameState.currentPlayer !== myIndex && playerMode === 2 && players[gameState.currentPlayer].peerId) {
+                    callPlayer(players[gameState.currentPlayer].peerId);
+                }
             }
-            
-            document.getElementById('setup-screen').style.display = 'none';
-            document.getElementById('game-screen').style.display = 'flex';
-            syncUI();
+            renderUI();
         });
     }
 
-    function addDart(val) {
+    async function callPlayer(peerId) {
+        const stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:"user"}, audio:false});
+        peer.call(peerId, stream).on('stream', rs => document.getElementById('remote-video').srcObject = rs);
+    }
+
+    function handleDart(val) {
         if(gameState.currentPlayer !== myIndex || dartsInTurn.length >= 3) return;
-        let m = (val === 25 || val === 50 || val === 0) ? (val === 50 ? 2 : 1) : multiplier;
-        const target = (val === 50) ? 25 : val;
         
+        const m = (val === 25 || val === 0) ? 1 : multiplier;
+        const pts = val;
+        
+        // Logique Cricket
         for(let i=0; i<m; i++) {
-            if(target > 0 && cricketTargets.includes(target)) {
-                if(localMarks[target] < 3) {
-                    localMarks[target]++;
+            if(val > 0) {
+                if(localMarks[val] < 3) {
+                    localMarks[val]++;
                 } else {
-                    const isClosedByAll = gameState.players.every(p => (p.id === myId ? localMarks[target] : (p.marks?.[target]||0)) >= 3);
-                    if(!isClosedByAll) localScore += target;
+                    // Vérifier si quelqu'un d'autre n'a pas fermé
+                    const everyoneClosed = gameState.players.every(p => (p.id === myId ? localMarks[val] : (p.marks?.[val]||0)) >= 3);
+                    if(!everyoneClosed) localScore += val;
                 }
             }
         }
-        
-        visualDarts.push(val === 0 ? "MISS" : (m === 3 ? "T" : m === 2 ? "D" : "S") + val);
+
         dartsInTurn.push({val, m});
-        syncUI();
+        setMult(1);
+        renderUI();
     }
 
-    function undoLastDart() {
-        dartsInTurn.pop(); visualDarts.pop();
+    function undoLast() {
+        dartsInTurn.pop();
         localMarks = {...gameState.players[myIndex].marks};
         localScore = gameState.players[myIndex].score;
-        const tempDarts = [...dartsInTurn];
+        const history = [...dartsInTurn];
         dartsInTurn = [];
-        tempDarts.forEach(d => { multiplier = d.m; addDart(d.val); });
-        syncUI();
+        history.forEach(d => { multiplier = d.m; handleDart(d.val); });
+        renderUI();
     }
 
-    function syncUI() {
-        const container = document.getElementById('gamePlayers');
-        const isMyTurn = gameState.currentPlayer === myIndex;
-        
-        document.getElementById('video-frame').style.display = isMyTurn ? 'none' : 'flex';
-        document.getElementById('target-frame').style.display = isMyTurn ? 'flex' : 'none';
-        document.getElementById('turn-txt').innerText = isMyTurn ? "À TOI !" : "ATTENTE ADVERSAIRE";
-
+    function renderUI() {
+        const container = document.getElementById('players-list');
         container.innerHTML = gameState.players.map((p, i) => {
+            const isMe = p.id === myId;
+            const marks = isMe ? localMarks : (p.marks || {});
+            const score = isMe ? localScore : p.score;
             const active = i === gameState.currentPlayer;
-            const marks = i === myIndex ? localMarks : (p.marks || {});
-            const score = i === myIndex ? localScore : p.score;
             
-            return `<div class="p-column ${active ? 'active-'+i : ''}">
-                <div class="p-name">${p.name}</div>
-                <div class="p-score">${score}</div>
-                <div class="cricket-grid">
-                    ${cricketTargets.map(t => {
-                        const count = marks[t] || 0;
-                        const sym = count >= 3 ? "⭕" : count === 2 ? "X" : count === 1 ? "/" : "·";
-                        return `<div class="segment-row"><span>${t === 25 ? 'B' : t}</span><span class="mark-symbol">${sym}</span></div>`;
-                    }).join('')}
+            return `
+                <div class="p-column ${active ? 'active' : ''}">
+                    <div class="p-name">${p.name}</div>
+                    <div class="p-score">${score}</div>
+                    <div class="cricket-grid">
+                        ${[20,19,18,17,16,15,25].map(v => {
+                            const count = marks[v] || 0;
+                            const sym = count >= 3 ? "⭕" : count === 2 ? "X" : count === 1 ? "/" : "·";
+                            return `<div class="segment-row"><span>${v==25?'B':v}</span><span class="mark-symbol">${sym}</span></div>`;
+                        }).join('')}
+                    </div>
                 </div>
-            </div>`;
+            `;
         }).join('');
 
-        document.getElementById('btn-validate').disabled = !isMyTurn || dartsInTurn.length < 3;
-        document.getElementById('btn-validate').classList.toggle('ready', dartsInTurn.length === 3);
+        document.getElementById('turn-announcer').innerText = (gameState.currentPlayer === myIndex) ? "À TOI DE JOUER !" : "ATTENTE...";
         
         for(let i=0; i<3; i++) {
-            document.getElementById('v'+i).innerHTML = visualDarts[i] || '--';
+            const d = dartsInTurn[i];
+            document.getElementById('d'+i).innerText = d ? (d.val === 0 ? "M" : (d.m > 1 ? (d.m === 3 ? 'T' : 'D') : '') + d.val) : "-";
         }
+        
+        document.getElementById('btn-finish').disabled = dartsInTurn.length < 3;
+        document.getElementById('btn-finish').classList.toggle('ready', dartsInTurn.length === 3);
     }
 
     async function finishTurn() {
-        await db.ref(`rooms_cricket/${roomName}/players/${myId}`).update({
-            marks: localMarks, score: localScore, lastTurn: visualDarts.join(' ')
+        await db.ref(`rooms/${roomName}/players/${myId}`).update({
+            marks: localMarks,
+            score: localScore
         });
-        
         const next = (gameState.currentPlayer + 1) % gameState.players.length;
-        db.ref(`rooms_cricket/${roomName}`).update({ currentPlayer: next });
+        db.ref(`rooms/${roomName}`).update({ currentPlayer: next });
     }
 
-    function setMod(m) { multiplier = m; document.querySelectorAll('.btn-m').forEach((b,i) => b.classList.toggle('active', i+1 === m)); }
-    function toggleInput(mode) { 
-        document.getElementById('target-frame').style.display = mode === 'target' ? 'flex' : 'none';
-        document.getElementById('kb-frame').style.display = mode === 'kb' ? 'flex' : 'none';
-        document.getElementById('btn-to-target').style.display = mode === 'kb' ? 'block' : 'none';
-        document.getElementById('btn-to-kb').style.display = mode === 'target' ? 'block' : 'none';
-        if(mode === 'target' && !window._svg) buildSVGDartboard();
+    function setMult(m) {
+        multiplier = m;
+        document.getElementById('btn-s').classList.toggle('active', m === 1);
+        document.getElementById('btn-d').classList.toggle('active', m === 2);
+        document.getElementById('btn-t').classList.toggle('active', m === 3);
     }
-    
-    function openModal() { document.getElementById('quitModal').style.display = 'flex'; }
-    function closeModal() { document.getElementById('quitModal').style.display = 'none'; }
 
-    // Logique simplifiée du Dartboard pour le Cricket
-    function buildSVGDartboard() {
-        window._svg = true;
-        const container = document.getElementById('dartboard-container');
-        // (Le code SVG du fichier 501 est ré-utilisé ici mais branché sur addDart de Cricket)
-        container.innerHTML = `<div style="color:white; font-size:0.8rem;">Cible active (Cliquez sur les segments)</div>`;
-        // Note: Pour une implémentation complète, insérer ici le constructeur SVG du fichier 1.
-    }
+    function openQuitModal() { document.getElementById('quitModal').style.display = 'flex'; }
+    function closeQuitModal() { document.getElementById('quitModal').style.display = 'none'; }
 </script>
 </body>
 </html>
