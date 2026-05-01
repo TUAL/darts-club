@@ -248,7 +248,8 @@
 
     // ── CRICKET CONSTANTS ──────────────────────────────────────────
     const CRICKET_TARGETS = [20, 19, 18, 17, 16, 15, 25];
-    const EMPTY_MARKS = () => ({ 20:0, 19:0, 18:0, 17:0, 16:0, 15:0, 25:0 });
+    // Clés en STRING pour cohérence avec Firebase (qui convertit toutes les clés en string)
+    const EMPTY_MARKS = () => ({ "20":0, "19":0, "18":0, "17":0, "16":0, "15":0, "25":0 });
 
     // ── STATE (même structure que 501, + marks cricket) ─────────────
     let roomName, myName, myId, myIndex = -1, lastProcessedTurn = -1;
@@ -701,16 +702,16 @@
         let pointsAdded = 0;
 
         if (CRICKET_TARGETS.includes(target)) {
-            const current = localMarks[target] || 0;
+            const current = localMarks[String(target)] || 0;
             const toFill  = Math.max(0, Math.min(nbHits, 3 - current)); // complète jusqu'à 3
             const surplus = nbHits - toFill;                              // touches au-delà de 3
 
-            localMarks[target] = Math.min(3, current + toFill);
+            localMarks[String(target)] = Math.min(3, current + toFill);
 
             if (surplus > 0) {
                 const closedByAll = gameState.players.every(pl => {
                     const m = (pl.id === myId) ? localMarks : (pl.marks || EMPTY_MARKS());
-                    return (m[target] || 0) >= 3;
+                    return (m[String(target)] || 0) >= 3;
                 });
                 if (!closedByAll) {
                     pointsAdded = target * surplus;
@@ -761,7 +762,7 @@
     }
 
     function isWinner() {
-        const allClosed = CRICKET_TARGETS.every(t => (localMarks[t]||0) >= 3);
+        const allClosed = CRICKET_TARGETS.every(t => (localMarks[String(t)]||0) >= 3);
         if (!allClosed) return false;
         const maxOther = Math.max(0, ...gameState.players.filter(p => p.id !== myId).map(p => p.score||0));
         return localScore >= maxOther;
@@ -841,7 +842,7 @@
 
             // HTML des marques cricket
             const gridHTML = CRICKET_TARGETS.map(t =>
-                '<div class="seg-row"><span class="seg-num">'+(t===25?'BULL':t)+'</span><span class="seg-mark">'+markSymbol(marks[t]||0)+'</span></div>'
+                '<div class="seg-row"><span class="seg-num">'+(t===25?'BULL':t)+'</span><span class="seg-mark">'+markSymbol(marks[String(t)]||0)+'</span></div>'
             ).join('');
 
             if (showLive) {
@@ -900,7 +901,7 @@
         document.getElementById('end-screen').style.display = 'flex';
         // Trouver le vainqueur : tous segments fermés ET score >= tous adversaires
         const winner = gameState.players.find(p => {
-            const allClosed = CRICKET_TARGETS.every(t => (p.marks||{})[t] >= 3);
+            const allClosed = CRICKET_TARGETS.every(t => (p.marks||{})[String(t)] >= 3);
             const maxOther  = Math.max(0, ...gameState.players.filter(op=>op.id!==p.id).map(op=>op.score||0));
             return allClosed && (p.score||0) >= maxOther;
         });
