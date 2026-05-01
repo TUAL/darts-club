@@ -37,7 +37,7 @@
         .top-title { flex: 1; text-align: center; font-size: 0.75rem; font-weight: 900; letter-spacing: 1px; color: #ccc; }
 
         /* --- SCORE SECTION : plus haute pour les marques Cricket --- */
-        .score-section { height: 40dvh; display: flex; flex-direction: column; background: var(--bg-dark); padding: 8px 0; }
+        .score-section { height: 42dvh; display: flex; flex-direction: column; background: var(--bg-dark); padding: 8px 0; }
         .header-scores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 0 8px; flex: 1; }
 
         /* Carte joueur Cricket */
@@ -73,7 +73,7 @@
         #mode-toggle-zone { display: flex; align-items: center; justify-content: center; min-width: 50px; height: 100%; }
         .btn-mode { width: 45px; height: 45px; border-radius: 8px; border: 1px solid #333; background: #21262d; cursor: pointer; font-size: 1.3rem; }
         .btn-mode:active { background: #30363d; transform: scale(0.95); }
-        .keyboard { flex: 1;height: 55dvh; min-height: 0; background: #1a1a1a; display: flex; flex-direction: column; padding: 2px; border-top: 4px solid var(--mode-color); transition: border-color 0.2s; }
+        .keyboard { flex: 1; min-height: 0; background: #1a1a1a; display: flex; flex-direction: column; padding: 2px; border-top: 4px solid var(--mode-color); transition: border-color 0.2s; }
         .mod-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: #333; }
         .btn-m { background: #1a1a1a; color: #888; padding: 15px; border: none; font-weight: 900; font-size: 0.9rem; }
         #m1.active { color: #fff; border-bottom: 4px solid var(--accent); }
@@ -88,7 +88,7 @@
         .key.cricket-target span { color: var(--accent-green); }
         .special-row { display: grid; grid-template-columns: 1fr 1.2fr 1.2fr 1.2fr; height: 70px; gap: 1px; background: #333; }
         .sp-key { background: #121916; color: white; border: none; font-weight: bold; font-size: 0.8rem; }
-        #target-frame { display: none;height: 55dvh; flex: 1; min-height: 0; background: #000; position: relative; flex-direction: column; align-items: center; justify-content: center; }
+        #target-frame { display: none; flex: 1; min-height: 0; background: #000; position: relative; flex-direction: column; align-items: center; justify-content: center; }
         #dartboard-container { position: relative; width: min(45dvh, 90vw); height: min(45dvh, 90vw); max-width: 500px; max-height: 500px; }
         .btn-miss { position: absolute; bottom: 5px; right: 5px; width: 50px; height: 50px; background: #161b22; color: #fff; border: 1px solid #30363d; border-radius: 15px; font-weight: 900; z-index: 12; }
         .target-undo { position: absolute; bottom: 5px; left: 5px; width: 50px; height: 50px; background: #30363d; color: #fff; border: 1px solid #30363d; border-radius: 15px; font-size: 1.5rem; z-index: 12; }
@@ -253,7 +253,7 @@
     // ── STATE (même structure que 501, + marks cricket) ─────────────
     let roomName, myName, myId, myIndex = -1, lastProcessedTurn = -1;
     let dartsInTurn = [], visualDarts = [], multiplier = 1;
-    // Cricket : pas de bust, mais on garde localMarks et localScore
+    let dartSnapshots = [];  // [{marks, score}] — un par fléchette pour undo fiable
     let localMarks = EMPTY_MARKS(), localScore = 0;
     let marksAtTurnStart = EMPTY_MARKS(), scoreAtTurnStart = 0;
     let gameState = { players: [], currentPlayer: 0, status: "open" };
@@ -305,7 +305,7 @@
     let camZoomActive = false;
 
     function applyZoom(active) {
-        const ZOOM = 1.4;
+        const ZOOM = 1.5;
         if (localStream) {
             const track = localStream.getVideoTracks()[0];
             if (track) {
@@ -635,7 +635,7 @@
             myIndex = gameState.players.findIndex(p => p.id === myId);
             if (data.status === "finished") { showVictoryUI(); return; }
             if (data.currentPlayer !== lastProcessedTurn) {
-                dartsInTurn = []; visualDarts = [];
+                dartsInTurn = []; visualDarts = []; dartSnapshots = [];
                 lastProcessedTurn = data.currentPlayer;
                 if (gameState.currentPlayer === myIndex) {
                     const me = gameState.players[myIndex];
@@ -689,69 +689,57 @@
 
         // val=0 : miss
         if (val === 0) {
+            dartSnapshots.push({ marks: {...localMarks}, score: localScore });
             dartsInTurn.push(0); visualDarts.push("Miss");
             setMod(1); syncUI(); return;
         }
 
         // BULL (50) = double 25
-        let target = (val === 50) ? 25 : val;
-        let hits   = (val === 50) ? 2  : multiplier;
+        const target  = (val === 50) ? 25 : val;
+        const nbHits  = (val === 50) ? 2  : multiplier;  // touches totales
 
         let pointsAdded = 0;
 
         if (CRICKET_TARGETS.includes(target)) {
-            // Compléter les marques jusqu'à 3
             const current = localMarks[target] || 0;
-            if (current < 3) {
-                const fill = Math.min(hits, 3 - current);
-                localMarks[target] = current + fill;
-                hits -= fill;
-            }
-            // Si marques surplus : points si le segment n'est pas fermé par tous
-            if (hits > 0) {
+            const toFill  = Math.max(0, Math.min(nbHits, 3 - current)); // complète jusqu'à 3
+            const surplus = nbHits - toFill;                              // touches au-delà de 3
+
+            localMarks[target] = Math.min(3, current + toFill);
+
+            if (surplus > 0) {
                 const closedByAll = gameState.players.every(pl => {
                     const m = (pl.id === myId) ? localMarks : (pl.marks || EMPTY_MARKS());
                     return (m[target] || 0) >= 3;
                 });
                 if (!closedByAll) {
-                    pointsAdded = target * hits;
+                    pointsAdded = target * surplus;
                     localScore += pointsAdded;
                 }
             }
         }
-        // Segment hors cible Cricket : miss silencieux (on enregistre 0 pt)
-        const mTxt = (val===50||hits===0)?'':(multiplier===3?'T':multiplier===2?'D':'S');
-        const lbl  = val===50 ? 'BULL' : val===25 ? 'B25' : mTxt+(val);
+        const mTxt = (val===50) ? '' : (multiplier===3?'T':multiplier===2?'D':'S');
+        const lbl  = val===50 ? 'BULL' : val===25 ? 'B25' : mTxt+val;
+        dartSnapshots.push({ marks: {...localMarks}, score: localScore });
         dartsInTurn.push(pointsAdded); visualDarts.push(lbl);
         setMod(1); syncUI();
     }
 
     function undoLastDart() {
         if (dartsInTurn.length === 0) return;
-        dartsInTurn.pop(); visualDarts.pop();
-        // Recalcul depuis marksAtTurnStart
-        localMarks = {...marksAtTurnStart};
-        localScore = scoreAtTurnStart;
-        // Rejoue chaque fléchette restante
-        const saved = [...dartsInTurn]; const savedVis = [...visualDarts];
-        dartsInTurn = []; visualDarts = [];
-        // On reconstruit en rejouant (simple : reset + re-apply)
-        // En fait il est plus simple de tout reset et relancer addDart
-        // Mais addDart modifie l'état global — on fait donc une reconstruction manuelle
-        localMarks = {...marksAtTurnStart}; localScore = scoreAtTurnStart;
-        // Reconstruit les marques depuis les fléchettes restantes via les labels
-        // → plus simple : stocker {target, hits} dans dartsInTurn au lieu des pts
-        // Pour l'instant : recalcul approximatif suffisant (les pts sont dans dartsInTurn)
-        saved.forEach(pts => {
-            // pts=0 peut être un miss ou 0 point — on ne peut pas reconstruire les marks sans info
-            // → on reset et on force un syncUI propre
-        });
-        // Solution fiable : stocker la snapshot marks+score à chaque dart
-        // Implémentation rapide : on repart de marksAtTurnStart et on réapplique
-        localMarks = {...marksAtTurnStart}; localScore = scoreAtTurnStart;
-        dartsInTurn = []; visualDarts = [];
+        dartsInTurn.pop();
+        visualDarts.pop();
+        dartSnapshots.pop();
+        // Restaure le snapshot précédent (ou le début de tour s'il n'en reste plus)
+        if (dartSnapshots.length > 0) {
+            const prev = dartSnapshots[dartSnapshots.length - 1];
+            localMarks = {...prev.marks};
+            localScore = prev.score;
+        } else {
+            localMarks = {...marksAtTurnStart};
+            localScore = scoreAtTurnStart;
+        }
         syncUI();
-        // Note : l'undo remet à zéro toutes les fléchettes du tour (comportement sûr)
     }
 
     function finishTurn() {
@@ -864,7 +852,7 @@
                     div.innerHTML = '<div class="live-badge">● LIVE</div>'
                         +'<button id="btn-zoom-game" onclick="toggleCamZoom()" style="position:absolute;bottom:5px;right:5px;z-index:3;background:rgba(0,0,0,0.6);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:12px;padding:3px 8px;font-size:0.55rem;font-weight:900;cursor:pointer;">🔍 x1</button>'
                         +'<div class="score-overlay"><div class="p-name">'+p.name+'</div><div class="p-score">'+score+'</div>'
-                        +'<div class="cricket-grid" style="font-size:0.8rem;width:100%;">'+gridHTML+'</div></div>';
+                        +'<div class="cricket-grid" style="font-size:0.55rem;width:100%;">'+gridHTML+'</div></div>';
                     if (card) container.replaceChild(div, card); else container.appendChild(div);
                     card = div;
                     const bz = div.querySelector('#btn-zoom-game');
@@ -872,7 +860,7 @@
                 } else {
                     const overlay = card.querySelector('.score-overlay');
                     if (overlay) overlay.innerHTML = '<div class="p-name">'+p.name+'</div><div class="p-score">'+score+'</div>'
-                        +'<div class="cricket-grid" style="font-size:0.8rem;width:100%;">'+gridHTML+'</div>';
+                        +'<div class="cricket-grid" style="font-size:0.55rem;width:100%;">'+gridHTML+'</div>';
                 }
                 let vid = card.querySelector('video');
                 if (!vid) { vid = document.createElement('video'); vid.autoplay=true; vid.playsInline=true; vid.muted=true; card.insertBefore(vid, card.firstChild); }
