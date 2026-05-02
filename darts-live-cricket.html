@@ -252,7 +252,7 @@
     const EMPTY_MARKS = () => ({ "20":0, "19":0, "18":0, "17":0, "16":0, "15":0, "25":0 });
 
     // ── STATE (même structure que 501, + marks cricket) ─────────────
-    let roomName, myName, myId, myIndex = -1, lastProcessedTurn = -1;
+    let roomName, myName, myId, myIndex = -1, lastProcessedTurn = '';
     let dartsInTurn = [], visualDarts = [], multiplier = 1;
     let dartSnapshots = [];  // [{marks, score}] — un par fléchette pour undo fiable
     let localMarks = EMPTY_MARKS(), localScore = 0;
@@ -635,13 +635,16 @@
             gameState = {...data, players: pArray};
             myIndex = gameState.players.findIndex(p => p.id === myId);
             if (data.status === "finished") { showVictoryUI(); return; }
-            if (data.currentPlayer !== lastProcessedTurn) {
+            // On détecte un vrai changement de tour via lastPlayerId + currentPlayer
+            // car currentPlayer peut revenir au même index (ex: 0→1→0) sans déclencher de reset
+            const turnKey = (data.lastPlayerId || 'start') + '_' + data.currentPlayer;
+            if (turnKey !== lastProcessedTurn) {
                 dartsInTurn = []; visualDarts = []; dartSnapshots = [];
-                lastProcessedTurn = data.currentPlayer;
+                lastProcessedTurn = turnKey;
                 if (gameState.currentPlayer === myIndex) {
                     const me = gameState.players[myIndex];
-                    scoreAtTurnStart    = me ? (me.score  || 0)         : 0;
-                    marksAtTurnStart    = me ? {...(me.marks || EMPTY_MARKS())} : EMPTY_MARKS();
+                    scoreAtTurnStart = me ? (me.score  || 0) : 0;
+                    marksAtTurnStart = me ? {...(me.marks || EMPTY_MARKS())} : EMPTY_MARKS();
                     localScore = scoreAtTurnStart;
                     localMarks = {...marksAtTurnStart};
                 }
