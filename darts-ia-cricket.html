@@ -310,52 +310,53 @@
     }
 
     // --- LOGIQUE DE JEU ---
+    let dartSnapshots = [];
+
     function addDart(val) {
         const p = players[currentPlayer];
-        if (p.isIA) return;
-        if (dartsInTurn.length >= 3 || isFinished()) return;
+        if (p.isIA || dartsInTurn.length >= 3) return;
 
-        let currentVal = (val === 50) ? 25 : val;
-        let currentMultiplier = (val === 50) ? 2 : (val === 25 && multiplier === 3) ? 2 : multiplier;
+        if (val === 0) {
+            dartSnapshots.push({ marks: {...p.marks}, score: p.score });
+            dartsInTurn.push({ val: 0, m: 1, pts: 0 });
+            setMod(1); syncUI(); return;
+        }
 
-        let pointsAdded = 0;
+        const currentVal = (val === 50) ? 25 : val;
+        const nbHits     = (val === 50) ? 2  : multiplier;
+        let pointsAdded  = 0;
 
         if (cricketTargets.includes(currentVal)) {
-            let hitCount = currentMultiplier;
-            if (p.marks[currentVal] < 3) {
-                let spaceLeft = 3 - p.marks[currentVal];
-                let toFill = Math.min(hitCount, spaceLeft);
-                p.marks[currentVal] += toFill;
-                hitCount -= toFill;
-            }
-            if (hitCount > 0) {
-                const opp = players[1 - currentPlayer];
-                if (opp.marks[currentVal] < 3) {
-                    pointsAdded = currentVal * hitCount;
-                    p.score += pointsAdded;
-                }
+            const current = p.marks[currentVal] || 0;
+            const toFill  = Math.max(0, Math.min(nbHits, 3 - current));
+            const surplus = nbHits - toFill;
+            p.marks[currentVal] = Math.min(3, current + toFill);
+            // Règle : je marque dès que J'ai fermé (>=3), sans condition sur les adversaires
+            if (surplus > 0) {
+                pointsAdded = currentVal * surplus;
+                p.score += pointsAdded;
             }
         }
 
-        dartsInTurn.push({ val: currentVal, m: currentMultiplier, pts: pointsAdded });
-        setMod(1);
-        syncUI();
+        dartSnapshots.push({ marks: {...p.marks}, score: p.score });
+        dartsInTurn.push({ val: currentVal, m: multiplier, pts: pointsAdded });
+        setMod(1); syncUI();
     }
 
     function undoLastDart() {
-        if (dartsInTurn.length > 0) {
-            const last = dartsInTurn.pop();
-            const p = players[currentPlayer];
-
-            if (last.pts > 0) p.score -= last.pts;
-
-            if (cricketTargets.includes(last.val)) {
-                let marksUsed = last.m - (last.pts > 0 ? last.pts / last.val : 0);
-                p.marks[last.val] = Math.max(0, p.marks[last.val] - marksUsed);
-            }
-
-            syncUI();
+        if (dartsInTurn.length === 0) return;
+        dartsInTurn.pop();
+        dartSnapshots.pop();
+        const p = players[currentPlayer];
+        if (dartSnapshots.length > 0) {
+            const prev = dartSnapshots[dartSnapshots.length - 1];
+            p.marks = {...prev.marks};
+            p.score = prev.score;
+        } else {
+            p.marks = {...p._marksAtTurnStart};
+            p.score = p._scoreAtTurnStart;
         }
+        syncUI();
     }
 
     function finishTurn() {
@@ -364,8 +365,10 @@
 
         if (isFinished()) return showEnd();
 
-        dartsInTurn = [];
+        dartsInTurn = []; dartSnapshots = [];
         currentPlayer = 1 - currentPlayer;
+        const np = players[currentPlayer];
+        np._marksAtTurnStart = {...np.marks}; np._scoreAtTurnStart = np.score || 0;
         syncUI();
 
         if (players[currentPlayer].isIA) setTimeout(playIA, 800);
@@ -400,13 +403,13 @@
                 let pointsAdded = 0;
 
                 if (cricketTargets.includes(target)) {
-                    if (ia.marks[target] < 3) {
-                        let fill = Math.min(hitCount, 3 - ia.marks[target]);
-                        ia.marks[target] += fill;
-                        hitCount -= fill;
-                    }
-                    if (hitCount > 0 && human.marks[target] < 3) {
-                        pointsAdded = target * hitCount;
+                    const cur = ia.marks[target] || 0;
+                    const fill = Math.max(0, Math.min(hitCount, 3 - cur));
+                    const surplus = hitCount - fill;
+                    ia.marks[target] = Math.min(3, cur + fill);
+                    // Même règle : l'IA score dès qu'elle a fermé
+                    if (surplus > 0) {
+                        pointsAdded = target * surplus;
                         ia.score += pointsAdded;
                     }
                 }

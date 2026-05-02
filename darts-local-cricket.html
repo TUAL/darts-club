@@ -26,7 +26,7 @@
 		
         /* --- SCORE SECTION CRICKET --- */
 		.score-section { 
-			height: 40dvh; 
+			height: 30dvh; 
 			display: flex; 
 			flex-direction: column; 
 			background: var(--bg-dark); 
@@ -388,63 +388,37 @@ function addPlayerToGame(nameFromSuggest = null) {
         syncUI();
     }
 
-	// --- LOGIQUE CRICKET ---
-function addDart(val) {
-	// 1. On récupère le joueur actuel
-    const p = players[currentPlayer];
+    // --- LOGIQUE CRICKET ---
+    function addDart(val) {
+        const p = players[currentPlayer];
+        if (dartsInTurn.length >= 3) return;
 
-    // 2. CONDITION DE BLOCAGE :
-    // On vérifie si tous les segments sont fermés ET si son score est le plus haut
-    const allClosed = cricketTargets.every(t => p.marks[t] >= 3);
-    const maxScore = Math.max(...players.map(pl => pl.score));
-    
-    // Si c'est déjà gagné OU si on a déjà 3 fléchettes, on stoppe la saisie
-    if ((allClosed && p.score >= maxScore) || dartsInTurn.length >= 3) {
-        return; 
-    }
-    if (dartsInTurn.length >= 3) return;
-    
-    let currentVal = val;
-    let currentMultiplier = (val === 50) ? 2 : multiplier;
-    if (val === 50) currentVal = 25;
-
-    let pointsAdded = 0; // <--- On initialise à 0 pour chaque fléchette
-
-    if (cricketTargets.includes(currentVal)) {
-        let p = players[currentPlayer];
-        let hitCount = currentMultiplier;
-
-        // Étape A : On complète les 3 marques
-        if (p.marks[currentVal] < 3) {
-            let spaceLeft = 3 - p.marks[currentVal];
-            let toFill = Math.min(hitCount, spaceLeft);
-            p.marks[currentVal] += toFill;
-            hitCount -= toFill; // Ce qu'il reste servira aux points
+        if (val === 0) {
+            dartSnapshots.push({ marks: {...p.marks}, score: p.score });
+            dartsInTurn.push({ val: 0, m: 1, pts: 0 });
+            updateVisuals(); syncUI(); setMod(1); return;
         }
 
-        // Étape B : On calcule les points restants
-        if (hitCount > 0) {
-            // On vérifie si quelqu'un d'autre n'a pas encore fermé
-            let isClosedByAll = players.every(pl => pl.marks[currentVal] >= 3);
-            
-            if (!isClosedByAll) {
-                pointsAdded = currentVal * hitCount;
-                p.score += pointsAdded; // <--- Ajout au score
+        const currentVal = (val === 50) ? 25 : val;
+        const nbHits     = (val === 50) ? 2  : multiplier;
+        let pointsAdded  = 0;
+
+        if (cricketTargets.includes(currentVal)) {
+            const current = p.marks[currentVal] || 0;
+            const toFill  = Math.max(0, Math.min(nbHits, 3 - current));
+            const surplus = nbHits - toFill;
+            p.marks[currentVal] = Math.min(3, current + toFill);
+            // Règle : je marque dès que J'ai fermé (>=3), sans condition sur les adversaires
+            if (surplus > 0) {
+                pointsAdded = currentVal * surplus;
+                p.score += pointsAdded;
             }
         }
+
+        dartSnapshots.push({ marks: {...p.marks}, score: p.score });
+        dartsInTurn.push({ val: currentVal, m: multiplier, pts: pointsAdded });
+        updateVisuals(); syncUI(); setMod(1);
     }
-
-    // ON SAUVEGARDE LES POINTS DANS L'OBJET
-    dartsInTurn.push({ 
-        val: currentVal, 
-        m: currentMultiplier, 
-        pts: pointsAdded // <--- Très important pour le Undo
-    });
-
-    updateVisuals();
-    syncUI();
-    setMod(1);
-}
 
 function getSymbol(count) {
     if (count === 0) return '<span style="opacity:0.2">◦</span>'; // Petit point vide
@@ -702,27 +676,24 @@ async function showVictory(p) {
     }
 }
 
-function undoLastDart() {
-    if (dartsInTurn.length > 0) {
-        let last = dartsInTurn.pop();
-        let p = players[currentPlayer];
-
-        // 1. On retire les points précis stockés dans la fléchette
-        if (last.pts > 0) {
-            p.score -= last.pts;
+    function undoLastDart() {
+        if (dartsInTurn.length === 0) return;
+        dartsInTurn.pop();
+        dartSnapshots.pop();
+        const p = players[currentPlayer];
+        if (dartSnapshots.length > 0) {
+            const prev = dartSnapshots[dartSnapshots.length - 1];
+            p.marks = {...prev.marks};
+            p.score = prev.score;
+        } else {
+            // Retour à l'état début de tour : recalcul depuis les autres joueurs non modifiés
+            // On repart simplement de l'état snapshot initial (vide = début de tour)
+            p.marks = {...p._marksAtTurnStart};
+            p.score = p._scoreAtTurnStart;
         }
-
-        // 2. On retire les marques
-        if (cricketTargets.includes(last.val)) {
-            // On calcule combien de marques ont été ajoutées (Total - part convertie en points)
-            let marksUsed = last.m - (last.pts / last.val);
-            p.marks[last.val] = Math.max(0, p.marks[last.val] - marksUsed);
-        }
-
         updateVisuals();
         syncUI();
     }
-}
 	
     function toggleInput(mode) {
         const kb = document.getElementById('kb-frame');
