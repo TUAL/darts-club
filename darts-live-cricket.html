@@ -639,17 +639,29 @@
             // car currentPlayer peut revenir au même index (ex: 0→1→0) sans déclencher de reset
             const turnKey = (data.lastPlayerId || 'start') + '_' + data.currentPlayer;
             if (turnKey !== lastProcessedTurn) {
-                dartsInTurn = []; visualDarts = []; dartSnapshots = [];
                 lastProcessedTurn = turnKey;
-                // Toujours réinitialiser localMarks/localScore depuis Firebase
-                // (même si ce n'est pas mon tour — pour être prêt quand ça le deviendra)
+                // Réinitialiser les fléchettes du tour
+                dartsInTurn = []; visualDarts = []; dartSnapshots = [];
+                // Réinitialiser localMarks/localScore UNIQUEMENT depuis mes données Firebase
+                // On ne touche à localMarks que si Firebase a bien mes marks
                 const me = gameState.players[myIndex];
-                if (me) {
-                    scoreAtTurnStart = me.score  || 0;
-                    marksAtTurnStart = {...(me.marks || EMPTY_MARKS())};
+                if (me && me.marks) {
+                    scoreAtTurnStart = me.score || 0;
+                    marksAtTurnStart = {};
+                    // Copie explicite en string keys
+                    CRICKET_TARGETS.forEach(t => {
+                        marksAtTurnStart[String(t)] = (me.marks[String(t)] || me.marks[t] || 0);
+                    });
                     localScore = scoreAtTurnStart;
                     localMarks = {...marksAtTurnStart};
+                } else if (me && !me.marks) {
+                    // Joueur sans marks encore (début de partie)
+                    scoreAtTurnStart = 0;
+                    marksAtTurnStart = EMPTY_MARKS();
+                    localScore = 0;
+                    localMarks = EMPTY_MARKS();
                 }
+                // Si myIndex === -1 (pas encore trouvé), on ne touche à rien
             }
             document.getElementById('setup-screen').style.display = 'none';
             document.getElementById('cam-screen').style.display   = 'none';
@@ -714,16 +726,10 @@
             localMarks[String(target)] = Math.min(3, current + toFill);
 
             if (surplus > 0) {
-                // Points si au moins un adversaire n'a pas encore fermé ce segment
-                const opponents = gameState.players.filter(pl => pl.id !== myId);
-                const someOpponentOpen = opponents.some(pl => {
-                    const m = pl.marks || EMPTY_MARKS();
-                    return (m[String(target)] || 0) < 3;
-                });
-                if (someOpponentOpen) {
-                    pointsAdded = target * surplus;
-                    localScore += pointsAdded;
-                }
+                // Je marque dès que J'ai fermé ce segment (≥3 marques)
+                // Aucune condition sur les adversaires
+                pointsAdded = target * surplus;
+                localScore += pointsAdded;
             }
         }
         const mTxt = (val===50) ? '' : (multiplier===3?'T':multiplier===2?'D':'S');
@@ -908,7 +914,10 @@
         document.getElementById('end-screen').style.display = 'flex';
         // Trouver le vainqueur : tous segments fermés ET score >= tous adversaires
         const winner = gameState.players.find(p => {
-            const allClosed = CRICKET_TARGETS.every(t => (p.marks||{})[String(t)] >= 3);
+            const allClosed = CRICKET_TARGETS.every(t => {
+                const m = p.marks || {};
+                return (m[String(t)] || m[t] || 0) >= 3;
+            });
             const maxOther  = Math.max(0, ...gameState.players.filter(op=>op.id!==p.id).map(op=>op.score||0));
             return allClosed && (p.score||0) >= maxOther;
         });
