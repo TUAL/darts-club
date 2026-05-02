@@ -712,11 +712,13 @@
             localMarks[String(target)] = Math.min(3, current + toFill);
 
             if (surplus > 0) {
-                const closedByAll = gameState.players.every(pl => {
-                    const m = (pl.id === myId) ? localMarks : (pl.marks || EMPTY_MARKS());
-                    return (m[String(target)] || 0) >= 3;
+                // Points si au moins un adversaire n'a pas encore fermé ce segment
+                const opponents = gameState.players.filter(pl => pl.id !== myId);
+                const someOpponentOpen = opponents.some(pl => {
+                    const m = pl.marks || EMPTY_MARKS();
+                    return (m[String(target)] || 0) < 3;
                 });
-                if (!closedByAll) {
+                if (someOpponentOpen) {
                     pointsAdded = target * surplus;
                     localScore += pointsAdded;
                 }
