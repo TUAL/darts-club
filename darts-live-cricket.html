@@ -641,10 +641,12 @@
             if (turnKey !== lastProcessedTurn) {
                 dartsInTurn = []; visualDarts = []; dartSnapshots = [];
                 lastProcessedTurn = turnKey;
-                if (gameState.currentPlayer === myIndex) {
-                    const me = gameState.players[myIndex];
-                    scoreAtTurnStart = me ? (me.score  || 0) : 0;
-                    marksAtTurnStart = me ? {...(me.marks || EMPTY_MARKS())} : EMPTY_MARKS();
+                // Toujours réinitialiser localMarks/localScore depuis Firebase
+                // (même si ce n'est pas mon tour — pour être prêt quand ça le deviendra)
+                const me = gameState.players[myIndex];
+                if (me) {
+                    scoreAtTurnStart = me.score  || 0;
+                    marksAtTurnStart = {...(me.marks || EMPTY_MARKS())};
                     localScore = scoreAtTurnStart;
                     localMarks = {...marksAtTurnStart};
                 }
