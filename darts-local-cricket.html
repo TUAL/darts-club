@@ -383,6 +383,8 @@ function addPlayerToGame(nameFromSuggest = null) {
     function startGame() {
         document.getElementById('setup-screen').style.display = 'none';
         document.getElementById('game-screen').style.display = 'flex';
+        dartsInTurn = []; dartSnapshots = [];
+        players.forEach(p => { p._marksAtTurnStart = {...p.marks}; p._scoreAtTurnStart = 0; });
         renderPad();
         buildSVGDartboard();
         syncUI();
@@ -653,7 +655,10 @@ function updateVisuals() {
 			// Passer au joueur suivant
 			currentPlayer = (currentPlayer + 1) % players.length;
 			dartsInTurn = [];
-			visualDarts = [];
+			dartSnapshots = [];
+			const np = players[currentPlayer];
+			np._marksAtTurnStart = {...np.marks};
+			np._scoreAtTurnStart = np.score || 0;
 			updateVisuals();
 			syncUI();
 		}
