@@ -456,7 +456,7 @@
                 const p=document.createElementNS(ns,"path");p.setAttribute("d",arcPath(z.r1,z.r2,a1,a2));p.setAttribute("fill",z.color);svg.appendChild(p);
             });
             const[lx,ly]=polar(centerA,R_DOUBLE_IN+16);
-            const txt=document.createElementNS(ns,"text");txt.setAttribute("x",lx.toFixed(1));txt.setAttribute("y",ly.toFixed(1));txt.setAttribute("text-anchor","middle");txt.setAttribute("dominant-baseline","middle");txt.setAttribute("font-size","18");txt.setAttribute("font-weight","900");txt.setAttribute("fill",isCricket?"#2ecc71":"white");txt.style.pointerEvents="none";txt.textContent=val;svg.appendChild(txt);
+            const txt=document.createElementNS(ns,"text");txt.setAttribute("x",lx.toFixed(1));txt.setAttribute("y",ly.toFixed(1));txt.setAttribute("text-anchor","middle");txt.setAttribute("dominant-baseline","middle");txt.setAttribute("font-size","18");txt.setAttribute("font-weight","900");txt.setAttribute("fill",isCricket?"white":"#444");txt.style.pointerEvents="none";txt.textContent=val;svg.appendChild(txt);
         });
         [{r:R_BULL_OUT,fill:"#267F00"},{r:R_BULL_IN,fill:"#BB0000"}].forEach(b=>{const c=document.createElementNS(ns,"circle");c.setAttribute("cx",cx);c.setAttribute("cy",cy);c.setAttribute("r",b.r);c.setAttribute("fill",b.fill);svg.appendChild(c);});
         const border=document.createElementNS(ns,"circle");border.setAttribute("cx",cx);border.setAttribute("cy",cy);border.setAttribute("r","159");border.setAttribute("fill","none");border.setAttribute("stroke","#555");border.setAttribute("stroke-width","2");svg.appendChild(border);
