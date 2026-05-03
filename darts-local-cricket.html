@@ -26,7 +26,7 @@
 		
         /* --- SCORE SECTION CRICKET --- */
 		.score-section { 
-			height: 40dvh; 
+			height: 30dvh; 
 			display: flex; 
 			flex-direction: column; 
 			background: var(--bg-dark); 
@@ -97,7 +97,7 @@
         .btn-valid-darts.ready { color: #fff; cursor: pointer; background: var(--accent-green); }
 
         /* --- CLAVIER --- */
-        .keyboard { height: 43dvh; background: #1a1a1a; display: flex; flex-direction: column; padding: 2px; border-top: 4px solid var(--mode-color); transition: border-color 0.2s; }
+        .keyboard { height: 55dvh; background: #1a1a1a; display: flex; flex-direction: column; padding: 2px; border-top: 4px solid var(--mode-color); transition: border-color 0.2s; }
         .mod-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: #333; }
         .btn-m { background: #1a1a1a; color: #888; padding: 15px; border: none; font-weight: 900; font-size: 0.9rem; }
         #m1.active { color: #fff; border-bottom: 4px solid var(--accent); }
@@ -620,17 +620,11 @@ function updateVisuals() {
         const el = document.getElementById('v' + i);
         if (dartsInTurn[i]) {
             let d = dartsInTurn[i];
-            if (d.val === 0) {
-                el.innerHTML = 'Miss<small>0</small>';
-            } else {
-                let valTxt = d.val === 25 ? "B" : d.val;
-                let multTxt = d.m === 3 ? "T" : d.m === 2 ? "D" : "S";
-                let label = (d.val === 25 && d.m === 2) ? 'BULL' : multTxt + valTxt;
-                let pts = d.pts > 0 ? '+' + d.pts : '';
-                el.innerHTML = label + '<small>' + pts + '</small>';
-            }
-        } else {
-            el.innerHTML = '--<small>&nbsp;</small>';
+            let valTxt = d.val === 25 ? "B" : d.val;
+            let multTxt = d.m === 3 ? "T" : d.m === 2 ? "D" : "S";
+            el.innerText = multTxt + valTxt;
+        } else { 
+            el.innerText = "--"; 
         }
     }
 
