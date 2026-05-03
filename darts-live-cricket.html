@@ -448,7 +448,7 @@
         const bg=document.createElementNS(ns,"circle");bg.setAttribute("cx",cx);bg.setAttribute("cy",cy);bg.setAttribute("r","160");bg.setAttribute("fill","#111");svg.appendChild(bg);
         const segAngle=18.0,half=9.0;
         dartOrder.forEach((val,i)=>{
-            const centerA=i*segAngle,a1=centerA-half,a2=centerA+half,isEven=i%2===0,colSimple=isEven?"#1a1a1a":"#FFFFCC",colRing=isEven?"#267F00":"#BB0000";
+            const centerA=i*segAngle,a1=centerA-half,a2=centerA+half,isEven=i%2!==0,colSimple=isEven?"#1a1a1a":"#FFFFCC",colRing=isEven?"#267F00":"#BB0000";
             const isCricket = CRICKET_TARGETS.includes(val);
             const colSimpleC = isCricket ? (isEven?"#102010":"#e8ffe8") : (isEven?"#0a0a0a":"#555555");
             const colRingC   = isCricket ? colRing : (isEven?"#222222":"#999999");
