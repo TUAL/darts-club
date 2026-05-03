@@ -37,7 +37,7 @@
         .top-title { flex: 1; text-align: center; font-size: 0.75rem; font-weight: 900; letter-spacing: 1px; color: #ccc; }
 
         /* --- SCORE SECTION : plus haute pour les marques Cricket --- */
-        .score-section { height: 35dvh; display: flex; flex-direction: column; background: var(--bg-dark); padding: 8px 0; }
+        .score-section { height: 35dvh; display: flex; flex-direction: column; background: var(--bg-dark); padding: 5px 0; overflow: hidden; }
         .header-scores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; padding: 0 10px; flex: 1; }
 
         /* Carte joueur Cricket */
@@ -797,7 +797,7 @@
     }
 
     function markSymbol(n) {
-        if (!n || n <= 0) return '<span style="opacity:0.25">○</span>';
+        if (!n || n <= 0) return '<span style="opacity:0.2">◦</span>';
         if (n === 1) return '/';
         if (n === 2) return 'X';
         return '⊗';
