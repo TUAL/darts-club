@@ -449,10 +449,10 @@
         const segAngle=18.0,half=9.0;
         dartOrder.forEach((val,i)=>{
             const centerA=i*segAngle,a1=centerA-half,a2=centerA+half,isEven=i%2===0,colSimple=isEven?"#1a1a1a":"#FFFFCC",colRing=isEven?"#267F00":"#BB0000";
-            // Segments cricket surlignés en vert
             const isCricket = CRICKET_TARGETS.includes(val);
-            const colSimpleC = isCricket ? (isEven?"#102010":"#e8ffe8") : colSimple;
-            [{r1:R_TRIPLE_OUT+1,r2:R_DOUBLE_IN-1,color:colSimpleC},{r1:R_BULL_OUT+1,r2:R_TRIPLE_IN-1,color:colSimpleC},{r1:R_TRIPLE_IN,r2:R_TRIPLE_OUT,color:colRing},{r1:R_DOUBLE_IN,r2:R_DOUBLE_OUT,color:colRing}].forEach(z=>{
+            const colSimpleC = isCricket ? (isEven?"#102010":"#e8ffe8") : (isEven?"#111111":"#888888");
+            const colRingC   = isCricket ? colRing : (isEven?"#333333":"#cccccc");
+            [{r1:R_TRIPLE_OUT+1,r2:R_DOUBLE_IN-1,color:colSimpleC},{r1:R_BULL_OUT+1,r2:R_TRIPLE_IN-1,color:colSimpleC},{r1:R_TRIPLE_IN,r2:R_TRIPLE_OUT,color:colRingC},{r1:R_DOUBLE_IN,r2:R_DOUBLE_OUT,color:colRingC}].forEach(z=>{
                 const p=document.createElementNS(ns,"path");p.setAttribute("d",arcPath(z.r1,z.r2,a1,a2));p.setAttribute("fill",z.color);svg.appendChild(p);
             });
             const[lx,ly]=polar(centerA,R_DOUBLE_IN+16);
