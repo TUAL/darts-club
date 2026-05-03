@@ -37,7 +37,7 @@
         .top-title { flex: 1; text-align: center; font-size: 0.75rem; font-weight: 900; letter-spacing: 1px; color: #ccc; }
 
         /* --- SCORE SECTION : plus haute pour les marques Cricket --- */
-        .score-section { height: 35dvh; display: flex; flex-direction: column; background: var(--bg-dark); padding: 5px 0; overflow: hidden; }
+        .score-section { display: flex; flex-direction: column; background: var(--bg-dark); padding: 5px 0; overflow: hidden; }
         .header-scores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; padding: 0 10px; flex: 1; align-items: start; }
 
         /* Carte joueur Cricket */
@@ -189,8 +189,8 @@
         <div class="score-section">
             <div class="header-scores" id="gamePlayers"></div>
             <video id="local-video" autoplay playsinline muted style="display:none;position:absolute;width:1px;height:1px;"></video>
-            <div class="turn-announcer" id="turn-txt">...</div>
         </div>
+        <div class="turn-announcer" id="turn-txt">...</div>
         <div id="interactive-zone" style="flex:1; display:flex; flex-direction:column; overflow:hidden; min-height:0;">
 
             <div class="input-info">
