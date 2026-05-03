@@ -105,9 +105,11 @@
         #m2.active { color: #fff; border-bottom: 4px solid var(--accent-orange); }
         #m3.active { color: #fff; border-bottom: 4px solid var(--accent-red); }
         .num-grid { display: grid; grid-template-columns: repeat(5, 1fr); flex: 1; gap: 1px; background: #333; }
-        .key { background: #121916; border: none; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .key { background: #121916; border: none; color: #444; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .key span { font-size: 1.4rem; font-weight: 900; }
         .key small { font-size: 0.75rem; color: #555; font-weight: 900; display: block; min-height: 1.2em; }
+        .key.cricket-target { background: #1a2a1a; }
+        .key.cricket-target span { color: white; }
         .special-row { display: grid; grid-template-columns: 1fr 1.2fr 1.2fr 1.2fr; height: 70px; gap: 1px; background: #333; }
         .sp-key { background: #121916; color: white; border: none; font-weight: bold; font-size: 0.8rem; }
 
@@ -502,15 +504,17 @@ function getSymbol(count) {
         dartOrder.forEach((val, i) => {
             const centerA = i * segAngle;
             const a1 = centerA - half, a2 = centerA + half;
-            const isEven = i % 2 === 0;		
-            const colSimple = isEven ? "#1a1a1a" : "#FFFFCC";
+            const isEven = i % 2 !== 0;
             const colRing   = isEven ? "#267F00" : "#BB0000";
+            const isCricket = cricketTargets.includes(val);
+            const colSimpleC = isCricket ? "#ffffff" : (isEven ? "#0a0a0a" : "#222222");
+            const colRingC   = isCricket ? colRing   : (isEven ? "#1a1a1a" : "#333333");
 
             [
-                { r1: R_TRIPLE_OUT + 1, r2: R_DOUBLE_IN - 1, color: colSimple },
-                { r1: R_BULL_OUT + 1,   r2: R_TRIPLE_IN - 1, color: colSimple },
-                { r1: R_TRIPLE_IN,      r2: R_TRIPLE_OUT,     color: colRing },
-                { r1: R_DOUBLE_IN,      r2: R_DOUBLE_OUT,     color: colRing },
+                { r1: R_TRIPLE_OUT + 1, r2: R_DOUBLE_IN - 1, color: colSimpleC },
+                { r1: R_BULL_OUT + 1,   r2: R_TRIPLE_IN - 1, color: colSimpleC },
+                { r1: R_TRIPLE_IN,      r2: R_TRIPLE_OUT,     color: colRingC },
+                { r1: R_DOUBLE_IN,      r2: R_DOUBLE_OUT,     color: colRingC },
             ].forEach(z => {
                 const p = document.createElementNS(ns, "path");
                 p.setAttribute("d", arcPath(z.r1, z.r2, a1, a2));
@@ -528,7 +532,7 @@ function getSymbol(count) {
             txt.setAttribute("dominant-baseline", "middle");
             txt.setAttribute("font-size", "18");
             txt.setAttribute("font-weight", "900");
-            txt.setAttribute("fill", "white");
+            txt.setAttribute("fill", isCricket ? "white" : "#444");
             txt.style.pointerEvents = "none";
             txt.textContent = val;
             svg.appendChild(txt);
@@ -602,7 +606,7 @@ c.addEventListener("click", (e) => {
         const pad = document.getElementById('pad');
         pad.innerHTML = "";
         for (let i = 1; i <= 20; i++) {
-            pad.innerHTML += `<button class="key" onclick="addDart(${i})"><span>${i}</span></button>`;
+            pad.innerHTML += `<button class="key${cricketTargets.includes(i) ? ' cricket-target' : ''}" onclick="addDart(${i})"><span>${i}</span><small>${cricketTargets.includes(i) ? '●' : '&nbsp;'}</small></button>`;
         }
     }
 
