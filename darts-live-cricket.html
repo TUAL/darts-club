@@ -79,7 +79,7 @@
         .p-column.has-live-video .score-overlay { position: relative; z-index: 2; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: space-around; padding: 5px 4px; background: linear-gradient(to bottom, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.75) 100%); color: #fff; }
         .live-badge { position: absolute; top: 5px; right: 5px; z-index: 3; background: var(--accent-orange); color: #000; font-size: 0.5rem; font-weight: 900; padding: 2px 6px; border-radius: 10px; letter-spacing: 1px; }
 
-        .turn-announcer { height: 35px; display: flex; align-items: center; justify-content: center; color: var(--accent-orange); font-weight: 900; font-size: 0.8rem; text-transform: uppercase; }
+        .turn-announcer { height: 30px; display: flex; align-items: center; justify-content: center; color: var(--accent-orange); font-weight: 900; font-size: 0.8rem; text-transform: uppercase; }
         .input-info { height: 75px; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0 15px; background: #000; }
         .dart-val { width: 70px; height: 55px; background: white; color: black; border-radius: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; font-size: 1.0rem; }
         .dart-val small { font-size: 0.5rem; font-weight: bold; color: #555; }
@@ -95,12 +95,12 @@
         #m2.active { color: #fff; border-bottom: 4px solid var(--accent-orange); }
         #m3.active { color: #fff; border-bottom: 4px solid var(--accent-red); }
         .num-grid { display: grid; grid-template-columns: repeat(5, 1fr); flex: 1; gap: 1px; background: #333; }
-        .key { background: #121916; border: none; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .key { background: #121916; border: none; color: #444; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .key span { font-size: 1.4rem; font-weight: 900; }
         .key small { font-size: 0.75rem; color: #555; font-weight: 900; display: block; min-height: 1.2em; }
         /* Cibles Cricket surlignées dans le clavier */
         .key.cricket-target { background: #1a2a1a; }
-        .key.cricket-target span { color: var(--accent-green); }
+        .key.cricket-target span { color: white; }
         .special-row { display: grid; grid-template-columns: 1fr 1.2fr 1.2fr 1.2fr; height: 70px; gap: 1px; background: #333; }
         .sp-key { background: #121916; color: white; border: none; font-weight: bold; font-size: 0.8rem; }
         #target-frame { display: none; flex: 1; min-height: 0; background: #000; position: relative; flex-direction: column; align-items: center; justify-content: center; }
@@ -450,8 +450,8 @@
         dartOrder.forEach((val,i)=>{
             const centerA=i*segAngle,a1=centerA-half,a2=centerA+half,isEven=i%2===0,colSimple=isEven?"#1a1a1a":"#FFFFCC",colRing=isEven?"#267F00":"#BB0000";
             const isCricket = CRICKET_TARGETS.includes(val);
-            const colSimpleC = isCricket ? (isEven?"#102010":"#e8ffe8") : (isEven?"#111111":"#888888");
-            const colRingC   = isCricket ? colRing : (isEven?"#333333":"#cccccc");
+            const colSimpleC = isCricket ? (isEven?"#102010":"#e8ffe8") : (isEven?"#0a0a0a":"#555555");
+            const colRingC   = isCricket ? colRing : (isEven?"#222222":"#999999");
             [{r1:R_TRIPLE_OUT+1,r2:R_DOUBLE_IN-1,color:colSimpleC},{r1:R_BULL_OUT+1,r2:R_TRIPLE_IN-1,color:colSimpleC},{r1:R_TRIPLE_IN,r2:R_TRIPLE_OUT,color:colRingC},{r1:R_DOUBLE_IN,r2:R_DOUBLE_OUT,color:colRingC}].forEach(z=>{
                 const p=document.createElementNS(ns,"path");p.setAttribute("d",arcPath(z.r1,z.r2,a1,a2));p.setAttribute("fill",z.color);svg.appendChild(p);
             });
