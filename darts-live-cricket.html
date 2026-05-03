@@ -423,14 +423,17 @@
 
     function toggleInput(mode) {
         const kb = document.getElementById('kb-frame'), target = document.getElementById('target-frame');
+        const videoFrame = document.getElementById('video-frame');
         if (mode === 'kb') {
             kb.style.display = 'flex'; target.style.display = 'none';
             document.getElementById('btn-to-target').style.display = 'block';
             document.getElementById('btn-to-kb').style.display = 'none';
+            if (videoFrame) videoFrame.style.display = 'none';
         } else {
             kb.style.display = 'none'; target.style.display = 'flex';
             document.getElementById('btn-to-target').style.display = 'none';
             document.getElementById('btn-to-kb').style.display = 'block';
+            if (videoFrame) videoFrame.style.display = 'none';
             if (!svgBuilt) { buildSVGDartboard(); svgBuilt = true; }
         }
     }
