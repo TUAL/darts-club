@@ -332,6 +332,7 @@
 						<span class="modal-title">QUITTER ?</span>
 					</div>
 					<div class="modal-buttons">
+						<button onclick="closeModal()" class="btn-cancel">RESTER</button>
 						<button onclick="quitApp()" class="btn-confirm">QUITTER</button>
 					</div>
 				</div>
@@ -520,27 +521,17 @@ function closeGuestModal() {
 function openModal() {
     document.getElementById('quitModal').style.display = 'flex';
 }
-
 function closeModal() {
     document.getElementById('quitModal').style.display = 'none';
 }
-
-// Fermer aussi si on clique à l'extérieur du cadre noir
 window.onclick = function(event) {
-    let modal = document.getElementById('quitModal');
-    if (event.target == modal) {
-        closeModal();
-    }
+    if (event.target == document.getElementById('quitModal')) closeModal();
 }
-
 function quitApp() {
-    // Tentative de fermeture de la fenêtre
     window.close();
-    
-    // Si la fenêtre est toujours ouverte (sécurité navigateur), 
-    // on redirige vers une page vide ou on sort de l'app
     setTimeout(() => {
-        window.location.href = "about:blank";
+        window.history.go(-(window.history.length));
+        setTimeout(() => { window.location.href = "about:blank"; }, 100);
     }, 100);
 }
     </script>

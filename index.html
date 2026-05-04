@@ -383,13 +383,11 @@ window.onclick = function(event) {
     }
 }
 function quitApp() {
-    // Tentative de fermeture de la fenêtre
     window.close();
-    
-    // Si la fenêtre est toujours ouverte (sécurité navigateur), 
-    // on redirige vers une page vide ou on sort de l'app
     setTimeout(() => {
-        window.location.href = "about:blank";
+        // iOS standalone : retour à l'écran d'accueil via history
+        window.history.go(-(window.history.length));
+        setTimeout(() => { window.location.href = "about:blank"; }, 100);
     }, 100);
 }
 </script>

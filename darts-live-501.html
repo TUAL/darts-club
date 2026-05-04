@@ -781,14 +781,39 @@
         });
     }
 
-    function _doJoinStand(name, count) {
+function _doJoinStand(name, count) {
         roomName = name;
         document.getElementById('room-display').innerText = "📡 501 LIVE : " + name;
-        if(count === 0) db.ref("rooms_501/"+name).set({ status: "playing", currentPlayer: 0 });
+
+        // Utilisation du timestamp serveur de Firebase pour la précision
+        const now = firebase.database.ServerValue.TIMESTAMP;
+
+        if(count === 0) {
+            // Initialisation de la room avec les marqueurs de temps
+            db.ref("rooms_501/"+name).set({ 
+                status: "playing", 
+                currentPlayer: 0,
+                createdAt: now,    // Date de création pour le script de nettoyage
+                lastUpdate: now    // Mise à jour d'activité
+            });
+        } else {
+            // Si on rejoint un stand existant, on rafraîchit l'activité
+            db.ref("rooms_501/"+name).update({ lastUpdate: now });
+        }
+
         const playerRef = db.ref("rooms_501/"+name+"/players").push();
         myId = playerRef.key;
-        playerRef.set({ name: myName, score: 501, q: parseInt(document.getElementById('qualifInput').value)||0, totalDarts: 0, totalPoints: 0 });
+        
+        playerRef.set({ 
+            name: myName, 
+            score: 501, 
+            q: parseInt(document.getElementById('qualifInput').value)||0, 
+            totalDarts: 0, 
+            totalPoints: 0 
+        });
+
         if (playerMode === 0 || playerMode === 2) initVideoSystem(name);
+        
         if (playerMode === 2) {
             startCamera().then((ok) => {
                 if (ok) initVideoFirebaseListener(name);
