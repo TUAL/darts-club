@@ -135,7 +135,7 @@
                 <p>Es-tu sûr de vouloir abandonner<br>la partie en cours ?</p>
                 <div class="modal-buttons">
                     <button onclick="closeModal()" class="btn-cancel">RESTER</button>
-                    <button onclick="window.location.href='menu.html'" class="btn-confirm">QUITTER</button>
+                    <button onclick="quitApp()" class="btn-confirm">QUITTER</button>
                 </div>
             </div>
         </div>
@@ -651,7 +651,7 @@
 
             // Rejoint le stand comme joueur et publie son myId dans liveSession
             roomName = name;
-            if(count === 0) db.ref("rooms_501/"+name).set({ status: "playing", currentPlayer: 0 });
+            if(count === 0) db.ref("rooms_501/"+name).set({ status: "playing", currentPlayer: 0, startedAt: Date.now() });
             const playerRef = db.ref("rooms_501/"+name+"/players").push();
             myId = playerRef.key;
             playerRef.set({ name: myName, score: 501, q: parseInt(document.getElementById('qualifInput').value)||0, totalDarts: 0, totalPoints: 0 });
@@ -784,7 +784,7 @@
     function _doJoinStand(name, count) {
         roomName = name;
         document.getElementById('room-display').innerText = "📡 501 LIVE : " + name;
-        if(count === 0) db.ref("rooms_501/"+name).set({ status: "playing", currentPlayer: 0 });
+        if(count === 0) db.ref("rooms_501/"+name).set({ status: "playing", currentPlayer: 0, startedAt: Date.now() });
         const playerRef = db.ref("rooms_501/"+name+"/players").push();
         myId = playerRef.key;
         playerRef.set({ name: myName, score: 501, q: parseInt(document.getElementById('qualifInput').value)||0, totalDarts: 0, totalPoints: 0 });
@@ -1047,6 +1047,33 @@ if (videoLabel && activePlayer) {
     function openModal() { document.getElementById('quitModal').style.display = 'flex'; }
     function closeModal() { document.getElementById('quitModal').style.display = 'none'; }
     window.onclick = function(event) { if (event.target == document.getElementById('quitModal')) closeModal(); }
+
+    async function quitApp() {
+        closeModal();
+        if (currentCall && currentCall.open) currentCall.close();
+        if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
+        if (peer) peer.destroy();
+        if (roomName) await db.ref("rooms_501/"+roomName).remove();
+        window.close();
+        setTimeout(() => {
+            window.history.go(-(window.history.length));
+            setTimeout(() => { window.location.href = "about:blank"; }, 100);
+        }, 100);
+    }
+
+    // Fermeture auto des stands ouverts depuis plus d'1h
+    setInterval(async () => {
+        const snap = await db.ref("rooms_501").once('value');
+        if (!snap.exists()) return;
+        const now = Date.now();
+        snap.forEach(child => {
+            const data = child.val();
+            if (data.startedAt && (now - data.startedAt) > 3600000) {
+                db.ref("rooms_501/"+child.key).remove();
+                console.log("Stand 501 expiré supprimé :", child.key);
+            }
+        });
+    }, 60000);
 </script>
 </body>
 </html>
