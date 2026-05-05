@@ -139,6 +139,16 @@
                 </div>
             </div>
         </div>
+        <div id="resetModal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header"><span>🗑️</span><span class="modal-title">VIDER LE STAND ?</span></div>
+                <p>Le stand sera fermé<br>et tu reviendras au menu.</p>
+                <div class="modal-buttons">
+                    <button onclick="closeResetModal()" class="btn-cancel">ANNULER</button>
+                    <button onclick="confirmReset()" class="btn-confirm" style="background:#c0392b;">VIDER</button>
+                </div>
+            </div>
+        </div>
         <div class="back-icon" onclick="openModal()">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
         </div>
@@ -254,7 +264,7 @@
             <div id="winner-display" style="font-size:1.8rem;font-weight:900;margin:10px 0;color:var(--accent-green);">VICTOIRE</div>
             <div id="stats-list" style="background:#0b1410;border-radius:8px;padding:10px;border:1px solid #30363d;text-align:left;font-size:0.75rem;"></div>
             <button id="btn-save-only" class="btn-save" style="display:none;" onclick="saveVictory()">ENREGISTRER LA VICTOIRE</button>
-            <button class="btn-save" style="width:100%;background:#30363d !important;" onclick="resetStand()">VIDER LE STAND / MENU</button>
+            <button class="btn-save" style="width:100%;background:#30363d !important;" onclick="openResetModal()">VIDER LE STAND / MENU</button>
         </div>
     </div>
 
@@ -1056,21 +1066,24 @@ if (videoLabel && activePlayer) {
     }
 
     async function resetStand() {
-        if(confirm("Vider le stand et revenir au menu ?")) {
-            if (currentCall && currentCall.open) currentCall.close();
-            if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
-            if (peer) peer.destroy();
-            // Coupe la caméra de l'appareil cam-screen (mode 1 rôle caméra)
-            const camPreview = document.getElementById('cam-preview');
-            if (camPreview && camPreview.srcObject) { camPreview.srcObject.getTracks().forEach(t => t.stop()); camPreview.srcObject = null; }
-            await db.ref("rooms_501/"+roomName).remove();
-            location.reload();
-        }
+        if (currentCall && currentCall.open) currentCall.close();
+        if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
+        if (peer) peer.destroy();
+        const camPreview = document.getElementById('cam-preview');
+        if (camPreview && camPreview.srcObject) { camPreview.srcObject.getTracks().forEach(t => t.stop()); camPreview.srcObject = null; }
+        await db.ref("rooms_501/"+roomName).remove();
+        location.reload();
     }
 
     function openModal() { document.getElementById('quitModal').style.display = 'flex'; }
     function closeModal() { document.getElementById('quitModal').style.display = 'none'; }
-    window.onclick = function(event) { if (event.target == document.getElementById('quitModal')) closeModal(); }
+    function openResetModal()  { document.getElementById('resetModal').style.display = 'flex'; }
+    function closeResetModal() { document.getElementById('resetModal').style.display = 'none'; }
+    async function confirmReset() { closeResetModal(); await resetStand(); }
+    window.onclick = function(event) {
+        if (event.target == document.getElementById('quitModal')) closeModal();
+        if (event.target == document.getElementById('resetModal')) closeResetModal();
+    }
 
     async function quitApp() {
         closeModal();
