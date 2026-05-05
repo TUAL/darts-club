@@ -657,12 +657,15 @@
             const playerRef = db.ref("rooms_501/"+name+"/players").push();
             myId = playerRef.key;
             playerRef.set({ name: myName, score: 501, q: parseInt(document.getElementById('qualifInput').value)||0, totalDarts: 0, totalPoints: 0 });
-            // Présence : stand se ferme quand <= 1 joueur connecté
+            // Présence : stand se ferme quand <= 1 joueur connecté APRÈS avoir eu >= 2
             const presRef1 = db.ref("rooms_501/"+name+"/presence/"+myId);
             presRef1.set(true);
             presRef1.onDisconnect().remove();
+            let maxPresence1 = 0;
             db.ref("rooms_501/"+name+"/presence").on('value', snap => {
-                if (!snap.exists() || snap.numChildren() <= 1) db.ref("rooms_501/"+name).remove();
+                const n = snap.exists() ? snap.numChildren() : 0;
+                if (n > maxPresence1) maxPresence1 = n;
+                if (maxPresence1 >= 2 && n <= 1) db.ref("rooms_501/"+name).remove();
             });
 
             // Init PeerJS et publie peerId + playerId dans liveSession
@@ -799,12 +802,15 @@
         const playerRef = db.ref("rooms_501/"+name+"/players").push();
         myId = playerRef.key;
         playerRef.set({ name: myName, score: 501, q: parseInt(document.getElementById('qualifInput').value)||0, totalDarts: 0, totalPoints: 0 });
-        // Présence : stand se ferme quand <= 1 joueur connecté
+        // Présence : stand se ferme quand <= 1 joueur connecté APRÈS avoir eu >= 2
         const presRef2 = db.ref("rooms_501/"+name+"/presence/"+myId);
         presRef2.set(true);
         presRef2.onDisconnect().remove();
+        let maxPresence2 = 0;
         db.ref("rooms_501/"+name+"/presence").on('value', snap => {
-            if (!snap.exists() || snap.numChildren() <= 1) db.ref("rooms_501/"+name).remove();
+            const n = snap.exists() ? snap.numChildren() : 0;
+            if (n > maxPresence2) maxPresence2 = n;
+            if (maxPresence2 >= 2 && n <= 1) db.ref("rooms_501/"+name).remove();
         });
         if (playerMode === 0 || playerMode === 2) initVideoSystem(name);
         if (playerMode === 2) {
