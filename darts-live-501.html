@@ -651,7 +651,10 @@
 
             // Rejoint le stand comme joueur et publie son myId dans liveSession
             roomName = name;
-            if(count === 0) db.ref("rooms_501/"+name).set({ status: "playing", currentPlayer: 0, startedAt: Date.now() });
+            if(count === 0) {
+                db.ref("rooms_501/"+name).set({ status: "playing", currentPlayer: 0, startedAt: Date.now() });
+                db.ref("rooms_501/"+name).onDisconnect().remove();
+            }
             const playerRef = db.ref("rooms_501/"+name+"/players").push();
             myId = playerRef.key;
             playerRef.set({ name: myName, score: 501, q: parseInt(document.getElementById('qualifInput').value)||0, totalDarts: 0, totalPoints: 0 });
@@ -784,7 +787,10 @@
     function _doJoinStand(name, count) {
         roomName = name;
         document.getElementById('room-display').innerText = "📡 501 LIVE : " + name;
-        if(count === 0) db.ref("rooms_501/"+name).set({ status: "playing", currentPlayer: 0, startedAt: Date.now() });
+        if(count === 0) {
+            db.ref("rooms_501/"+name).set({ status: "playing", currentPlayer: 0, startedAt: Date.now() });
+            db.ref("rooms_501/"+name).onDisconnect().remove();
+        }
         const playerRef = db.ref("rooms_501/"+name+"/players").push();
         myId = playerRef.key;
         playerRef.set({ name: myName, score: 501, q: parseInt(document.getElementById('qualifInput').value)||0, totalDarts: 0, totalPoints: 0 });
@@ -1061,14 +1067,20 @@ if (videoLabel && activePlayer) {
         }, 100);
     }
 
-    // Fermeture auto des stands ouverts depuis plus d'1h
+    // Heartbeat hôte : signal de vie toutes les 30s
+    setInterval(() => {
+        if (roomName) db.ref("rooms_501/"+roomName+"/heartbeat").set(Date.now());
+    }, 30000);
+
+    // Nettoyage auto : stands morts (1h) ou sans heartbeat depuis 2min
     setInterval(async () => {
         const snap = await db.ref("rooms_501").once('value');
         if (!snap.exists()) return;
         const now = Date.now();
         snap.forEach(child => {
             const data = child.val();
-            if (data.startedAt && (now - data.startedAt) > 3600000) {
+            const hb = data.heartbeat || data.startedAt || 0;
+            if ((now - hb) > 120000 || (data.startedAt && (now - data.startedAt) > 3600000)) {
                 db.ref("rooms_501/"+child.key).remove();
                 console.log("Stand 501 expiré supprimé :", child.key);
             }
