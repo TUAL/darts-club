@@ -102,32 +102,32 @@
         <section class="mode-section" style="border-left: 4px solid var(--fun);">
             <h2 style="color:var(--fun)">🎡 BOB'S 27</h2>
             <div class="stats-grid">
-                <div class="stat-block"><span class="stat-title">👤 MES TOP 3</span><div id="user-bobs">...</div></div>
                 <div class="stat-block"><span class="stat-title">🕐 3 DERNIERS</span><div id="global-bobs-recent">...</div></div>
+                <div class="stat-block"><span class="stat-title">👤 MES TOP 3</span><div id="user-bobs">...</div></div>
             </div>
         </section>
 
         <section class="mode-section" style="border-left: 4px solid var(--fun);">
             <h2 style="color:var(--fun)">&#x1F525; 180 CHALLENGE</h2>
             <div class="stats-grid">
-                <div class="stat-block"><span class="stat-title">&#x1F464; MES TOP 3</span><div id="user-180">...</div></div>
                 <div class="stat-block"><span class="stat-title">&#x1F550; 3 DERNIERS</span><div id="global-180-recent">...</div></div>
+                <div class="stat-block"><span class="stat-title">&#x1F464; MES TOP 3</span><div id="user-180">...</div></div>
             </div>
         </section>
 
         <section class="mode-section" style="border-left: 4px solid var(--fun);">
             <h2 style="color:var(--fun)">🎯 BULL CHALLENGE</h2>
             <div class="stats-grid">
-                <div class="stat-block"><span class="stat-title">👤 MES TOP 3</span><div id="user-bull">...</div></div>
                 <div class="stat-block"><span class="stat-title">🕐 3 DERNIERS</span><div id="global-bull-recent">...</div></div>
+                <div class="stat-block"><span class="stat-title">👤 MES TOP 3</span><div id="user-bull">...</div></div>
             </div>
         </section>
 
         <section class="mode-section" style="border-left: 4px solid var(--fun);">
             <h2 style="color:var(--fun)">🏁 CHECKOUTS</h2>
             <div class="stats-grid">
-                <div class="stat-block"><span class="stat-title">👤 MES TOP 3</span><div id="user-checkouts">...</div></div>
                 <div class="stat-block"><span class="stat-title">🕐 3 DERNIERS</span><div id="global-checkouts-recent">...</div></div>
+                <div class="stat-block"><span class="stat-title">👤 MES TOP 3</span><div id="user-checkouts">...</div></div>
             </div>
         </section>
     </div>
@@ -292,8 +292,11 @@
                         });
                     }
                 });
-                allRecent180.sort((a, b) => b.ts - a.ts);
-                renderRecentList('global-180-recent', allRecent180.slice(0, 3), true);
+                // Best score per player (lowest darts), then top 3
+                const best180 = {};
+                allRecent180.forEach(e => { if (!best180[e.name] || e.score < best180[e.name].score) best180[e.name] = e; });
+                const top180 = Object.values(best180).sort((a, b) => a.score - b.score).slice(0, 3);
+                renderRecentList('global-180-recent', top180, true);
 
                 const myRecent180 = myGames.darts_180?.recent
                     ? Object.values(myGames.darts_180.recent).sort((a, b) => b.ts - a.ts)
@@ -309,8 +312,11 @@
                         });
                     }
                 });
-                allRecentBobs.sort((a, b) => b.ts - a.ts);
-                renderRecentList('global-bobs-recent', allRecentBobs.slice(0, 3), true);
+                // Best score per player, then top 3
+                const bestBobs = {};
+                allRecentBobs.forEach(e => { if (!bestBobs[e.name] || e.score > bestBobs[e.name].score) bestBobs[e.name] = e; });
+                const topBobs = Object.values(bestBobs).sort((a, b) => b.score - a.score).slice(0, 3);
+                renderRecentList('global-bobs-recent', topBobs, true);
                 const myRecentBobs = myGames.bobs_27?.recent
                     ? Object.values(myGames.bobs_27.recent).sort((a, b) => b.ts - a.ts)
                     : [];
@@ -325,8 +331,11 @@
                         });
                     }
                 });
-                allRecentBull.sort((a, b) => b.ts - a.ts);
-                renderRecentList('global-bull-recent', allRecentBull.slice(0, 3), true);
+                // Best score per player, then top 3
+                const bestBull = {};
+                allRecentBull.forEach(e => { if (!bestBull[e.name] || e.score > bestBull[e.name].score) bestBull[e.name] = e; });
+                const topBull = Object.values(bestBull).sort((a, b) => b.score - a.score).slice(0, 3);
+                renderRecentList('global-bull-recent', topBull, true);
                 const myRecentBull = myGames.bull_challenge?.recent
                     ? Object.values(myGames.bull_challenge.recent).map(e => ({ score: e.pts, sub: e.darts + ' fl.', date: e.date, time: e.time || '', ts: e.ts || 0 })).sort((a, b) => b.ts - a.ts)
                     : [];
@@ -341,8 +350,11 @@
                         });
                     }
                 });
-                allRecentCo.sort((a, b) => b.ts - a.ts);
-                renderRecentList('global-checkouts-recent', allRecentCo.slice(0, 3), true);
+                // Best moyenne per player, then top 3
+                const bestCo = {};
+                allRecentCo.forEach(e => { if (!bestCo[e.name] || e.score > bestCo[e.name].score) bestCo[e.name] = e; });
+                const topCo = Object.values(bestCo).sort((a, b) => b.score - a.score).slice(0, 3);
+                renderRecentList('global-checkouts-recent', topCo, true);
                 const myRecentCo = myGames.checkouts?.recent
                     ? Object.values(myGames.checkouts.recent).map(e => ({ score: e.moyenne, sub: e.score_ferme + ' (' + e.darts + 'fl)', date: e.date, time: e.time || '', ts: e.ts || 0 })).sort((a, b) => b.ts - a.ts)
                     : [];
