@@ -11,7 +11,7 @@
         :root { 
             --bg: #0b0e14; --card: #161b22; --text: #f0f6fc;
             --accent: #58a6ff; --bg-dark: #121916;--accent-miss: #fff;
-            --accent-orange: #f39c12; --accent-green: #2ecc71; --accent-red: #e74c3c;
+            --accent-orange: #f39c12; --accent-green: #2ecc71; --accent-red: #e74c3c;--accent-gris: #404040;
         }
         * { box-sizing: border-box; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
         
@@ -56,7 +56,7 @@
             padding: 10px 5px; opacity: 1; color: #fff;
         }
         .p-column.active { background: var(--accent-orange); border-color: #fff; color: #000; }
-        .p-column.blue { background: var(--accent); border-color: #fff; color: #000; }
+        .p-column.gris { background: var(--accent-gris); border-color: #fff; color: #fff; }
         
 .p-name { font-size: 0.85rem; font-weight: 900; text-transform: uppercase; }
 .p-score { font-size: 3rem; font-weight: 900; line-height: 0.70; margin: 5px 0; }
@@ -127,7 +127,7 @@
                 <div class="target-sub">&nbsp;</div>
                 <div class="p-stats">&nbsp;<br>OBJECTIF : 10pts</div>	
             </div>
-            <div class="p-column blue">
+            <div class="p-column gris">
                 <div class="p-name">JETS</div>
                 <div id="val-darts" class="p-score-flech">0</div>
                 <div class="target-sub">18 FLÉCHETTES MAX</div>
