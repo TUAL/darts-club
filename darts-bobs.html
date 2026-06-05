@@ -304,19 +304,27 @@
         try {
             btn.disabled = true; btn.innerText = "Mise à jour...";
             const pseudoUpper = pseudo.toUpperCase().trim();
-            const ref = db.ref(`users/${pseudoUpper}/games/bobs_27/top`);
-            
-            const snap = await ref.once('value');
-            let topScores = [];
-            if(snap.exists()) {
-                const val = snap.val();
-                topScores = Array.isArray(val) ? val : Object.values(val);
-            }
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('fr-FR');
+            const timeStr = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            const entry = { score: score, date: dateStr, time: timeStr, ts: now.getTime() };
 
-            topScores.push({ score: score, date: new Date().toLocaleDateString('fr-FR'), ts: Date.now() });
+            // --- Top 3 (meilleurs scores) ---
+            const refTop = db.ref(`users/${pseudoUpper}/games/bobs_27/top`);
+            const snapTop = await refTop.once('value');
+            let topScores = snapTop.exists() ? (Array.isArray(snapTop.val()) ? snapTop.val() : Object.values(snapTop.val())) : [];
+            topScores.push(entry);
             topScores.sort((a, b) => b.score - a.score);
-            
-            await ref.set(topScores.slice(0, 3));
+            await refTop.set(topScores.slice(0, 3));
+
+            // --- 3 dernières parties ---
+            const refRecent = db.ref(`users/${pseudoUpper}/games/bobs_27/recent`);
+            const snapRecent = await refRecent.once('value');
+            let recentGames = snapRecent.exists() ? (Array.isArray(snapRecent.val()) ? snapRecent.val() : Object.values(snapRecent.val())) : [];
+            recentGames.push(entry);
+            recentGames.sort((a, b) => b.ts - a.ts);
+            await refRecent.set(recentGames.slice(0, 3));
+
             btn.innerText = "✅ ENREGISTRÉ";
             displayTop3();
         } catch (e) {
@@ -335,9 +343,10 @@
                 html = "Aucun record.";
             } else {
                 scoreArray.forEach((s, i) => {
+                    const timeLabel = s.time ? ` ${s.time}` : '';
                     html += `<div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:${i===scoreArray.length-1?'none':'1px solid #222'};">
                         <span>${i+1}. <b style="color:var(--accent-green)">${s.score}</b> pts</span>
-                        <span style="color:#8b949e; font-size:0.7rem;">${s.date}</span>
+                        <span style="color:#8b949e; font-size:0.6rem;">${s.date}${timeLabel}</span>
                     </div>`;
                 });
             }

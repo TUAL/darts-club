@@ -520,16 +520,27 @@ p.addEventListener("click", () => {
         try {
             btn.disabled = true; btn.innerText = "ENREGISTREMENT...";
             const pseudoUpper = pseudo.toUpperCase().trim();
-            const ref = db.ref(`users/${pseudoUpper}/games/checkouts/top`);
-            const snap = await ref.once('value');
-            let topScores = [];
-            if(snap.exists()) {
-                const val = snap.val();
-                topScores = Array.isArray(val) ? val : Object.values(val);
-            }
-            topScores.push({ date: new Date().toLocaleDateString('fr-FR'), moyenne: moyenne501, score_ferme: initialScore, darts: totalDarts });
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('fr-FR');
+            const timeStr = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            const entry = { date: dateStr, time: timeStr, ts: now.getTime(), moyenne: moyenne501, score_ferme: initialScore, darts: totalDarts };
+
+            // --- Top 3 (meilleures moyennes) ---
+            const refTop = db.ref(`users/${pseudoUpper}/games/checkouts/top`);
+            const snapTop = await refTop.once('value');
+            let topScores = snapTop.exists() ? (Array.isArray(snapTop.val()) ? snapTop.val() : Object.values(snapTop.val())) : [];
+            topScores.push(entry);
             topScores.sort((a, b) => b.moyenne - a.moyenne);
-            await ref.set(topScores.slice(0, 3));
+            await refTop.set(topScores.slice(0, 3));
+
+            // --- 3 dernières parties ---
+            const refRecent = db.ref(`users/${pseudoUpper}/games/checkouts/recent`);
+            const snapRecent = await refRecent.once('value');
+            let recentGames = snapRecent.exists() ? (Array.isArray(snapRecent.val()) ? snapRecent.val() : Object.values(snapRecent.val())) : [];
+            recentGames.push(entry);
+            recentGames.sort((a, b) => b.ts - a.ts);
+            await refRecent.set(recentGames.slice(0, 3));
+
             btn.innerText = "✅ ARCHIVÉ";
             displayTop3();
         } catch (e) { 
@@ -546,8 +557,9 @@ p.addEventListener("click", () => {
             const scoreArray = Array.isArray(scores) ? scores : Object.values(scores);
             if(scoreArray.length === 0) html = "Aucun record.";
             scoreArray.forEach((s, i) => {
+                const timeLabel = s.time ? ` ${s.time}` : '';
                 html += `<div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:${i===scoreArray.length-1?'none':'1px solid #222'};">
-                    <span>${i+1}. <b style="color:var(--accent-green)">${s.moyenne}</b> <small>avg</small></span>
+                    <span>${i+1}. <b style="color:var(--accent-green)">${s.moyenne}</b> <small>avg</small> <span style="color:#555; font-size:0.6rem;">${s.date}${timeLabel}</span></span>
                     <span style="color:#8b949e;">${s.score_ferme} <small>(${s.darts} fl.)</small></span>
                 </div>`;
             });

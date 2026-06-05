@@ -105,13 +105,21 @@
                 <div class="stat-block"><span class="stat-title">🏆 PODIUM</span><div id="global-bobs">...</div></div>
                 <div class="stat-block"><span class="stat-title">👤 MES TOP 3</span><div id="user-bobs">...</div></div>
             </div>
+            <div class="stats-grid" style="margin-top: 12px;">
+                <div class="stat-block"><span class="stat-title">🕐 3 DERNIERS PODIUMS</span><div id="global-bobs-recent">...</div></div>
+                <div class="stat-block"><span class="stat-title">🕐 MES 3 DERNIÈRES</span><div id="user-bobs-recent">...</div></div>
+            </div>
         </section>
 
         <section class="mode-section" style="border-left: 4px solid var(--fun);">
-            <h2 style="color:var(--fun)">🔥 180 CHALLENGE</h2>
+            <h2 style="color:var(--fun)">&#x1F525; 180 CHALLENGE</h2>
             <div class="stats-grid">
-                <div class="stat-block"><span class="stat-title">🏆 PODIUM</span><div id="global-180">...</div></div>
-                <div class="stat-block"><span class="stat-title">👤 MES TOP 3</span><div id="user-180">...</div></div>
+                <div class="stat-block"><span class="stat-title">&#x1F3C6; PODIUM</span><div id="global-180">...</div></div>
+                <div class="stat-block"><span class="stat-title">&#x1F464; MES TOP 3</span><div id="user-180">...</div></div>
+            </div>
+            <div class="stats-grid" style="margin-top: 12px;">
+                <div class="stat-block"><span class="stat-title">&#x1F550; 3 DERNIERS PODIUMS</span><div id="global-180-recent">...</div></div>
+                <div class="stat-block"><span class="stat-title">&#x1F550; MES 3 DERNI&#xC8;RES</span><div id="user-180-recent">...</div></div>
             </div>
         </section>
 
@@ -121,6 +129,10 @@
                 <div class="stat-block"><span class="stat-title">🏆 PODIUM</span><div id="global-bull">...</div></div>
                 <div class="stat-block"><span class="stat-title">👤 MES TOP 3</span><div id="user-bull">...</div></div>
             </div>
+            <div class="stats-grid" style="margin-top: 12px;">
+                <div class="stat-block"><span class="stat-title">🕐 3 DERNIERS PODIUMS</span><div id="global-bull-recent">...</div></div>
+                <div class="stat-block"><span class="stat-title">🕐 MES 3 DERNIÈRES</span><div id="user-bull-recent">...</div></div>
+            </div>
         </section>
 
         <section class="mode-section" style="border-left: 4px solid var(--fun);">
@@ -128,6 +140,10 @@
             <div class="stats-grid">
                 <div class="stat-block"><span class="stat-title">🏆 PODIUM</span><div id="global-checkouts">...</div></div>
                 <div class="stat-block"><span class="stat-title">👤 MES TOP 3</span><div id="user-checkouts">...</div></div>
+            </div>
+            <div class="stats-grid" style="margin-top: 12px;">
+                <div class="stat-block"><span class="stat-title">🕐 3 DERNIERS PODIUMS</span><div id="global-checkouts-recent">...</div></div>
+                <div class="stat-block"><span class="stat-title">🕐 MES 3 DERNIÈRES</span><div id="user-checkouts-recent">...</div></div>
             </div>
         </section>
     </div>
@@ -281,7 +297,97 @@
                     renderList(`global-${m.id}`, gList.sort((a,b) => m.sort === 'asc' ? a.score-b.score : b.score-a.score).slice(0,3), m.unit, true);
                     renderList(`user-${m.id}`, myTops.sort((a,b) => m.sort === 'asc' ? a-b : b-a).slice(0,3), m.unit, false);
                 });
+
+                // --- 6. 180 CHALLENGE : 3 derniers podiums globaux & 3 dernieres parties perso ---
+                let allRecent180 = [];
+                Object.entries(data).forEach(([user, content]) => {
+                    const recent = content.games?.darts_180?.recent;
+                    if (recent) {
+                        Object.values(recent).forEach(e => {
+                            allRecent180.push({ name: user, score: e.score, date: e.date, time: e.time || '', ts: e.ts || 0 });
+                        });
+                    }
+                });
+                allRecent180.sort((a, b) => b.ts - a.ts);
+                renderRecentList('global-180-recent', allRecent180.slice(0, 3), true);
+
+                const myRecent180 = myGames.darts_180?.recent
+                    ? Object.values(myGames.darts_180.recent).sort((a, b) => b.ts - a.ts)
+                    : [];
+                renderRecentList('user-180-recent', myRecent180.slice(0, 3), false);
+
+                // --- 7. BOB'S 27 recent ---
+                let allRecentBobs = [];
+                Object.entries(data).forEach(([user, content]) => {
+                    const recent = content.games?.bobs_27?.recent;
+                    if (recent) {
+                        Object.values(recent).forEach(e => {
+                            allRecentBobs.push({ name: user, score: e.score, date: e.date, time: e.time || '', ts: e.ts || 0, unit: 'pts' });
+                        });
+                    }
+                });
+                allRecentBobs.sort((a, b) => b.ts - a.ts);
+                renderRecentList('global-bobs-recent', allRecentBobs.slice(0, 3), true);
+                const myRecentBobs = myGames.bobs_27?.recent
+                    ? Object.values(myGames.bobs_27.recent).sort((a, b) => b.ts - a.ts)
+                    : [];
+                renderRecentList('user-bobs-recent', myRecentBobs.slice(0, 3), false, 'pts');
+
+                // --- 8. BULL CHALLENGE recent ---
+                let allRecentBull = [];
+                Object.entries(data).forEach(([user, content]) => {
+                    const recent = content.games?.bull_challenge?.recent;
+                    if (recent) {
+                        Object.values(recent).forEach(e => {
+                            allRecentBull.push({ name: user, score: e.pts, sub: e.darts + ' fl.', date: e.date, time: e.time || '', ts: e.ts || 0 });
+                        });
+                    }
+                });
+                allRecentBull.sort((a, b) => b.ts - a.ts);
+                renderRecentList('global-bull-recent', allRecentBull.slice(0, 3), true);
+                const myRecentBull = myGames.bull_challenge?.recent
+                    ? Object.values(myGames.bull_challenge.recent).map(e => ({ score: e.pts, sub: e.darts + ' fl.', date: e.date, time: e.time || '', ts: e.ts || 0 })).sort((a, b) => b.ts - a.ts)
+                    : [];
+                renderRecentList('user-bull-recent', myRecentBull.slice(0, 3), false, 'pts');
+
+                // --- 9. CHECKOUTS recent ---
+                let allRecentCo = [];
+                Object.entries(data).forEach(([user, content]) => {
+                    const recent = content.games?.checkouts?.recent;
+                    if (recent) {
+                        Object.values(recent).forEach(e => {
+                            allRecentCo.push({ name: user, score: e.moyenne, sub: e.score_ferme + ' (' + e.darts + 'fl)', date: e.date, time: e.time || '', ts: e.ts || 0 });
+                        });
+                    }
+                });
+                allRecentCo.sort((a, b) => b.ts - a.ts);
+                renderRecentList('global-checkouts-recent', allRecentCo.slice(0, 3), true);
+                const myRecentCo = myGames.checkouts?.recent
+                    ? Object.values(myGames.checkouts.recent).map(e => ({ score: e.moyenne, sub: e.score_ferme + ' (' + e.darts + 'fl)', date: e.date, time: e.time || '', ts: e.ts || 0 })).sort((a, b) => b.ts - a.ts)
+                    : [];
+                renderRecentList('user-checkouts-recent', myRecentCo.slice(0, 3), false, 'avg');
             });
+        }
+
+        function renderRecentList(id, items, isGlobal, unit) {
+            const container = document.getElementById(id);
+            if (!container) return;
+            if (!items || items.length === 0) {
+                container.innerHTML = '<div style="color:#444; font-size:0.65rem;">Aucune partie</div>';
+                return;
+            }
+            const medals = ["🥇", "🥈", "🥉"];
+            const u = unit || 'fl.';
+            container.innerHTML = items.map((s, i) => {
+                const timeLabel = s.time ? ` ${s.time}` : '';
+                const dateLabel = s.date ? `<span style="color:#555; font-size:0.55rem; display:block;">${s.date}${timeLabel}</span>` : '';
+                const subLabel = s.sub ? `<small style="font-size:0.5rem; color:#666;"> ${s.sub}</small>` : '';
+                return `<div class="score-row" style="flex-direction:column; align-items:flex-start; padding: 5px 0; border-bottom: 1px solid #1a1a1a;">
+                    <span>${isGlobal ? `<span class="medal">${medals[i]}</span><span class="name">${s.name}</span>` : `<span class="rank-num">${i+1}.</span>`}
+                    <span class="val">${s.score} <small style="font-size:0.5rem; opacity:0.4">${u}</small></span>${subLabel}</span>
+                    ${dateLabel}
+                </div>`;
+            }).join('');
         }
 
         function renderList(id, scores, unit, isGlobal) {
