@@ -102,48 +102,32 @@
         <section class="mode-section" style="border-left: 4px solid var(--fun);">
             <h2 style="color:var(--fun)">🎡 BOB'S 27</h2>
             <div class="stats-grid">
-                <div class="stat-block"><span class="stat-title">🏆 PODIUM</span><div id="global-bobs">...</div></div>
                 <div class="stat-block"><span class="stat-title">👤 MES TOP 3</span><div id="user-bobs">...</div></div>
-            </div>
-            <div class="stats-grid" style="margin-top: 12px;">
-                <div class="stat-block"><span class="stat-title">🕐 3 DERNIERS PODIUMS</span><div id="global-bobs-recent">...</div></div>
-                <div class="stat-block"><span class="stat-title">🕐 MES 3 DERNIÈRES</span><div id="user-bobs-recent">...</div></div>
+                <div class="stat-block"><span class="stat-title">🕐 3 DERNIERS</span><div id="global-bobs-recent">...</div></div>
             </div>
         </section>
 
         <section class="mode-section" style="border-left: 4px solid var(--fun);">
             <h2 style="color:var(--fun)">&#x1F525; 180 CHALLENGE</h2>
             <div class="stats-grid">
-                <div class="stat-block"><span class="stat-title">&#x1F3C6; PODIUM</span><div id="global-180">...</div></div>
                 <div class="stat-block"><span class="stat-title">&#x1F464; MES TOP 3</span><div id="user-180">...</div></div>
-            </div>
-            <div class="stats-grid" style="margin-top: 12px;">
-                <div class="stat-block"><span class="stat-title">&#x1F550; 3 DERNIERS PODIUMS</span><div id="global-180-recent">...</div></div>
-                <div class="stat-block"><span class="stat-title">&#x1F550; MES 3 DERNI&#xC8;RES</span><div id="user-180-recent">...</div></div>
+                <div class="stat-block"><span class="stat-title">&#x1F550; 3 DERNIERS</span><div id="global-180-recent">...</div></div>
             </div>
         </section>
 
         <section class="mode-section" style="border-left: 4px solid var(--fun);">
             <h2 style="color:var(--fun)">🎯 BULL CHALLENGE</h2>
             <div class="stats-grid">
-                <div class="stat-block"><span class="stat-title">🏆 PODIUM</span><div id="global-bull">...</div></div>
                 <div class="stat-block"><span class="stat-title">👤 MES TOP 3</span><div id="user-bull">...</div></div>
-            </div>
-            <div class="stats-grid" style="margin-top: 12px;">
-                <div class="stat-block"><span class="stat-title">🕐 3 DERNIERS PODIUMS</span><div id="global-bull-recent">...</div></div>
-                <div class="stat-block"><span class="stat-title">🕐 MES 3 DERNIÈRES</span><div id="user-bull-recent">...</div></div>
+                <div class="stat-block"><span class="stat-title">🕐 3 DERNIERS</span><div id="global-bull-recent">...</div></div>
             </div>
         </section>
 
         <section class="mode-section" style="border-left: 4px solid var(--fun);">
             <h2 style="color:var(--fun)">🏁 CHECKOUTS</h2>
             <div class="stats-grid">
-                <div class="stat-block"><span class="stat-title">🏆 PODIUM</span><div id="global-checkouts">...</div></div>
                 <div class="stat-block"><span class="stat-title">👤 MES TOP 3</span><div id="user-checkouts">...</div></div>
-            </div>
-            <div class="stats-grid" style="margin-top: 12px;">
-                <div class="stat-block"><span class="stat-title">🕐 3 DERNIERS PODIUMS</span><div id="global-checkouts-recent">...</div></div>
-                <div class="stat-block"><span class="stat-title">🕐 MES 3 DERNIÈRES</span><div id="user-checkouts-recent">...</div></div>
+                <div class="stat-block"><span class="stat-title">🕐 3 DERNIERS</span><div id="global-checkouts-recent">...</div></div>
             </div>
         </section>
     </div>
@@ -314,7 +298,6 @@
                 const myRecent180 = myGames.darts_180?.recent
                     ? Object.values(myGames.darts_180.recent).sort((a, b) => b.ts - a.ts)
                     : [];
-                renderRecentList('user-180-recent', myRecent180.slice(0, 3), false);
 
                 // --- 7. BOB'S 27 recent ---
                 let allRecentBobs = [];
@@ -331,7 +314,6 @@
                 const myRecentBobs = myGames.bobs_27?.recent
                     ? Object.values(myGames.bobs_27.recent).sort((a, b) => b.ts - a.ts)
                     : [];
-                renderRecentList('user-bobs-recent', myRecentBobs.slice(0, 3), false, 'pts');
 
                 // --- 8. BULL CHALLENGE recent ---
                 let allRecentBull = [];
@@ -348,7 +330,6 @@
                 const myRecentBull = myGames.bull_challenge?.recent
                     ? Object.values(myGames.bull_challenge.recent).map(e => ({ score: e.pts, sub: e.darts + ' fl.', date: e.date, time: e.time || '', ts: e.ts || 0 })).sort((a, b) => b.ts - a.ts)
                     : [];
-                renderRecentList('user-bull-recent', myRecentBull.slice(0, 3), false, 'pts');
 
                 // --- 9. CHECKOUTS recent ---
                 let allRecentCo = [];
@@ -365,7 +346,6 @@
                 const myRecentCo = myGames.checkouts?.recent
                     ? Object.values(myGames.checkouts.recent).map(e => ({ score: e.moyenne, sub: e.score_ferme + ' (' + e.darts + 'fl)', date: e.date, time: e.time || '', ts: e.ts || 0 })).sort((a, b) => b.ts - a.ts)
                     : [];
-                renderRecentList('user-checkouts-recent', myRecentCo.slice(0, 3), false, 'avg');
             });
         }
 
