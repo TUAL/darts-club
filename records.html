@@ -372,7 +372,7 @@
             const u = unit || 'fl.';
             container.innerHTML = items.map((s, i) => {
                 const timeLabel = s.time ? ` ${s.time}` : '';
-                const dateLabel = s.date ? `<span style="color:#555; font-size:0.55rem; display:block;">${s.date}${timeLabel}</span>` : '';
+                const dateLabel = s.date ? `<span style="color:#555; font-size:0.55rem; display:block;">${s.date}</span>` : '';
                 const subLabel = s.sub ? `<small style="font-size:0.5rem; color:#666;"> ${s.sub}</small>` : '';
                 return `<div class="score-row" style="flex-direction:column; align-items:flex-start; padding: 5px 0; border-bottom: 1px solid #1a1a1a;">
                     <span>${isGlobal ? `<span class="medal">${medals[i]}</span><span class="name">${s.name}</span>` : `<span class="rank-num">${i+1}.</span>`}
