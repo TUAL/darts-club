@@ -54,7 +54,7 @@
         <section class="mode-section" style="border-left: 4px solid var(--live);">
             <h2 style="color:var(--live)">DARTS 501 : 📡 LIVE - 🏠 LOCAL</h2>
             <div class="stats-grid">
-                <div class="stat-block"><span class="stat-title">🏆 TOP </span><div id="global-carriere">...</div></div>
+                <div class="stat-block"><span class="stat-title">🕐 3 DERNIERS</span><div id="global-carriere-recent">...</div></div>
                 <div class="stat-block">
                     <span class="stat-title">👤 MES RECORDS</span>
                     <div id="stats-carriere"></div>
@@ -66,7 +66,7 @@
         <section class="mode-section" style="border-left: 4px solid var(--ia);">
             <h2 style="color:var(--ia)">DARTS 501 : 🤖 IA</h2>
             <div class="stats-grid">
-                <div class="stat-block"><span class="stat-title">🏆 TOP </span><div id="global-ia">...</div></div>
+                <div class="stat-block"><span class="stat-title">🕐 3 DERNIERS</span><div id="global-ia-recent">...</div></div>
                 <div class="stat-block">
                     <span class="stat-title">👤 MES RECORDS</span>
                     <div id="stats-ia-501"></div>
@@ -78,7 +78,7 @@
         <section class="mode-section" style="border-left: 4px solid var(--live);">
             <h2 style="color:var(--live)">DARTS CRICKET : 📡 LIVE - 🏠 LOCAL</h2>
             <div class="stats-grid">
-                <div class="stat-block"><span class="stat-title">🏆 TOP </span><div id="global-cricket">...</div></div>
+                <div class="stat-block"><span class="stat-title">🕐 3 DERNIERS</span><div id="global-cricket-recent">...</div></div>
                 <div class="stat-block">
                     <span class="stat-title">👤 MES RECORDS</span>
                     <div id="stats-cricket"></div>
@@ -90,7 +90,7 @@
         <section class="mode-section" style="border-left: 4px solid var(--ia);">
             <h2 style="color:var(--ia)">DARTS CRICKET : 🤖 IA</h2>
             <div class="stats-grid">
-                <div class="stat-block"><span class="stat-title">🏆 TOP </span><div id="global-ia-cricket">...</div></div>
+                <div class="stat-block"><span class="stat-title">🕐 3 DERNIERS</span><div id="global-ia-cricket-recent">...</div></div>
                 <div class="stat-block">
                     <span class="stat-title">👤 MES RECORDS</span>
                     <div id="stats-ia-cricket"></div>
@@ -188,6 +188,17 @@
                     sC501.style = "display: flex; justify-content: space-between; font-size: 0.65rem; font-weight: bold; color: var(--accent); margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px dashed #333;";
                     sC501.innerHTML = `<span>🏆 ${s501} victoires</span> <span>${p501} pts</span>`;
                 }
+                // 3 derniers meilleurs avg (1 par joueur) pour 501 live+local
+                const _all501R = [];
+                Object.entries(data).forEach(([user, content]) => {
+                    ['live_501','local_501'].forEach(p => {
+                        const rec = content.games?.[p]?.recent;
+                        if (rec) Object.values(rec).forEach(e => _all501R.push({ name: user, score: e.avg, sub: e.darts+'fl', date: e.date, time: e.time||'', ts: e.ts||0 }));
+                    });
+                });
+                const _best501R = {};
+                _all501R.forEach(e => { if (!_best501R[e.name] || e.score > _best501R[e.name].score) _best501R[e.name] = e; });
+                renderRecentList('global-carriere-recent', Object.values(_best501R).sort((a,b)=>b.score-a.score).slice(0,3), true, 'avg');
                 renderList('global-carriere', global501.sort((a,b)=>b.score-a.score).slice(0,3), 'avg', true);
                 renderList('user-carriere', my501Scores.sort((a,b)=>b-a).slice(0,3), 'avg', false);
 
@@ -211,6 +222,15 @@
                     sIA501Div.style = "display: flex; justify-content: space-between; font-size: 0.65rem; font-weight: bold; color: var(--ia); margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px dashed #333;";
                     sIA501Div.innerHTML = `<span>🏆 ${sIA501.wins} victoires</span> <span>${sIA501.points} pts</span>`;
                 }
+                // 3 derniers meilleurs avg (1 par joueur) pour 501 IA
+                const _allIA5R = [];
+                Object.entries(data).forEach(([user, content]) => {
+                    const rec = content.games?.ia_501?.recent;
+                    if (rec) Object.values(rec).forEach(e => _allIA5R.push({ name: user, score: e.avg, sub: e.darts+'fl', date: e.date, time: e.time||'', ts: e.ts||0 }));
+                });
+                const _bestIA5R = {};
+                _allIA5R.forEach(e => { if (!_bestIA5R[e.name] || e.score > _bestIA5R[e.name].score) _bestIA5R[e.name] = e; });
+                renderRecentList('global-ia-recent', Object.values(_bestIA5R).sort((a,b)=>b.score-a.score).slice(0,3), true, 'avg');
                 renderList('global-ia', globalIA.sort((a,b)=>b.score-a.score).slice(0,3), 'avg', true);
                 renderList('user-ia', myIAScores.sort((a,b)=>b-a).slice(0,3), 'avg', false);
 
@@ -237,6 +257,17 @@
                     sCCrick.style = "display: flex; justify-content: space-between; font-size: 0.65rem; font-weight: bold; color: var(--accent); margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px dashed #333;";
                     sCCrick.innerHTML = `<span>🏆 ${sC} victoires</span> <span>${pC} pts</span>`;
                 }
+                // 3 derniers meilleurs mpr (1 par joueur) pour cricket live+local
+                const _allCR = [];
+                Object.entries(data).forEach(([user, content]) => {
+                    ['live_cricket','local_cricket'].forEach(p => {
+                        const rec = content.games?.[p]?.recent;
+                        if (rec) Object.values(rec).forEach(e => _allCR.push({ name: user, score: e.mpr, sub: e.darts+'fl', date: e.date, time: e.time||'', ts: e.ts||0 }));
+                    });
+                });
+                const _bestCR = {};
+                _allCR.forEach(e => { if (!_bestCR[e.name] || e.score > _bestCR[e.name].score) _bestCR[e.name] = e; });
+                renderRecentList('global-cricket-recent', Object.values(_bestCR).sort((a,b)=>b.score-a.score).slice(0,3), true, 'mpr');
                 renderList('global-cricket', globalCrick.sort((a,b)=>b.score-a.score).slice(0,3), 'mpr', true);
                 renderList('user-cricket', myCrickScores.sort((a,b)=>b-a).slice(0,3), 'mpr', false);
 
@@ -260,6 +291,15 @@
                     sCIADiv.style = "display: flex; justify-content: space-between; font-size: 0.65rem; font-weight: bold; color: var(--ia); margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px dashed #333;";
                     sCIADiv.innerHTML = `<span>🏆 ${sCIA.wins} victoires</span> <span>${sCIA.points} pts</span>`;
                 }
+                // 3 derniers meilleurs mpr (1 par joueur) pour cricket ia
+                const _allCIAR = [];
+                Object.entries(data).forEach(([user, content]) => {
+                    const rec = content.games?.ia_cricket?.recent;
+                    if (rec) Object.values(rec).forEach(e => _allCIAR.push({ name: user, score: e.mpr, sub: e.darts+'fl', date: e.date, time: e.time||'', ts: e.ts||0 }));
+                });
+                const _bestCIAR = {};
+                _allCIAR.forEach(e => { if (!_bestCIAR[e.name] || e.score > _bestCIAR[e.name].score) _bestCIAR[e.name] = e; });
+                renderRecentList('global-ia-cricket-recent', Object.values(_bestCIAR).sort((a,b)=>b.score-a.score).slice(0,3), true, 'mpr');
                 renderList('global-ia-cricket', globalCrickIA.sort((a,b)=>b.score-a.score).slice(0,3), 'mpr', true);
                 renderList('user-ia-cricket', myCrickIAScores.sort((a,b)=>b-a).slice(0,3), 'mpr', false);
 

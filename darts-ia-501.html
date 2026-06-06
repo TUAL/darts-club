@@ -629,9 +629,16 @@ p.addEventListener("click", () => {
                 const val = snapshot.val();
                 scores = Array.isArray(val) ? val : Object.values(val);
             }
-            scores.push({ date: new Date().toLocaleDateString('fr-FR'), avg: finalAvg, darts: pDarts, lvl: iaLevel });
+            const _nowIA5 = new Date();
+            scores.push({ date: _nowIA5.toLocaleDateString('fr-FR'), time: _nowIA5.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}), ts: _nowIA5.getTime(), avg: finalAvg, darts: pDarts, lvl: iaLevel });
             scores.sort((a, b) => b.avg - a.avg);
             await gameRef.child('top').set(scores.slice(0, 3));
+            const _snapIA5R = await gameRef.child('recent').once('value');
+            let _recIA5 = _snapIA5R.val() || [];
+            if(!Array.isArray(_recIA5)) _recIA5 = Object.values(_recIA5);
+            _recIA5.push(scores[scores.length-1]);
+            _recIA5.sort((a,b)=>b.ts-a.ts);
+            await gameRef.child('recent').set(_recIA5.slice(0,3));
             await gameRef.child('stats/wins').transaction(c => (c || 0) + 1);
             let pts = finalAvg >= 85 ? 5 : finalAvg >= 70 ? 3 : finalAvg >= 55 ? 2 : 1;
             await gameRef.child('stats/points').transaction(c => (c || 0) + pts);

@@ -756,14 +756,23 @@ async function saveGameData() {
         const snap = await ref.child('top').once('value');
         let top = snap.val() || [];
         
+        const _nowLC = new Date();
         top.push({ 
             mpr: mpr, 
             darts: winner.totalDarts, 
-            date: new Date().toLocaleDateString('fr-FR') 
+            date: _nowLC.toLocaleDateString('fr-FR'),
+            time: _nowLC.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}),
+            ts: _nowLC.getTime()
         });
         
         top.sort((a, b) => b.mpr - a.mpr);
         await ref.child('top').set(top.slice(0, 5));
+        const _snapLCR = await ref.child('recent').once('value');
+        let _recLC = _snapLCR.val() || [];
+        if(!Array.isArray(_recLC)) _recLC = Object.values(_recLC);
+        _recLC.push(top[top.length-1]);
+        _recLC.sort((a,b)=>b.ts-a.ts);
+        await ref.child('recent').set(_recLC.slice(0,3));
 
         // --- ATTRIBUTION DES POINTS SELON LE NIVEAU ---
         if (players.length > 1) {

@@ -666,9 +666,16 @@ c.addEventListener("click", (e) => {
             const ref = db.ref(`users/${winner.name}/games/local_501`);
             const snap = await ref.child('top').once('value');
             let top = snap.val() || [];
-            top.push({ avg, darts: winner.totalDarts, date: new Date().toLocaleDateString('fr-FR') });
+            const _nowL5 = new Date();
+            top.push({ avg, darts: winner.totalDarts, date: _nowL5.toLocaleDateString('fr-FR'), time: _nowL5.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}), ts: _nowL5.getTime() });
             top.sort((a, b) => b.avg - a.avg);
             await ref.child('top').set(top.slice(0, 3));
+            const _snapL5R = await ref.child('recent').once('value');
+            let _recL5 = _snapL5R.val() || [];
+            if(!Array.isArray(_recL5)) _recL5 = Object.values(_recL5);
+            _recL5.push(top[top.length-1]);
+            _recL5.sort((a,b)=>b.ts-a.ts);
+            await ref.child('recent').set(_recL5.slice(0,3));
             if (players.length > 1) {
                 await ref.child('stats/wins').transaction(c => (c || 0) + 1);
                 let pts = avg >= 85 ? 5 : avg >= 70 ? 3 : avg >= 55 ? 2 : 1;

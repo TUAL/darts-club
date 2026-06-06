@@ -129,6 +129,7 @@
     </style>
 </head>
 <body>
+    <div class="top-bar">
         <div id="quitModal" class="modal-overlay">
             <div class="modal-content">
                 <div class="modal-header"><span>📡</span><span class="modal-title">QUITTER ?</span></div>
@@ -149,7 +150,6 @@
                 </div>
             </div>
         </div>
-    <div class="top-bar">
         <div class="back-icon" onclick="openModal()">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
         </div>
@@ -997,9 +997,16 @@
             const ref = db.ref("users/"+winner.name+"/games/live_cricket");
             const snap = await ref.child('top').once('value');
             let top = snap.val() || [];
-            top.push({ score: winner.score, darts: winner.totalDarts, date: new Date().toLocaleDateString('fr-FR') });
+            const _nowCL = new Date();
+            top.push({ score: winner.score, darts: winner.totalDarts, date: _nowCL.toLocaleDateString('fr-FR'), time: _nowCL.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}), ts: _nowCL.getTime() });
             top.sort((a, b) => b.score - a.score);
             await ref.child('top').set(top.slice(0, 5));
+            const _snapCLR = await ref.child('recent').once('value');
+            let _recCL = _snapCLR.val() || [];
+            if(!Array.isArray(_recCL)) _recCL = Object.values(_recCL);
+            _recCL.push(top[top.length-1]);
+            _recCL.sort((a,b)=>b.ts-a.ts);
+            await ref.child('recent').set(_recCL.slice(0,3));
             await ref.child('stats/wins').transaction(c => (c||0)+1);
             await ref.child('stats/points').transaction(c => (c||0)+3);
             btn.innerText = "✅ ARCHIVÉ"; btn.style.background = "#2ecc71";
@@ -1036,7 +1043,11 @@
         if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
         if (peer) peer.destroy();
         if (roomName) await db.ref("rooms_cricket/"+roomName).remove();
-        window.location.href = 'menu.html';
+        window.close();
+        setTimeout(() => {
+            window.history.go(-(window.history.length));
+            setTimeout(() => { window.location.href = "about:blank"; }, 100);
+        }, 100);
     }
 
     // Heartbeat hôte : signal de vie toutes les 30s

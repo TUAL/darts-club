@@ -677,9 +677,16 @@
             const ref = db.ref(`users/${currentPseudo}/games/ia_cricket`);
             const snap = await ref.child('top').once('value');
             let top = snap.val() || [];
-            top.push({ mpr, date: new Date().toLocaleDateString('fr-FR'), lvl: iaLevel });
+            const _nowIAC = new Date();
+            top.push({ mpr, date: _nowIAC.toLocaleDateString('fr-FR'), time: _nowIAC.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}), ts: _nowIAC.getTime(), lvl: iaLevel });
             top.sort((a, b) => b.mpr - a.mpr);
             await ref.child('top').set(top.slice(0, 5));
+            const _snapIACR = await ref.child('recent').once('value');
+            let _recIAC = _snapIACR.val() || [];
+            if(!Array.isArray(_recIAC)) _recIAC = Object.values(_recIAC);
+            _recIAC.push(top[top.length-1]);
+            _recIAC.sort((a,b)=>b.ts-a.ts);
+            await ref.child('recent').set(_recIAC.slice(0,3));
             await ref.child('stats/wins').transaction(c => (c || 0) + 1);
             let pts = mpr >= 3.5 ? 5 : mpr >= 2.8 ? 3 : mpr >= 2.0 ? 2 : 1;
             await ref.child('stats/points').transaction(c => (c || 0) + pts);
