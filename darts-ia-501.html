@@ -68,7 +68,7 @@
 
         /* --- CLAVIER --- */
         .keyboard { 
-            height: 55dvh; background: #1a1a1a; display: flex; flex-direction: column; padding: 2px;
+            height: 55dvh; background: #1a1a1a; display: none; flex-direction: column; padding: 2px;
             border-top: 4px solid var(--mode-color); transition: border-color 0.2s;
         }
         .mod-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: #333; }
@@ -85,7 +85,7 @@
 
         /* --- MODE CIBLE SVG --- */
         #target-frame {
-            display: none;
+            display: flex;
             height: 55dvh;
             background: #000;
             position: relative;
@@ -242,8 +242,8 @@
         
         <div class="input-info">
             <div id="mode-toggle-zone">
-                <button class="btn-mode" id="btn-to-target" onclick="toggleInput('target')">🎯</button>
-                <button class="btn-mode" id="btn-to-kb" onclick="toggleInput('kb')" style="display:none;">⌨️</button>
+                <button class="btn-mode" id="btn-to-kb" onclick="toggleInput('kb')">⌨️</button>
+                <button class="btn-mode" id="btn-to-target" onclick="toggleInput('target')" style="display:none;">🎯</button>
             </div>
             <div class="dart-val" id="v0">--<small>-</small></div>
             <div class="dart-val" id="v1">--<small>-</small></div>
