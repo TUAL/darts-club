@@ -508,8 +508,14 @@
         myName = document.getElementById('pName').value.trim().toUpperCase();
         if (!myName) return alert("ENTRE TON PSEUDO");
         localStorage.setItem('darts_pseudo', myName);
-        if (playerMode === 1) { showMode1Popup(name, count); return; }
-        _doJoinStand(name, count);
+
+        db.ref("rooms_cricket/" + name + "/status").get().then(snap => {
+            if (snap.exists() && snap.val() === "playing") {
+                return alert("PARTIE DÉJÀ EN COURS — IMPOSSIBLE DE REJOINDRE");
+            }
+            if (playerMode === 1) { showMode1Popup(name, count); return; }
+            _doJoinStand(name, count);
+        });
     }
 
     function showMode1Popup(name, count) {
