@@ -1050,12 +1050,11 @@
         if (currentCall && currentCall.open) currentCall.close();
         if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
         if (peer) peer.destroy();
-        if (roomName) await db.ref("rooms_cricket/"+roomName).remove();
-        window.close();
-        setTimeout(() => {
-            window.history.go(-(window.history.length));
-            setTimeout(() => { window.location.href = "about:blank"; }, 100);
-        }, 100);
+        if (roomName && myId) {
+            await db.ref("rooms_cricket/"+roomName+"/presence/"+myId).remove();
+            await db.ref("rooms_cricket/"+roomName+"/players/"+myId).remove();
+        }
+        window.location.href = 'menu.html';
     }
 
     // Heartbeat hôte : signal de vie toutes les 30s
