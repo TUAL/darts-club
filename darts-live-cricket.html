@@ -509,8 +509,8 @@
         if (!myName) return alert("ENTRE TON PSEUDO");
         localStorage.setItem('darts_pseudo', myName);
 
-        db.ref("rooms_cricket/" + name + "/status").get().then(snap => {
-            if (snap.exists() && snap.val() === "playing") {
+        db.ref("rooms_cricket/" + name + "/locked").get().then(snap => {
+            if (snap.exists() && snap.val() === true) {
                 return alert("PARTIE DÉJÀ EN COURS — IMPOSSIBLE DE REJOINDRE");
             }
             if (playerMode === 1) { showMode1Popup(name, count); return; }
@@ -834,7 +834,7 @@
             if (isWinner()) {
                 db.ref("rooms_cricket/"+roomName).update({ status:"finished" });
             } else {
-                db.ref("rooms_cricket/"+roomName).update({ currentPlayer:(gameState.currentPlayer+1)%gameState.players.length, lastPlayerId:myId });
+                db.ref("rooms_cricket/"+roomName).update({ currentPlayer:(gameState.currentPlayer+1)%gameState.players.length, lastPlayerId:myId, locked: true });
             }
         });
     }
