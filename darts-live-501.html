@@ -475,6 +475,7 @@
             kb.style.display = 'flex'; target.style.display = 'none';
             document.getElementById('btn-to-target').style.display = 'block';
             document.getElementById('btn-to-kb').style.display = 'none';
+            setMod(1);
         } else {
             kb.style.display = 'none'; target.style.display = 'flex';
             document.getElementById('btn-to-target').style.display = 'none';
@@ -866,7 +867,7 @@
             let label = (val === 50) ? "BULL" : (val === 25) ? "B25" : (val === 0) ? "Out" : (m === 3 ? "T" : m === 2 ? "D" : "S") + val;
             visualDarts.push(label); dartsInTurn.push(pts);
         }
-        //setMod(1);// 
+        setMod(1);
         syncUI();
     }
 
